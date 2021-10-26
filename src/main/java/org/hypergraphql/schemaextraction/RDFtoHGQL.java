@@ -235,6 +235,7 @@ public class RDFtoHGQL {
                     Type typeObj = this.types.get(graphqlNameSanitation(this.prefixService.getId(fieldAffiliation.asResource()))); // vor die for schleife legen ???
                     if(typeObj == null){
                         System.out.print("NULL");
+                        continue;
                     }
                     Field fieldObj = null;
                     if(!this.fields.containsKey(id)) {
@@ -254,7 +255,8 @@ public class RDFtoHGQL {
                         }
                     }
                     if(typeObj.getBase_interface_id() == null){
-                        System.out.print("NULL");  //Todo: Properly handle this case
+                        System.out.print("NULL");//Todo: Properly handle this case
+                        continue;
                     }
                     this.interfaces.get(typeObj.getBase_interface_id()).addField(fieldObj);
 
@@ -281,7 +283,7 @@ public class RDFtoHGQL {
                 }
             }
         }else{
-            // ToDo: Handle this case
+            // ToDo: Handle this case`
         }
     }
 

@@ -1,0 +1,22 @@
+{
+  "name": "test",
+  "schema": "schema.graphql",
+  "extraction": true,
+  "server": {
+    "port": 8080,
+    "graphql": "/graphql",
+    "graphiql": "/graphiql"
+  },
+
+  "services": [
+    {
+      "id": "Matfyz",
+      "type": "SPARQLEndpointService",
+      "url": "http://matfyz.sk:8890/sparql",
+      "graph": "http://www.courses.matfyz.sk/data"
+
+    }
+  ]
+}
+
+
