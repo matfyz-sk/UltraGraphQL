@@ -170,7 +170,7 @@ public class QueryTemplatingEngine {
         res.setIri("service", service);
         if(graph != null && !graph.equals("")){
             String currQ = res.toString();
-            res = new ParameterizedSparqlString(currQ.replaceAll("(\\?"+"graph"+")+\\b","Graph <" + graph + ">"));
+            res = new ParameterizedSparqlString(currQ.replaceAll("(\\?"+"graph"+")+\\b","GRAPH <" + graph + ">"));
             currQ = res.toString();
             res = new ParameterizedSparqlString(currQ.replaceAll("(\\?"+"from"+")+\\b","FROM NAMED <" + graph + ">"));
         }else{

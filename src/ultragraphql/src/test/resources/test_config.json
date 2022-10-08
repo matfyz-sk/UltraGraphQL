@@ -3,6 +3,7 @@
     "extraction": true,
     "mutations": true,
     "mutationService": "matfyz-sparql",
+    "schema": "schema.txt",
     "server": {
         "port": 8080,
         "graphql": "/graphql",
@@ -12,10 +13,10 @@
         {
             "id": "matfyz-sparql",
             "type": "SPARQLEndpointService",
-            "url": "http://matfyz.sk:8890/sparql/",
-            "graph": "testingGraphName",
+            "url": "http://127.0.0.1:8890/sparql/",
+            "graph": "http://www.courses.matfyz.sk/",
             "user": "SPARQL",
-            "password": ""
+            "password": "123456"
         }
     ],
     "prefixes":{
