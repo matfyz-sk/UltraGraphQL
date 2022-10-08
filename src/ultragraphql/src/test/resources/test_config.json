@@ -1,0 +1,30 @@
+{
+    "name": "matfyz-graphql",
+    "extraction": true,
+    "mutations": true,
+    "mutationService": "matfyz-sparql",
+    "server": {
+        "port": 8080,
+        "graphql": "/graphql",
+        "graphiql": "/graphiql"
+    },
+    "services": [
+        {
+            "id": "matfyz-sparql",
+            "type": "SPARQLEndpointService",
+            "url": "http://matfyz.sk:8890/sparql/",
+            "graph": "testingGraphName",
+            "user": "SPARQL",
+            "password": ""
+        }
+    ],
+    "prefixes":{
+        "courses-data": "http://www.courses.matfyz.sk/data",
+        "courses": "http://www.courses.matfyz.sk/ontology#",
+        "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+        "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+        "schema": "http://schema.org/",
+        "owl": "http://www.w3.org/2002/07/owl#",
+        "xsd": "http://www.w3.org/2001/XMLSchema#"
+    }
+}
