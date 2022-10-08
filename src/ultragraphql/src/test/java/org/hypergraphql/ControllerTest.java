@@ -63,11 +63,10 @@ class ControllerTest {
         final Model model = ModelFactory.createDefaultModel();
         model.read(envelope.streamBody(), "", "text/turtle");
         assertTrue(model.size() > 0);
-        //assertEquals(167, model.size());
+        assertEquals(652, model.size());
     }
 
     @Test
-    @Disabled
     void should_get_for_graphiql() throws Exception {
 
         Thread.sleep(1000);
