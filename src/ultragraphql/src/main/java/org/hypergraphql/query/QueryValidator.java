@@ -35,6 +35,7 @@ public class QueryValidator {
     /**
      * Validates the given query against the GraphQL schema of this class. Any given GraphQL request is validated
      * (queries, mutations, subscriptions) as the validator of the graphql library is used.
+     *
      * @param query request in graphql syntax
      * @return ValidatedQuery object containing validated query document and validity status
      */

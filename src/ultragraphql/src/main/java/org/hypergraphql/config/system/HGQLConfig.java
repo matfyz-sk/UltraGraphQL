@@ -21,8 +21,8 @@ public class HGQLConfig {
     private GraphqlConfig graphqlConfig;
     private List<ServiceConfig> serviceConfigs;
     private Boolean extraction;
-    private  String mappingFile;
-    private  String queryFile;
+    private String mappingFile;
+    private String queryFile;
     private Boolean mutations;
     private String mutationService;
     private Map<String, String> prefixes;
@@ -34,12 +34,13 @@ public class HGQLConfig {
     /**
      * Sets up a HGQLConfig providing enough information to start the HGQL endpoint.
      * This constructor is meant to be used to directly parse the configuration file.
-     * @param name Name of the HGQL endpoint
-     * @param schemaFile schema file
+     *
+     * @param name          Name of the HGQL endpoint
+     * @param schemaFile    schema file
      * @param graphqlConfig Information about the endpoint server - GraphqlConfig
-     * @param services List of services this HGQL endpoint should use
-     * @param extraction True if the schema MUST be extracted from the services otherwise False
-     * @param mappingFile mapping file
+     * @param services      List of services this HGQL endpoint should use
+     * @param extraction    True if the schema MUST be extracted from the services otherwise False
+     * @param mappingFile   mapping file
      */
     @JsonCreator
     private HGQLConfig(
@@ -58,7 +59,7 @@ public class HGQLConfig {
         this.schemaFile = schemaFile;
         this.graphqlConfig = graphqlConfig;
         this.serviceConfigs = services;
-        this.extraction = extraction != null? extraction : false;
+        this.extraction = extraction != null ? extraction : false;
         this.mappingFile = mappingFile;
         this.queryFile = queryFile;
         this.mutations = mutations;
@@ -68,6 +69,7 @@ public class HGQLConfig {
 
     /**
      * Getter method for attribute name. Returns the name of the HGQL endpoint.
+     *
      * @return Returns the attribute name
      */
     public String getName() {
@@ -76,6 +78,7 @@ public class HGQLConfig {
 
     /**
      * Setter method to set the attribute name. The name attribute defines the name of the HGQL endpoint.
+     *
      * @param name
      */
     public void setName(String name) {
@@ -84,6 +87,7 @@ public class HGQLConfig {
 
     /**
      * Getter method for the attribute schema.
+     *
      * @return GraphQLSchema of this HGQL endpoint
      */
     public GraphQLSchema getSchema() {
@@ -92,13 +96,16 @@ public class HGQLConfig {
 
     /**
      * Setter method to set the schema attribute.
+     *
      * @param schema GraphQLSchema
      */
     public void setSchema(GraphQLSchema schema) {
         this.schema = schema;
     }
+
     /**
      * Setter method to set the schema attribute.
+     *
      * @param schema GraphQLSchema
      */
     @JsonIgnore
@@ -108,6 +115,7 @@ public class HGQLConfig {
 
     /**
      * Getter method for the hgqlSchema attribute
+     *
      * @return HGQLSchema of this HGQL endpoint
      */
     public HGQLSchema getHgqlSchema() {
@@ -116,6 +124,7 @@ public class HGQLConfig {
 
     /**
      * Setter method to set the hgqlSchema attribute.
+     *
      * @param schema HGQLSchema
      */
     @JsonIgnore
@@ -125,6 +134,7 @@ public class HGQLConfig {
 
     /**
      * Getter method for the graphqlConfig attribute.
+     *
      * @return GraphqlConfig
      */
     public GraphqlConfig getGraphqlConfig() {
@@ -133,6 +143,7 @@ public class HGQLConfig {
 
     /**
      * Getter method for the schemaFile attribute.
+     *
      * @return Path to the file containing the schema
      */
     @JsonIgnore
@@ -142,6 +153,7 @@ public class HGQLConfig {
 
     /**
      * Getter method for the serviceConfig attribute.
+     *
      * @return List containing information about the services of this HGQL endpoint.
      */
     @JsonIgnore
@@ -151,51 +163,57 @@ public class HGQLConfig {
 
     /**
      * Getter method for the attribute extraction.
+     *
      * @return TRUE if the schema MUST be extracted, FALSE if the schema is provided in the schema file.
      */
-    public Boolean getExtraction(){
+    public Boolean getExtraction() {
         return extraction;
     }
 
     /**
      * Getter method for the attribute mappingFile.
+     *
      * @return Path to the file that contains the mapping information.
      */
-    public String getMappingFile(){
+    public String getMappingFile() {
         return mappingFile;
     }
 
     /**
      * Getter method for the attribute queryFile.
+     *
      * @return Path to the file that contains the schema extraction query.
      */
-    public String getQueryFile(){
+    public String getQueryFile() {
         return queryFile;
     }
 
     /**
      * Getter method for the attribute mutations. If true it is expected to generate the mutation fields.
+     *
      * @return TRUE if mutation fields SHOULD be included in the schema, FALSE if mutations are permitted for this service.
      */
-    public Boolean getMutations(){
+    public Boolean getMutations() {
         return mutations;
     }
 
     /**
      * Getter method for the attribute mutationService. Represents the service id of the service on which all mutation
      * actions are executed.
+     *
      * @return service id of the of the mutation service
      */
-    public String getMutationService(){
+    public String getMutationService() {
         return mutationService;
     }
 
     /**
      * Getter method for the attribute prefixes. The defined prefixes are used fot the name generation of schema entities
      * during the bootstrapping phase.
+     *
      * @return Prefixes to be used for the name generation. The namespace abbreviation is used as key and the namespace is the value
      */
-    public Map<String, String> getPrefixes(){
+    public Map<String, String> getPrefixes() {
         return this.prefixes;
     }
 }

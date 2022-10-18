@@ -21,7 +21,7 @@ public class Field {
     private Field baseObject = null;
     private Set<Directive> directives = new HashSet<>();
 
-    public Field(Resource uri, PrefixService prefixService){
+    public Field(Resource uri, PrefixService prefixService) {
         this.uri = uri;
         this.prefixService = prefixService;
         this.id = this.generateName();
@@ -31,9 +31,10 @@ public class Field {
     /**
      * This Constructor is used to clone a Field object. This is needed provide the same Field object to different types
      * by allowing to add type specific changes to an field such as type depending directives.
+     *
      * @param clone
      */
-    public Field(Field clone){
+    public Field(Field clone) {
         this.isClone = true;
         this.baseObject = clone;
         this.uri = clone.uri;
@@ -43,117 +44,121 @@ public class Field {
         this.isList = clone.isList;
         this.isNonNull = clone.isNonNull;
         this.directives = clone.directives.stream()
-            .map(Directive::new)
-            .collect(Collectors.toSet());
+                .map(Directive::new)
+                .collect(Collectors.toSet());
     }
 
-    public void addDirective(Directive directive){
+    public void addDirective(Directive directive) {
         this.directives.add(directive);
     }
 
-    public void addDirective(String name, String parameter, Set<String> values){
+    public void addDirective(String name, String parameter, Set<String> values) {
         // Check if the directive is already added if so only add the parameter
         Optional<Directive> directive = this.directives.stream()
                 .filter(dir -> dir.getName().equals(name))
                 .findFirst();
-        if(directive.isPresent()){
+        if (directive.isPresent()) {
             directive.get().addParameter(parameter, values);
-        }else{
+        } else {
             Directive dir = new Directive(name);
             dir.addParameter(parameter, values);
             this.directives.add(dir);
         }
     }
-    public void addDirective(String name, String parameter, String value){
+
+    public void addDirective(String name, String parameter, String value) {
         // Check if the directive is already added if so only add the parameter
         Optional<Directive> directive = this.directives.stream()
                 .filter(dir -> dir.getName().equals(name))
                 .findFirst();
-        if(directive.isPresent()){
+        if (directive.isPresent()) {
             directive.get().addParameter(parameter, value);
-        }else{
+        } else {
             Directive dir = new Directive(name);
             dir.addParameter(parameter, value);
             this.directives.add(dir);
         }
     }
 
-    public void addSchemaDirective(String parameter, String value){
+    public void addSchemaDirective(String parameter, String value) {
         Optional<Directive> direc = this.directives.stream()
                 .filter(directive -> directive.getName().equals(HGQLVocabulary.HGQL_DIRECTIVE_SCHEMA))
                 .findFirst();
-        if(direc.isPresent()){
+        if (direc.isPresent()) {
             //Add parameter
             direc.get().addParameter(parameter, value);
-        }else{
+        } else {
             addDirective(HGQLVocabulary.HGQL_DIRECTIVE_SCHEMA, parameter, value);
         }
     }
 
     /**
      * Add the given service id to the service directive. If the service directive is not set add one.
+     *
      * @param serviceId id of the service
      */
-    public void addServiceDirective(String serviceId){
+    public void addServiceDirective(String serviceId) {
         Optional<Directive> direc = this.directives.stream()
                 .filter(directive -> directive.getName().equals(HGQLVocabulary.HGQL_DIRECTIVE_SERVICE))
                 .findFirst();
-        if(direc.isPresent()){
+        if (direc.isPresent()) {
             //Add parameter
             direc.get().addParameter(HGQLVocabulary.HGQL_DIRECTIVE_SERVICE_PARAMETER_ID, serviceId);
-        }else{
+        } else {
             addDirective(HGQLVocabulary.HGQL_DIRECTIVE_SERVICE, HGQLVocabulary.HGQL_DIRECTIVE_SERVICE_PARAMETER_ID, serviceId);
         }
     }
 
     /**
      * Add the given service ids to the service directive. If the service directive is not set add one.
+     *
      * @param serviceIds ids of the services
      */
-    public void addServiceDirective(Set<String> serviceIds){
+    public void addServiceDirective(Set<String> serviceIds) {
         Optional<Directive> direc = this.directives.stream()
                 .filter(directive -> directive.getName().equals(HGQLVocabulary.HGQL_DIRECTIVE_SERVICE))
                 .findFirst();
-        if(direc.isPresent()){
+        if (direc.isPresent()) {
             //Add parameter
             direc.get().addParameter(HGQLVocabulary.HGQL_DIRECTIVE_SERVICE_PARAMETER_ID, serviceIds);
-        }else{
+        } else {
             addDirective(HGQLVocabulary.HGQL_DIRECTIVE_SERVICE, HGQLVocabulary.HGQL_DIRECTIVE_SERVICE_PARAMETER_ID, serviceIds);
         }
     }
 
     /**
      * Returns a list off all current survices of the field
+     *
      * @return Set of service IDs
      */
-    public Set<String> getServices(){
+    public Set<String> getServices() {
         Set<String> result = new HashSet<>();
         Optional<Directive> direc = this.directives.stream()
                 .filter(directive -> directive.getName().equals(HGQLVocabulary.HGQL_DIRECTIVE_SERVICE))
                 .findFirst();
-        if(direc.isPresent()){
+        if (direc.isPresent()) {
             final Directive.Parameter parameter = direc.get().getParameter().get(HGQLVocabulary.HGQL_DIRECTIVE_SERVICE_PARAMETER_ID);
-            if(parameter instanceof  Directive.DirectiveParameter){
+            if (parameter instanceof Directive.DirectiveParameter) {
                 result.add(((Directive.DirectiveParameter) parameter).getValue());
-            }else if(parameter instanceof  Directive.DirectiveParameterList){
+            } else if (parameter instanceof Directive.DirectiveParameterList) {
                 result.addAll(((Directive.DirectiveParameterList) parameter).getValues());
             }
         }
         return result;
     }
 
-    public Set<Directive> getDirectives(){
+    public Set<Directive> getDirectives() {
         return this.directives;
     }
 
-    public void mergeDirectives(Set<Directive> mergeDirectives){
+    public void mergeDirectives(Set<Directive> mergeDirectives) {
         //ToDo: Clone directives in the merging process  (really needed?)
-        mergeDirectives.forEach(mergeDir->{
+        mergeDirectives.forEach(mergeDir -> {
             mergeDir.getParameter().values().forEach(parameter -> {
-                if(parameter instanceof Directive.DirectiveParameter){
-                    addDirective(mergeDir.getName(),parameter.getName(), ((Directive.DirectiveParameter) parameter).getValue());
-                }else if(parameter instanceof Directive.DirectiveParameterList){
-                    addDirective(mergeDir.getName(), parameter.getName(),((Directive.DirectiveParameterList) parameter).getValues());
+                if (parameter instanceof Directive.DirectiveParameter) {
+                    addDirective(mergeDir.getName(), parameter.getName(), ((Directive.DirectiveParameter) parameter).getValue());
+                } else if (parameter instanceof Directive.DirectiveParameterList) {
+                    addDirective(mergeDir.getName(), parameter.getName(), ((Directive.DirectiveParameterList) parameter).getValues());
                 }
             });
         });
@@ -167,15 +172,15 @@ public class Field {
         return id;
     }
 
-    public void addOutputType(Type type){
+    public void addOutputType(Type type) {
         this.outputType.addType(type);
     }
 
-    public Union getOutputType(){
+    public Union getOutputType() {
         return this.outputType;
     }
 
-    public String getOutputtypeName(){
+    public String getOutputtypeName() {
         return this.outputType.getOutputTypeName();
     }
 
@@ -189,10 +194,11 @@ public class Field {
 
     /**
      * Generates the SDL representation of this field including outputtype and directives.
+     *
      * @return Returns this field as SDL
      */
     public String build() {
-        if(!isValid()){
+        if (!isValid()) {
             // No output type is defined for this field -> Do not include the field in the object
             return "";
         }
@@ -204,27 +210,27 @@ public class Field {
      * Fetch missing directives from the base field.
      */
     private void fetchDirectives() {
-        if(isClone){
+        if (isClone) {
             mergeDirectives(baseObject.directives);
         }
     }
 
-    private String buildOutputType(){
-        if(getOutputtypeName().equals("")){
+    private String buildOutputType() {
+        if (getOutputtypeName().equals("")) {
             return "[String]";
-        }else{
+        } else {
             String res = getOutputtypeName();
-            if(isList){
-                res = String.format("[%s]",res);
+            if (isList) {
+                res = String.format("[%s]", res);
             }
-            if(isNonNull){
+            if (isNonNull) {
                 res += "!";
             }
             return res;
         }
     }
 
-    private String buildDirectives(){
+    private String buildDirectives() {
         return this.directives.stream()
                 .map(Directive::build)
                 .collect(Collectors.joining(" "));
@@ -232,9 +238,10 @@ public class Field {
 
     /**
      * Generate a name for the field using the name of the resource and the prefix.
+     *
      * @return Returns the name of the uri enriched with the prefix.
      */
-    private String generateName(){
+    private String generateName() {
         String prefix = this.prefixService.getPrefix(this.uri);
         String name = this.uri.getLocalName();
         return RDFtoHGQL.graphqlNameSanitation(String.format("%s_%s", prefix, name));
@@ -242,6 +249,7 @@ public class Field {
 
     /**
      * A field is valid if it has a defined output type
+     *
      * @return returns true if the field has a defined output type
      */
     public boolean isValid() {

@@ -17,9 +17,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static graphql.Scalars.GraphQLID;
-import static graphql.Scalars.GraphQLInt;
-import static graphql.Scalars.GraphQLString;
+import static graphql.Scalars.*;
 import static graphql.schema.GraphQLFieldDefinition.newFieldDefinition;
 import static graphql.schema.GraphQLInputObjectField.newInputObjectField;
 import static graphql.schema.GraphQLInputObjectType.newInputObject;
@@ -81,8 +79,9 @@ public class HGQLSchemaWiring {
      * support for the schema. The GraphQLSchema is wired with the HGQLSchema.
      * All of the GraphQL types and fields do NOT provide a data fetcher as the query resolving is handled by UGQL and
      * not by the graphql-java framework.
-     * @param registry Registry containing the schema information (types, fields, queries)
-     * @param schemaName Name of the Schema
+     *
+     * @param registry       Registry containing the schema information (types, fields, queries)
+     * @param schemaName     Name of the Schema
      * @param serviceConfigs All services that this HGQL Schema supports.
      * @throws HGQLConfigurationException
      */
@@ -95,10 +94,11 @@ public class HGQLSchemaWiring {
      * support for the schema. The GraphQLSchema is wired with the HGQLSchema.
      * All of the GraphQL types and fields do NOT provide a data fetcher as the query resolving is handled by UGQL and
      * not by the graphql-java framework.
-     * @param registry Registry containing the schema information (types, fields, queries)
-     * @param schemaName Name of the Schema
+     *
+     * @param registry       Registry containing the schema information (types, fields, queries)
+     * @param schemaName     Name of the Schema
      * @param serviceConfigs All services that this HGQL Schema supports.
-     * @param mutations True if mutations should be added to the schema otherwise false
+     * @param mutations      True if mutations should be added to the schema otherwise false
      * @throws HGQLConfigurationException
      */
     public HGQLSchemaWiring(TypeDefinitionRegistry registry, String schemaName, List<ServiceConfig> serviceConfigs, Boolean mutations) throws HGQLConfigurationException {
@@ -114,6 +114,7 @@ public class HGQLSchemaWiring {
 
     /**
      * Converts the list of ServiceConfig into Service objects that are mapped with an unique id (defined in ServiceConfig)
+     *
      * @param serviceConfigs List of ServiceConfigs to be converted in actual Service objects.
      * @return Mapping of unique id to the corresponding Service
      * @throws HGQLConfigurationException
@@ -135,9 +136,9 @@ public class HGQLSchemaWiring {
 
                 services.put(serviceConfig.getId(), service);
             } catch (IllegalAccessException
-                    | InstantiationException
-                    | ClassNotFoundException
-                    | InvocationTargetException e) {
+                     | InstantiationException
+                     | ClassNotFoundException
+                     | InvocationTargetException e) {
                 LOGGER.error("Problem adding service {}", serviceConfig.getId(), e);
                 throw new HGQLConfigurationException("Error wiring up services", e);
             }
@@ -151,6 +152,7 @@ public class HGQLSchemaWiring {
      * non Query types of the Schema.
      * All of the GraphQL types and fields do NOT provide a data fetcher as the query resolving is handled by UGQL and
      * not by the graphql-java framework.
+     *
      * @return GraphQLSchema based on the hgqlSchema.
      */
     private GraphQLSchema generateSchema(Boolean addMutations) {
@@ -161,11 +163,11 @@ public class HGQLSchemaWiring {
                 .filter(typeName -> !typeName.equals("Query"))
                 .map(typeName -> {
                     TypeConfig type = this.hgqlSchema.getTypes().get(typeName);
-                    if(type.isUnion()){
+                    if (type.isUnion()) {
                         return registerGraphQLUnionType(type);
-                    }else if(type.isInterface()){
-                        return  registerGraphQLInterfaceType(type);
-                    }else{
+                    } else if (type.isInterface()) {
+                        return registerGraphQLInterfaceType(type);
+                    } else {
                         return registerGraphQLObjectType(type);
                     }
                 })   // implicit conversion to GraphQlType for GraphQlSchema
@@ -174,7 +176,7 @@ public class HGQLSchemaWiring {
         // only if mutations are activated in the configuration
         Set<GraphQLType> builtInputTypes = new HashSet<>();
         GraphQLObjectType builtMutationType = null;
-        if(BooleanUtils.isTrue(addMutations)){
+        if (BooleanUtils.isTrue(addMutations)) {
             builtInputTypes = typeNames.stream()
                     .map(typeName -> registerGraphQLInputType(this.hgqlSchema.getTypes().get(typeName)))
                     .filter(graphQLInputType -> graphQLInputType != null)
@@ -192,16 +194,16 @@ public class HGQLSchemaWiring {
     }
 
     private GraphQLInputObjectType registerGraphQLInputType(TypeConfig typeConfig) {
-        if(typeConfig.isInterface()){
+        if (typeConfig.isInterface()) {
             return null;
         }
-        if(typeConfig.isUnion()){
+        if (typeConfig.isUnion()) {
             return null;
         }
-        String name = String.format("input_%s",typeConfig.getName());
+        String name = String.format("input_%s", typeConfig.getName());
         this.hgqlSchema.addInputObject(name, typeConfig.getName());
         String description = "Generated input object to be used in the auto generated mutation functions";
-        if(typeConfig.getName().equals(HGQL_SCALAR_LITERAL_GQL_NAME)){
+        if (typeConfig.getName().equals(HGQL_SCALAR_LITERAL_GQL_NAME)) {
             description += "\n Placeholder object for literal values of fields with multiple output types. Strings given" +
                     " for the field of this object are inserted as direct literal of the parent field of this object";
         }
@@ -222,26 +224,27 @@ public class HGQLSchemaWiring {
      * output type of the given field is an union then for all members of the union a field is generated with the
      * corresponding type as output type of the field. Since the names of the fields must be unique the fields of unions
      * and interfaces get the type attached so that the user also knows which type is inserted.
-     * @param parentType object that contains the given field - only used for the description of the input field
+     *
+     * @param parentType        object that contains the given field - only used for the description of the input field
      * @param fieldOfTypeConfig field for which a corresponding input field is needed
      * @return Set containing all generated input fields
      */
     private Set<GraphQLInputObjectField> registerGraphQLInputField(TypeConfig parentType, FieldOfTypeConfig fieldOfTypeConfig) {
         Set<GraphQLInputObjectField> res = new HashSet<>();
         String description = String.format("Generated input field from field %s in objectType %s", fieldOfTypeConfig.getName(), parentType.getName());
-        if(!parentType.getName().equals(HGQL_SCALAR_LITERAL_GQL_NAME)){
+        if (!parentType.getName().equals(HGQL_SCALAR_LITERAL_GQL_NAME)) {
             res.add(newInputObjectField()
                     .name("_id")
                     .type(GraphQLNonNull.nonNull(GraphQLID))
                     .description("IRI of the object. MUST be defined")
                     .build());
-        }else{
+        } else {
             // the Literal placeholder object has no id as it only represents the literal of the parent field
             description += "\n This field is part of the Literal placeholder object. Values given here will be inserted " +
                     "as direct Literal of the field that linked to the literal placeholder object";
         }
         String name = fieldOfTypeConfig.getName();
-        if(fieldOfTypeConfig.getGraphqlOutputType().equals(GraphQLString) || fieldOfTypeConfig.getGraphqlOutputType().equals(GraphQLList.list(GraphQLString))){
+        if (fieldOfTypeConfig.getGraphqlOutputType().equals(GraphQLString) || fieldOfTypeConfig.getGraphqlOutputType().equals(GraphQLList.list(GraphQLString))) {
             this.hgqlSchema.addInputField(name, fieldOfTypeConfig.getName());
             this.hgqlSchema.addinputFieldsOutput(name, "String");
             res.add(newInputObjectField()
@@ -249,13 +252,13 @@ public class HGQLSchemaWiring {
                     .description(description)
                     .type(GraphQLList.list(GraphQLString))
                     .build());
-        }else{
+        } else {
             TypeConfig output_type = this.hgqlSchema.getTypes().get(fieldOfTypeConfig.getTargetName());
-            if(output_type.isInterface()){
+            if (output_type.isInterface()) {
                 final Set<String> interafaceObjects = output_type.getInterafaceObjects();
-                for(String obj_name : interafaceObjects){
-                    TypeConfig  type = this.hgqlSchema.getTypes().get(obj_name);
-                    if(type.isObject()){
+                for (String obj_name : interafaceObjects) {
+                    TypeConfig type = this.hgqlSchema.getTypes().get(obj_name);
+                    if (type.isObject()) {
                         String name_plus_type = name + HGQL_MUTATION_INPUT_FIELD_INFIX + type.getName();
                         this.hgqlSchema.addInputField(name_plus_type, fieldOfTypeConfig.getName());
                         this.hgqlSchema.addinputFieldsOutput(name_plus_type, type.getName());
@@ -266,10 +269,10 @@ public class HGQLSchemaWiring {
                                 .build());
                     }
                 }
-            }else if(output_type.isUnion()){
+            } else if (output_type.isUnion()) {
                 final Collection<TypeConfig> typeConfigs = output_type.getUnionMembers().values();
-                for(TypeConfig type : typeConfigs){
-                    if(type.isObject()){
+                for (TypeConfig type : typeConfigs) {
+                    if (type.isObject()) {
                         String name_plus_type = name + HGQL_MUTATION_INPUT_FIELD_INFIX + type.getName();
                         this.hgqlSchema.addinputFieldsOutput(name_plus_type, type.getName());
                         this.hgqlSchema.addInputField(name_plus_type, fieldOfTypeConfig.getName());
@@ -280,7 +283,7 @@ public class HGQLSchemaWiring {
                                 .build());
                     }
                 }
-            }else{
+            } else {
                 this.hgqlSchema.addInputField(name, fieldOfTypeConfig.getName());
                 this.hgqlSchema.addinputFieldsOutput(name, fieldOfTypeConfig.getTargetName());
                 res.add(newInputObjectField()
@@ -327,42 +330,42 @@ public class HGQLSchemaWiring {
     private GraphQLFieldDefinition registerGraphQLMutationField(TypeConfig mutationfield, MUTATION_ACTION action) {
 
         String name = "";
-        if(action == MUTATION_ACTION.INSERT){
-            name = String.format("%s%s", HGQL_MUTATION_INSERT_PREFIX,mutationfield.getName());
-        }else if(action == MUTATION_ACTION.DELETE){
-            name = String.format("%s%s", HGQL_MUTATION_DELETE_PREFIX,mutationfield.getName());
-        }else{
+        if (action == MUTATION_ACTION.INSERT) {
+            name = String.format("%s%s", HGQL_MUTATION_INSERT_PREFIX, mutationfield.getName());
+        } else if (action == MUTATION_ACTION.DELETE) {
+            name = String.format("%s%s", HGQL_MUTATION_DELETE_PREFIX, mutationfield.getName());
+        } else {
             // Currently unsupported action
         }
         String description = "Autogenerated mutation function for the object " + mutationfield.getName();
-        this.hgqlSchema.addMutationField(name,mutationfield.getName());
+        this.hgqlSchema.addMutationField(name, mutationfield.getName());
         List<GraphQLArgument> args = new ArrayList<>();
         //Todo: add all fields of the object as argument
         Set<FieldOfTypeConfig> fields = mutationfield.getFields().values().stream()
                 .filter(fieldOfTypeConfig -> !fieldOfTypeConfig.getId().equals(RDF_TYPE))  // Exclude the type field as this would alter the schema;   //ToDo: Add the exclusion of field that are used for schema extraction
                 .collect(Collectors.toSet());
-        for(FieldOfTypeConfig field : fields){
-            if(field.getGraphqlOutputType().equals(GraphQLString) || field.getGraphqlOutputType().equals(GraphQLList.list(GraphQLString))){
+        for (FieldOfTypeConfig field : fields) {
+            if (field.getGraphqlOutputType().equals(GraphQLString) || field.getGraphqlOutputType().equals(GraphQLList.list(GraphQLString))) {
                 args.add(GraphQLArgument.newArgument()
                         .name(field.getName())
                         .type(GraphQLList.list(GraphQLString))
                         .description(description)
                         .build());
-            }else{
+            } else {
                 TypeConfig outputType = this.hgqlSchema.getTypes().get(field.getTargetName());
-                if(outputType.isObject()){
+                if (outputType.isObject()) {
                     args.add(GraphQLArgument.newArgument()
                             .name(field.getName())
                             .type(GraphQLList.list(GraphQLTypeReference.typeRef(HGQL_MUTATION_INPUT_PREFIX + outputType.getName())))
                             .description(description)
                             .build());
-                }else{
-                    if(outputType.isInterface()){
+                } else {
+                    if (outputType.isInterface()) {
                         Set<String> objects = outputType.getInterafaceObjects();
-                        for(String obj : objects){
+                        for (String obj : objects) {
                             TypeConfig type = this.hgqlSchema.getTypes().get(obj);
                             args.add(GraphQLArgument.newArgument()
-                                    .name(field.getName() + HGQL_MUTATION_INPUT_FIELD_INFIX +  type.getName())
+                                    .name(field.getName() + HGQL_MUTATION_INPUT_FIELD_INFIX + type.getName())
                                     .type(GraphQLList.list(GraphQLTypeReference.typeRef(HGQL_MUTATION_INPUT_PREFIX + type.getName())))
                                     .description(description)
                                     .build());
@@ -372,12 +375,12 @@ public class HGQLSchemaWiring {
             }
 
         }
-        if(action == MUTATION_ACTION.INSERT){
+        if (action == MUTATION_ACTION.INSERT) {
             args.add(GraphQLArgument.newArgument()
                     .name("_id")
                     .type(GraphQLNonNull.nonNull(GraphQLID))
                     .build());
-        }else if(action == MUTATION_ACTION.DELETE){
+        } else if (action == MUTATION_ACTION.DELETE) {
             args.add(GraphQLArgument.newArgument()
                     .name("_id")
                     .type(GraphQLID)
@@ -394,6 +397,7 @@ public class HGQLSchemaWiring {
 
     /**
      * GraphQLFieldDefinition object of the default field _id
+     *
      * @return GraphQLFieldDefinition of field _id
      */
     private GraphQLFieldDefinition getIdField() {
@@ -406,6 +410,7 @@ public class HGQLSchemaWiring {
 
     /**
      * GraphQLFieldDefinition object of the default field _type
+     *
      * @return GraphQLFieldDefinition of field _type
      */
     private GraphQLFieldDefinition getTypeField() {
@@ -418,6 +423,7 @@ public class HGQLSchemaWiring {
 
     /**
      * Creates a GraphQLObjectType for the "Query" type. Also creates GraphQLFieldDefinitions for each field of the type.
+     *
      * @param type TypeConfig from the Query type
      * @return GraphQLObjectType object corresponding to the Query type
      */
@@ -449,6 +455,7 @@ public class HGQLSchemaWiring {
 
     /**
      * Generates a GraphQLObjectType object for the given type and also GraphQLFieldDefinition objects for all its fields.
+     *
      * @param type TypeConfig object that is not the Query field   //ToDo: Add Mutation if mutations are supported
      * @return GraphQLObjectType object corresponding to the given type
      */
@@ -487,6 +494,7 @@ public class HGQLSchemaWiring {
 
     /**
      * Generates a GraphQLObjectType object for the given type and also GraphQLFieldDefinition objects for all its fields.
+     *
      * @param type TypeCobfig object that is not the Query field   //ToDo: Add Mutation if mutations are supported
      * @return GraphQLObjectType object corresponding to the given type
      */
@@ -521,12 +529,13 @@ public class HGQLSchemaWiring {
 
     /**
      * Generates a GraphQLUnionType for the given TypeConfig. If the given TypeConfig is a NOT a UNION null is returned.
+     *
      * @param type TypeConfig with type == UNION
      * @return GraphQLUnionType
      */
-    private GraphQLUnionType registerGraphQLUnionType(TypeConfig type){
+    private GraphQLUnionType registerGraphQLUnionType(TypeConfig type) {
         String typeName = type.getName();
-        if(type.isUnion()){
+        if (type.isUnion()) {
             final GraphQLUnionType.Builder unionBuilder = newUnionType()
                     .name(typeName);
             type.getUnionMembers().keySet().forEach(memberName -> {
@@ -543,6 +552,7 @@ public class HGQLSchemaWiring {
 
     /**
      * Generates a GraphQLFieldDefinition object of the given field.
+     *
      * @param field Query field to convert to corresponding GraphQLFieldDefinition.
      * @return Returns a GraphQLFieldDefinition object containing the name of the field, arguments, description, and type.
      */
@@ -552,6 +562,7 @@ public class HGQLSchemaWiring {
 
     /**
      * Generates a GraphQLFieldDefinition object of an query field (Field of the type Query).
+     *
      * @param field Query field to convert to corresponding GraphQLFieldDefinition.
      * @return Returns a GraphQLFieldDefinition object containing the name of the field, arguments, description, and type.
      */
@@ -562,6 +573,7 @@ public class HGQLSchemaWiring {
     /**
      * Generates a GraphQLFieldDefinition object of an field.
      * Adds the arguments to the field (used in the SelectionSet).
+     *
      * @param field field to convert to corresponding GraphQLFieldDefinition.
      * @return Returns a GraphQLFieldDefinition object containing the name of the field, arguments, description, and type.
      * @throws HGQLConfigurationException
@@ -573,29 +585,29 @@ public class HGQLSchemaWiring {
         if (field.getTargetName().equals("String")) {
             args.add(defaultArguments.get("lang"));
         }
-        if(!(SCALAR_TYPES.containsKey(field.getTargetName()))){
-            if(field.isList()){
+        if (!(SCALAR_TYPES.containsKey(field.getTargetName()))) {
+            if (field.isList()) {
                 args.addAll(getQueryArgs);
             }
-        }else{
-            if(field.isList()){
+        } else {
+            if (field.isList()) {
                 args.add(defaultArguments.get("limit"));
                 args.add(defaultArguments.get("offset"));
                 args.add(defaultArguments.get("order"));
             }
         }
         String description = "";
-        if(field.getService() == null) {
-            if(field.getId().equals(HGQL_SCALAR_LITERAL_VALUE_URI)){
+        if (field.getService() == null) {
+            if (field.getId().equals(HGQL_SCALAR_LITERAL_VALUE_URI)) {
                 // field is the value of the placeholder literal object
                 // As this field has String as standard output the string specific arguments were already added before
                 description = "Placeholder field for the Parent field, because a Scalar is not allowed to implement an" +
                         " interface. Therefore the handling of multiple output types for one field requires it that for " +
                         "the Scalar String a placeholder object is created circumventing this limitation.";
-            }else{
+            } else {
                 throw new HGQLConfigurationException("Value of 'service' for field '" + field.getName() + "' cannot be null");
             }
-        }else{
+        } else {
             description = field.getId() + " (source: " + field.getService().getId() + ").";
 
         }
@@ -611,6 +623,7 @@ public class HGQLSchemaWiring {
     /**
      * Generates a GraphQLFieldDefinition object of an query field (Field of the type Query).
      * Adds the arguments to the query field.
+     *
      * @param field Query field to convert to corresponding GraphQLFieldDefinition.
      * @return Returns a GraphQLFieldDefinition object containing the name of the field, arguments, description, type.
      * @throws HGQLConfigurationException
@@ -627,7 +640,7 @@ public class HGQLSchemaWiring {
         final QueryFieldConfig queryFieldConfig = this.hgqlSchema.getQueryFields().get(field.getName()); // retrieve QueryFieldConfig of given FieldOfTypeConfig
 
         Service service = queryFieldConfig.service();
-        if(service == null) {
+        if (service == null) {
             throw new HGQLConfigurationException("Service for field '" + field.getName() + "':['"
                     + queryFieldConfig.type() + "'] not specified (null)");
         }

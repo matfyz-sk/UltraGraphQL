@@ -3,10 +3,10 @@ package org.hypergraphql.config.schema;
 import java.util.Map;
 import java.util.Set;
 
-public class TypeConfig  {
+public class TypeConfig {
 
-    public enum  TYPE {
-        OBJECT ,UNION, INTERFACE
+    public enum TYPE {
+        OBJECT, UNION, INTERFACE
     }
 
     private TYPE type;
@@ -21,14 +21,14 @@ public class TypeConfig  {
     }
 
     public String getId() {
-        if(isUnion()){
+        if (isUnion()) {
             return null;
         }
         return this.id;
     }
 
     public FieldOfTypeConfig getField(String name) {
-        if(isUnion()){
+        if (isUnion()) {
             return null;
         }
         return this.fields.get(name);
@@ -39,7 +39,7 @@ public class TypeConfig  {
     private String name;
 
     public Map<String, FieldOfTypeConfig> getFields() {
-        if(isUnion()){
+        if (isUnion()) {
             return null;
         }
         return fields;
@@ -49,23 +49,23 @@ public class TypeConfig  {
 
     public TypeConfig(String name, String id, Map<String, FieldOfTypeConfig> fields) {
 
-        this.name=name;
+        this.name = name;
         this.id = id;
-        this.fields=fields;
+        this.fields = fields;
         this.type = TYPE.OBJECT;
     }
 
     public TypeConfig(String name, Map<String, TypeConfig> members) {
 
-        this.name=name;
+        this.name = name;
         this.unionMembers = members;
         this.type = TYPE.UNION;
     }
 
-    public TypeConfig(String name, Map<String, FieldOfTypeConfig> fields,Set<String> members) {
+    public TypeConfig(String name, Map<String, FieldOfTypeConfig> fields, Set<String> members) {
 
-        this.name=name;
-        this.fields=fields;
+        this.name = name;
+        this.fields = fields;
         this.implementedBy = members;
         this.type = TYPE.INTERFACE;
     }
@@ -78,30 +78,30 @@ public class TypeConfig  {
         this.sameAs = sameAs;
     }
 
-    public boolean isObject(){
+    public boolean isObject() {
         return this.type == TYPE.OBJECT;
     }
 
-    public boolean isUnion(){
+    public boolean isUnion() {
         return this.type == TYPE.UNION;
     }
 
-    public boolean isInterface(){
+    public boolean isInterface() {
         return this.type == TYPE.INTERFACE;
     }
 
-    public  Map<String, TypeConfig> getUnionMembers(){
+    public Map<String, TypeConfig> getUnionMembers() {
         if (isUnion()) {
             return this.unionMembers;
-        }else{
+        } else {
             return null;
         }
     }
 
-    public Set<String> getInterafaceObjects(){
-        if(isInterface()){
+    public Set<String> getInterafaceObjects() {
+        if (isInterface()) {
             return this.implementedBy;
-        }else{
+        } else {
             return null;
         }
     }

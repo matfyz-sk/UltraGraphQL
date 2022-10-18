@@ -12,14 +12,15 @@ import java.util.Set;
  */
 public class SPARQLExecutionResult {
 
-   private  Map<String, Set<String>> resultSet;   // containing the IRIs for the queries one level deeper
-   private Result result;   // containing the query results
+    private Map<String, Set<String>> resultSet;   // containing the IRIs for the queries one level deeper
+    private Result result;   // containing the query results
 //   private Model model;
 
     /**
      * Getter method for the resultSet of this object.
      * The resultSet contains the IRIs for the queries one level deeper.
      * Note: Used as input for the query generation of the queries underneath if present
+     *
      * @return Returns a Map with the field name as key and queried IRIs as values.
      */
     public Map<String, Set<String>> getResultSet() {
@@ -32,9 +33,10 @@ public class SPARQLExecutionResult {
 
     /**
      * Getter method for the query results stored in this object.
+     *
      * @return Returns the query results.
      */
-    public Result getResult(){
+    public Result getResult() {
         return this.result;
     }
 
@@ -44,8 +46,9 @@ public class SPARQLExecutionResult {
 
     /**
      * Initializes a SPARQLExecutionResult with the provided parameters.
+     *
      * @param resultSet Map with the field name as key and queried IRIs as values.
-     * @param result Query results
+     * @param result    Query results
      */
     public SPARQLExecutionResult(Map<String, Set<String>> resultSet, Result result) {
 

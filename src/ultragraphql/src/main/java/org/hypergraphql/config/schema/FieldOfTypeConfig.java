@@ -39,11 +39,11 @@ public class FieldOfTypeConfig {
     public FieldOfTypeConfig(String name, String id, Service service, GraphQLOutputType graphqlOutputType, Boolean isList, String targetName) {
 
         this.name = name;
-        this.id=id;
-        this.service=service;
+        this.id = id;
+        this.service = service;
         this.graphqlOutputType = graphqlOutputType;
-        this.targetName=targetName;
-        this.isList=isList;
+        this.targetName = targetName;
+        this.isList = isList;
 
     }
 

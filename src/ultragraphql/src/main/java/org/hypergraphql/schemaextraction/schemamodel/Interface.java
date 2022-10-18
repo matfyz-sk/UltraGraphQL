@@ -16,13 +16,13 @@ public class Interface {
     private Set<Field> fields = new HashSet<>();
     private final String interfacePostfix = "_Interface";
 
-    public Interface(Resource uri, PrefixService prefixService){
+    public Interface(Resource uri, PrefixService prefixService) {
         this.uri = uri;
         this.prefixService = prefixService;
         this.id = this.generateName();
     }
 
-    public Interface(String id){
+    public Interface(String id) {
         this.id = id;
     }
 
@@ -32,30 +32,32 @@ public class Interface {
         return id;
     }
 
-    public Set<Field> getFields(){
+    public Set<Field> getFields() {
         return fields;
     }
 
-    public void addField(Field field){
+    public void addField(Field field) {
         // if a field with the same name already exists in this type merge the directives
         Optional<Field> optionalField = this.fields.stream()
                 .filter(value -> value.getId().equals(field.getId()))
                 .findFirst();
-        if(optionalField.isPresent()){
+        if (optionalField.isPresent()) {
             optionalField.get().mergeDirectives(field.getDirectives());
-        }else{
+        } else {
             this.fields.add(field);
         }
     }
 
     /**
      * Generates the SDL representation of this interface including the fields.
+     *
      * @return Returns this interface as SDL
      */
     public String build() {
         return "interface " + getId() + " {\n\t" + buildFields() + "\n}";
     }
-    private String buildFields(){
+
+    private String buildFields() {
         return this.fields.stream()
                 .map(Field::build)
                 .collect(Collectors.joining("\n\t"));
@@ -63,9 +65,10 @@ public class Interface {
 
     /**
      * Generate a name for the interface using the name of the resource and the prefix.
+     *
      * @return Returns the name of the uri enriched with the prefix.
      */
-    private String generateName(){
+    private String generateName() {
         String prefix = this.prefixService.getPrefix(this.uri);
         String name = this.uri.getLocalName();
         return RDFtoHGQL.graphqlNameSanitation(prefix + "_" + name + interfacePostfix);

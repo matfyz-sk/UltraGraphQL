@@ -30,6 +30,7 @@ public class TreeExecutionResult {
      * Getter method for the resultSet of this object.
      * The resultSet contains the IRIs for the queries one level deeper.
      * Note: Used as input for the query generation of the queries underneath if present
+     *
      * @return Returns a Map with the field name as key and queried IRIs as values.
      */
     public Map<String, Set<String>> getResultSet() {
@@ -38,6 +39,7 @@ public class TreeExecutionResult {
 
     /**
      * Setter method for the resultSet attribute
+     *
      * @param resultSet
      */
     public void setResultSet(Map<String, Set<String>> resultSet) {
@@ -46,6 +48,7 @@ public class TreeExecutionResult {
 
     /**
      * Setter method for the formattedResult attribute
+     *
      * @param result
      */
     public void setFormatedResult(Result result) {
@@ -54,6 +57,7 @@ public class TreeExecutionResult {
 
     /**
      * Getter method for the query results stored in this object.
+     *
      * @return Returns the query results.
      */
     public Result getFormatedResult() {

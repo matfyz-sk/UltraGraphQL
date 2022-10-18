@@ -1,6 +1,5 @@
 package org.hypergraphql.query.pattern;
 
-import java.util.List;
 import java.util.Map;
 
 public class QueryPatternBuilder {
@@ -32,7 +31,7 @@ public class QueryPatternBuilder {
         return this;
     }
 
-    public QueryPatternBuilder setArgs(Map<String, Object>  args) {
+    public QueryPatternBuilder setArgs(Map<String, Object> args) {
         this.args = args;
         return this;
     }

@@ -19,7 +19,7 @@ public class GraphqlConfig {
                          @JsonProperty("graphiql") String graphiqlPath,
                          @JsonProperty("framework") String serverFramework
     ) {
-        if(port == null) {
+        if (port == null) {
             this.port = generateRandomPort();
         } else {
             this.port = port;
@@ -48,7 +48,7 @@ public class GraphqlConfig {
         return ThreadLocalRandom.current().nextInt(min, max);
     }
 
-    public String serverFramwork(){
-        return  serverFramework;
+    public String serverFramwork() {
+        return serverFramework;
     }
 }

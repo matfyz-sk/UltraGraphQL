@@ -33,7 +33,7 @@ import static spark.Spark.before;
 
 /**
  * Created by szymon on 05/09/2017.
- *
+ * <p>
  * This is the primary &quot;Controller&quot; used by the application.
  * The handler methods are in the get() and post() lambdas
  */
@@ -86,7 +86,7 @@ public class Controller {
         put("text/n3", false);
     }};
 
-    public Controller(){
+    public Controller() {
 
     }
 
@@ -98,18 +98,18 @@ public class Controller {
     /**
      * Starts the HGQL REST API.
      * If no framework is defined in the configuration then the API is started over spark.
+     *
      * @param config HGQL configuration
      */
-    public void start(HGQLConfig config){
+    public void start(HGQLConfig config) {
         System.out.println("HGQL service name: " + config.getName());
         System.out.println("GraphQL server started at: http://localhost:" + config.getGraphqlConfig().port() + config.getGraphqlConfig().graphQLPath());
         System.out.println("GraphiQL UI available at: http://localhost:" + config.getGraphqlConfig().port() + config.getGraphqlConfig().graphiQLPath());
 
         this.config = config;
-        if(config.getGraphqlConfig().serverFramwork() != null && config.getGraphqlConfig().serverFramwork().equals(SERVER_FRAMEWORK_JAXRS)){
+        if (config.getGraphqlConfig().serverFramwork() != null && config.getGraphqlConfig().serverFramwork().equals(SERVER_FRAMEWORK_JAXRS)) {
             startCXF();
-        }
-        else {
+        } else {
             startSpark();
         }
     }
@@ -122,7 +122,7 @@ public class Controller {
         hgqlService = Service
                 .ignite()
                 .port(config.getGraphqlConfig().port())
-                .threadPool(50,10,1000);
+                .threadPool(50, 10, 1000);
         // CORS
         before((request, response) -> {
             response.header("Access-Control-Allow-Methods", "OPTIONS,GET,POST");
@@ -186,7 +186,7 @@ public class Controller {
 
         //Return the internal HGQL schema representation as rdf.
 
-        hgqlService.get(config.getGraphqlConfig().graphQLPath() , (req, res) -> {
+        hgqlService.get(config.getGraphqlConfig().graphQLPath(), (req, res) -> {
 
             String acceptType = req.headers("accept");
 
@@ -207,7 +207,7 @@ public class Controller {
 
     private String consumeRequest(final Request request) throws IOException {
 
-        if(request.contentType().equalsIgnoreCase("application-x/graphql")) {
+        if (request.contentType().equalsIgnoreCase("application-x/graphql")) {
             return consumeGraphQLBody(request.body());
         } else {
             return consumeJSONBody(request.body());
@@ -218,7 +218,7 @@ public class Controller {
 
         final ObjectMapper mapper = new ObjectMapper();
         final JsonNode requestObject = mapper.readTree(body);
-        if(requestObject.get("query") == null) {
+        if (requestObject.get("query") == null) {
             throw new IllegalArgumentException(
                     "Body appears to be JSON but does not contain required 'query' attribute: " + body
             );
@@ -233,7 +233,7 @@ public class Controller {
 
     public void stop() {
 
-        if(hgqlService != null) {
+        if (hgqlService != null) {
             LOGGER.info("Attempting to shut down service at http://localhost:" + hgqlService.port() + "...");
             hgqlService.stop();
             LOGGER.info("Shut down server");
@@ -244,7 +244,7 @@ public class Controller {
 
         final String origin = request.headers("Origin") == null ? "*" : request.headers("Origin");
         response.header("Access-Control-Allow-Origin", origin);
-        if(!origin.equals("*")) {
+        if (!origin.equals("*")) {
             response.header("Vary", "Origin");
         }
         response.header("Access-Control-Allow-Headers", StringUtils.join(headersList, ","));
@@ -267,7 +267,7 @@ public class Controller {
         JAXRSServerFactoryBean sf = new JAXRSServerFactoryBean();
         sf.setResourceClasses(Controller.class);
         sf.setResourceProvider(Controller.class, new SingletonResourceProvider(new Controller(this.hgqlService, this.config)));
-        sf.setAddress(String.format("http://localhost:%s/",config.getGraphqlConfig().port()));
+        sf.setAddress(String.format("http://localhost:%s/", config.getGraphqlConfig().port()));
         BindingFactoryManager manager = sf.getBus().getExtension(BindingFactoryManager.class);
         JAXRSBindingFactory factory = new JAXRSBindingFactory();
         factory.setBus(sf.getBus());
@@ -278,20 +278,21 @@ public class Controller {
 
     /**
      * Servces GraphQL queries
-     * @param acceptType accepted type of the client
+     *
+     * @param acceptType  accepted type of the client
      * @param contentType format type of the query
-     * @param req GraphQL query
+     * @param req         GraphQL query
      * @return JSON-LD response for the given query
      */
     @POST
-    @Path( "graphql" )
-    public javax.ws.rs.core.Response query(@HeaderParam("accept")String acceptType,@HeaderParam("content-type") String contentType,String req){
+    @Path("graphql")
+    public javax.ws.rs.core.Response query(@HeaderParam("accept") String acceptType, @HeaderParam("content-type") String contentType, String req) {
 
         HGQLRequestService service = new HGQLRequestService(config);
 
         String query = "";
         try {
-            query = contentType.equals("application-x/graphql")? consumeGraphQLBody(req) : consumeJSONBody(req);
+            query = contentType.equals("application-x/graphql") ? consumeGraphQLBody(req) : consumeJSONBody(req);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -353,13 +354,14 @@ public class Controller {
 
     /**
      * Serves schema introspection queries.
+     *
      * @param acceptType accepted type of the client
-     * @param req GraphQL query
+     * @param req        GraphQL query
      * @return GraphQL schema of the HGQL instance
      */
     @GET
     @Path("graphql")
-    public javax.ws.rs.core.Response introspectionQuery(@HeaderParam("accept")String acceptType,String req){
+    public javax.ws.rs.core.Response introspectionQuery(@HeaderParam("accept") String acceptType, String req) {
         boolean isRdfContentType =
                 (MIME_MAP.containsKey(acceptType)
                         && GRAPHQL_COMPATIBLE_TYPE.containsKey(acceptType)
@@ -380,11 +382,12 @@ public class Controller {
 
     /**
      * Serves the GraphiQL interface of the HGQL instance if requested with GET.
+     *
      * @return HTML page of GraphiQL of this service
      */
     @GET
     @Path("graphiql")
-    public javax.ws.rs.core.Response graphiql(){
+    public javax.ws.rs.core.Response graphiql() {
         Map<String, String> model = new HashMap<>();
 
         model.put("template", String.valueOf(config.getGraphqlConfig().graphQLPath()));

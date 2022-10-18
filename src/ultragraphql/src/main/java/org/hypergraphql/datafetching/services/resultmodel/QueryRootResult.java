@@ -32,12 +32,12 @@ public class QueryRootResult extends Result<Map<String, Object>> {
     @Override
     public Map<String, Object> generateJSON() {
         Map<String, Object> field = new HashMap<>();
-        for(Map.Entry<String, Result> entry : this.root_result.entrySet()){
+        for (Map.Entry<String, Result> entry : this.root_result.entrySet()) {
             String name = entry.getValue().alias == null ? entry.getValue().name : entry.getValue().alias;
-            if(entry.getValue() instanceof ObjectResult){
-                field.putAll(((ObjectResult)entry.getValue()).generateJSON());
+            if (entry.getValue() instanceof ObjectResult) {
+                field.putAll(((ObjectResult) entry.getValue()).generateJSON());
                 this.errors += entry.getValue().errors;
-            }else{
+            } else {
 
             }
 
@@ -52,16 +52,16 @@ public class QueryRootResult extends Result<Map<String, Object>> {
      */
     @Override
     public void merge(Result result) {
-        if(result instanceof QueryRootResult){
+        if (result instanceof QueryRootResult) {
             // This case is not the intended way to use this method but to fail safe the result sets are merged
-            for(Map.Entry<String, Result> entry : ((QueryRootResult) result).root_result.entrySet()){
+            for (Map.Entry<String, Result> entry : ((QueryRootResult) result).root_result.entrySet()) {
                 // add all results to the current result set through recursion
                 this.merge(entry.getValue());
             }
-        }else if(result instanceof ObjectResult || result instanceof StringResult){
-            if(this.root_result.containsKey(result.nodeId)){
+        } else if (result instanceof ObjectResult || result instanceof StringResult) {
+            if (this.root_result.containsKey(result.nodeId)) {
                 this.root_result.get(result.nodeId).merge(result);
-            }else{
+            } else {
                 this.root_result.put(result.nodeId, result);
             }
         }

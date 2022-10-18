@@ -32,13 +32,18 @@ public class FetchParams {
     public Resource getSubjectResource() {
         return subjectResource;
     }
+
     public String getPredicateURI() {
         return predicateURI;
     }
+
     public ModelContainer getClient() {
         return client;
     }
-    public String getTargetURI() {return targetURI; }
+
+    public String getTargetURI() {
+        return targetURI;
+    }
 
     private String extractPredicate(DataFetchingEnvironment environment) {
 
@@ -53,7 +58,7 @@ public class FetchParams {
 
         final Map<String, FieldConfig> fields = schema.getFields();
 
-        if(fields == null || fields.isEmpty()) { // TODO :: Does this cause an issue?
+        if (fields == null || fields.isEmpty()) { // TODO :: Does this cause an issue?
             throw new HGQLConfigurationException("Schema has no fields");
         }
 
@@ -66,9 +71,9 @@ public class FetchParams {
 
     private String extractTargetURI(final DataFetchingEnvironment environment, final HGQLSchema schema, final String predicate) {
 
-        if (!((GraphQLNamedType)environment.getParentType()).getName().equals("Query")) {  // Fix to use latest graohql version () added casting
+        if (!((GraphQLNamedType) environment.getParentType()).getName().equals("Query")) {  // Fix to use latest graohql version () added casting
             String targetName =
-                    schema.getTypes().get(((GraphQLNamedType)environment.getParentType()).getName()).getField(predicate).getTargetName();  // Fix to use latest graohql version () added casting
+                    schema.getTypes().get(((GraphQLNamedType) environment.getParentType()).getName()).getField(predicate).getTargetName();  // Fix to use latest graohql version () added casting
 
             if (schema.getTypes().containsKey(targetName) && schema.getTypes().get(targetName).getId() != null) {
                 return schema.getTypes().get(targetName).getId();

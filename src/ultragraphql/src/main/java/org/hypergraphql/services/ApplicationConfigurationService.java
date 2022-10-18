@@ -9,11 +9,7 @@ import org.hypergraphql.exception.HGQLConfigurationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -38,7 +34,7 @@ public class ApplicationConfigurationService {
             throw new HGQLConfigurationException("Invalid S3 URL", e);
         }
 
-        if(s3Service == null) {
+        if (s3Service == null) {
             s3Service = new S3Service();
         }
 
@@ -50,15 +46,16 @@ public class ApplicationConfigurationService {
 
     /**
      * Generates a List of HGQLConfigs from the given configuration URL.
+     *
      * @param configUri HTML page with the configuration information in the body
-     * @param username username to access the given URI
-     * @param password password to access the given URI
+     * @param username  username to access the given URI
+     * @param password  password to access the given URI
      * @return List of HGQLConfigs
      */
     public List<HGQLConfig> readConfigurationFromUrl(final String configUri, final String username, final String password) {
 
         final GetRequest getRequest;
-        if(username == null && password == null) {   // Assume that NO authentication is needed
+        if (username == null && password == null) {   // Assume that NO authentication is needed
             getRequest = Unirest.get(configUri);
         } else {   // Auth needed
             getRequest = Unirest.get(configUri).basicAuth(username, password);
@@ -76,14 +73,15 @@ public class ApplicationConfigurationService {
 
     /**
      * Generates for any given configuration file a corresponding list with HGQLConfigs and merges these lists together.
+     *
      * @param configPathStrings List of configuration files OR directories containing config files. Config files MUST
      *                          be of type JSON.
      * @return List of HGQLConfigs
      */
-    public List<HGQLConfig> getConfigFiles(final String ... configPathStrings) {
+    public List<HGQLConfig> getConfigFiles(final String... configPathStrings) {
 
         final List<HGQLConfig> configFiles = new ArrayList<>();
-        if(configPathStrings != null) {
+        if (configPathStrings != null) {
             Arrays.stream(configPathStrings).forEach(configPathString ->
                     configFiles.addAll(getConfigurationsFromFile(configPathString)));
         }
@@ -92,6 +90,7 @@ public class ApplicationConfigurationService {
 
     /**
      * Generates for given configuration file a corresponding list with HGQLConfigs.
+     *
      * @param configPathString Configuration file OR directory containing config files. Config files MUST
      *                         be of type JSON.
      * @return List of HGQLConfigs
@@ -120,7 +119,7 @@ public class ApplicationConfigurationService {
                 }
             } else { // assume regular file
                 LOGGER.debug("Regular File");
-                try(InputStream in = new FileInputStream(configPath)) {
+                try (InputStream in = new FileInputStream(configPath)) {
                     configurations.add(hgqlConfigService.loadHGQLConfig(configPathString, in, false));
                 }
             }
@@ -134,9 +133,9 @@ public class ApplicationConfigurationService {
 
         final String filename = getConfigFilename(configPathString);
 
-        try(final InputStream in = getClass().getClassLoader().getResourceAsStream(filename)) {
+        try (final InputStream in = getClass().getClassLoader().getResourceAsStream(filename)) {
 
-            if(in == null) {
+            if (in == null) {
                 // try to get from file - probably being run from an IDE with CP as filesystem
                 return getConfigurationsFromFile(configPathString);
             }
@@ -152,6 +151,7 @@ public class ApplicationConfigurationService {
     /**
      * If a "!" is in the given String then return the substring after the last "!" in the String and add a "/" at the
      * at the beginning of the result if not already present
+     *
      * @param configPathString Config file name
      * @return String without "!" and with an "/" ath the beginning
      */
@@ -163,17 +163,17 @@ public class ApplicationConfigurationService {
         return configPathString.startsWith("/") ? fn : fn.substring(fn.indexOf("/") + 1);
     }
 
-    public List<HGQLConfig> getConfigResources(final String ... resourcePaths) {
+    public List<HGQLConfig> getConfigResources(final String... resourcePaths) {
 
         final List<HGQLConfig> configurations = new ArrayList<>();
 
-        if(resourcePaths != null) {
+        if (resourcePaths != null) {
             Arrays.stream(resourcePaths).forEach(
                     resourcePath -> {
                         final URL sourceUrl = getClass().getClassLoader().getResource(resourcePath);
 
                         LOGGER.info("Resource path: {}", resourcePath);
-                        if(sourceUrl != null) {
+                        if (sourceUrl != null) {
                             configurations.addAll(getConfigurationsFromClasspath(sourceUrl.getFile()));
                         }
                     }

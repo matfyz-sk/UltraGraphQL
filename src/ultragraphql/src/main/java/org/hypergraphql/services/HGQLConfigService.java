@@ -25,7 +25,8 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.*;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 /**
  * Provides methods to load the HGQL configuration and based on the configuration to parse the schema to setup the
@@ -46,9 +47,10 @@ public class HGQLConfigService {
     /**
      * Initiates the parsing of the schema and sets up the GraphQL wiring (data fetchers). All results are saved in an
      * HGQLConfig object containing the HGQL schema, GQL schema, and the service configurations.
+     *
      * @param hgqlConfigPath configuration path
-     * @param inputStream content of the configuration
-     * @param classpath True if the given path is a classpath otherwise False
+     * @param inputStream    content of the configuration
+     * @param classpath      True if the given path is a classpath otherwise False
      * @return Returns HGQLConfig object corresponding to the given configuration
      */
     public HGQLConfig loadHGQLConfig(final String hgqlConfigPath, final InputStream inputStream, final boolean classpath) {
@@ -58,11 +60,12 @@ public class HGQLConfigService {
     /**
      * Initiates the parsing of the schema and sets up the GraphQL wiring (data fetchers). All results are saved in an
      * HGQLConfig object containing the HGQL schema, GQL schema, and the service configurations.
+     *
      * @param hgqlConfigPath configuration path
-     * @param inputStream content of the configuration
-     * @param username username to access the configuration
-     * @param password password to access the configuration
-     * @param classpath True if the given path is a classpath otherwise False
+     * @param inputStream    content of the configuration
+     * @param username       username to access the configuration
+     * @param password       password to access the configuration
+     * @param classpath      True if the given path is a classpath otherwise False
      * @return Returns HGQLConfig object corresponding to the given configuration
      */
     HGQLConfig loadHGQLConfig(final String hgqlConfigPath, final InputStream inputStream, final String username, final String password, boolean classpath) {
@@ -80,45 +83,45 @@ public class HGQLConfigService {
 
             Reader reader = null;
             // Check if the mutations are allowed if the muationService is actually given in the services
-            if(BooleanUtils.isTrue(config.getMutations())){
+            if (BooleanUtils.isTrue(config.getMutations())) {
                 LOGGER.info("Mutation generation is active");
-                if(config.getMutationService() == null){
+                if (config.getMutationService() == null) {
                     throw new HGQLConfigurationException("Mutation generation is active but no mutationService is defined. Please define a service that is responsible for the execution of the mutation actions");
                 }
                 Boolean isDefined = config.getServiceConfigs().stream()
                         .anyMatch(serviceConfig -> serviceConfig.getId().equals(config.getMutationService()));
-                if(BooleanUtils.isNotTrue(isDefined)){
+                if (BooleanUtils.isNotTrue(isDefined)) {
                     throw new HGQLConfigurationException("mutationService is not defined as service in services");
-                }else {
+                } else {
                     LOGGER.info("mutationService is correctly defined.");
                 }
             }
 
-            if(config.getExtraction()){
+            if (config.getExtraction()) {
                 LOGGER.info("Start schema extraction");
                 //Extract schema
 
                 Model mapping = ModelFactory.createDefaultModel();
                 InputStream mapping_config;
 //                final String fullMappingPath = config.getMappingFile() != null ? extractFullSchemaPath(hgqlConfigPath, config.getMappingFile()) : getFileFromResources(mapping_file_name).getAbsolutePath();
-                if(config.getMappingFile() != null){
+                if (config.getMappingFile() != null) {
                     mapping_config = new FileInputStream(extractFullSchemaPath(hgqlConfigPath, config.getMappingFile()));
-                }else{
+                } else {
                     // use default mapping
                     mapping_config = getClass().getClassLoader().getResourceAsStream(mapping_file_name);
                 }
-                LOGGER.info("{}",config.getMappingFile() == null ? "Using default mapping" : "Using provided mapping");
+                LOGGER.info("{}", config.getMappingFile() == null ? "Using default mapping" : "Using provided mapping");
 
 
 //                final String fullQueryPath = config.getQueryFile() != null ? extractFullSchemaPath(hgqlConfigPath,
 //                        config.getQueryFile()) : getFileFromResources(extraction_query_file_name).getAbsolutePath();
                 String extraction_query;
-                if(config.getQueryFile() != null){
-                    extraction_query = new String ( Files.readAllBytes( Paths.get( extractFullSchemaPath(hgqlConfigPath, config.getQueryFile()))));
-                }else{
+                if (config.getQueryFile() != null) {
+                    extraction_query = new String(Files.readAllBytes(Paths.get(extractFullSchemaPath(hgqlConfigPath, config.getQueryFile()))));
+                } else {
                     extraction_query = IOUtils.toString(getClass().getClassLoader().getResourceAsStream(extraction_query_file_name), StandardCharsets.UTF_8);
                 }
-                LOGGER.info("{}",config.getQueryFile() == null ? "Using default extraction query" : "Using provided extraction query");
+                LOGGER.info("{}", config.getQueryFile() == null ? "Using default extraction query" : "Using provided extraction query");
 
                 mapping.read(mapping_config, null, "TTL");
                 ExtractionController extractionController = new ExtractionController(config.getServiceConfigs(),
@@ -126,16 +129,16 @@ public class HGQLConfigService {
                         extraction_query,
                         config.getPrefixes());
                 reader = extractionController.getHGQLSchemaReader();
-                if(config.getSchemaFile() != null){
+                if (config.getSchemaFile() != null) {
                     LOGGER.info("Extracted HyperGraphQL schema will be stored in {}", config.getSchemaFile());
                     BufferedWriter writer = new BufferedWriter(new FileWriter(config.getSchemaFile()));
                     writer.write(extractionController.getHGQLSchema());
                     writer.close();
-                }else{
+                } else {
                     LOGGER.info("Extracted HyperGraphQL schema will NOT be stored - No file provided");
                     extractionController.getHGQLSchema();   //only called so that the schema gets printed into the command lines
                 }
-            }else{
+            } else {
                 final String fullSchemaPath = extractFullSchemaPath(hgqlConfigPath, config.getSchemaFile());
 
                 LOGGER.debug("Schema config path: " + fullSchemaPath);
@@ -153,25 +156,24 @@ public class HGQLConfigService {
     }
 
     /**
-     *
      * @param schemaPath path to the schema either a URL, classpath, jar-file or UTF_8 encoded file
-     * @param username username to access the schema
-     * @param password password to access the schema
-     * @param classpath True if the given path is a classpath otherwise False
+     * @param username   username to access the schema
+     * @param password   password to access the schema
+     * @param classpath  True if the given path is a classpath otherwise False
      * @return Reader instance of the schema
-     * @throws IOException Thrown if the file is inaccessible or invalid
+     * @throws IOException        Thrown if the file is inaccessible or invalid
      * @throws URISyntaxException Thrown if the syntax of the given URL is invalid
      */
     private Reader selectAppropriateReader(final String schemaPath, final String username, final String password, final boolean classpath)
             throws IOException, URISyntaxException {
 
-        if(schemaPath.matches(S3_REGEX)) {   // check if schemaPath AWS URL
+        if (schemaPath.matches(S3_REGEX)) {   // check if schemaPath AWS URL
 
             LOGGER.debug("S3 schema");
             // create S3 bucket request, etc.
             return getReaderForS3(schemaPath, username, password);
 
-        } else if(schemaPath.matches(NORMAL_URL_REGEX)) {   // check if schemaPath normal URL
+        } else if (schemaPath.matches(NORMAL_URL_REGEX)) {   // check if schemaPath normal URL
             LOGGER.info("HTTP/S schema");
             return getReaderForUrl(schemaPath, username, password);
         } else if (schemaPath.contains(".jar!") || classpath) {  // check if schemaPath is a jar file
@@ -187,15 +189,16 @@ public class HGQLConfigService {
 
     /**
      * Requests the schema from the given URL and returns the schema as an reader instance.
+     *
      * @param schemaPath URL to the schema - schema MUST be in the body of the HTML document
-     * @param username username to access the schema
-     * @param password password to access the schema
+     * @param username   username to access the schema
+     * @param password   password to access the schema
      * @return Reader instance of the HTML body of the given URL
      */
     private Reader getReaderForUrl(final String schemaPath, final String username, final String password) {
 
         final GetRequest getRequest;
-        if(username == null && password == null) {
+        if (username == null && password == null) {
             getRequest = Unirest.get(schemaPath);
         } else {
             getRequest = Unirest.get(schemaPath).basicAuth(username, password);
@@ -218,15 +221,16 @@ public class HGQLConfigService {
 
     /**
      * Extracts the full schema path by using the configuration path for the current location.
+     *
      * @param hgqlConfigPath path to the configuration file
-     * @param schemaPath path to the schema from the directory of the configuration
+     * @param schemaPath     path to the schema from the directory of the configuration
      * @return path to the HGQL schema
      */
     private String extractFullSchemaPath(final String hgqlConfigPath, final String schemaPath) {
 
         LOGGER.debug("HGQL config path: {}, schema path: {}", hgqlConfigPath, schemaPath);
         final String configPath = FilenameUtils.getFullPath(hgqlConfigPath);
-        if(StringUtils.isBlank(configPath)) {
+        if (StringUtils.isBlank(configPath)) {
             return schemaPath;
         } else {
             final String abs = PathUtils.makeAbsolute(configPath, schemaPath);
@@ -237,6 +241,7 @@ public class HGQLConfigService {
 
     /**
      * Returns a Reader instance of the given file.
+     *
      * @param schemaPath path to an jar file or to an classpath file
      * @return Reader instance of the given file
      */
@@ -250,7 +255,7 @@ public class HGQLConfigService {
         final String filename = fn.startsWith("/") ? fn.substring(fn.indexOf("/") + 1) : fn;
         LOGGER.debug("For filename: {}", filename);
         return new InputStreamReader(getClass().getClassLoader().getResourceAsStream(filename));
-     }
+    }
 
     private File getFileFromResources(String fileName) {
 

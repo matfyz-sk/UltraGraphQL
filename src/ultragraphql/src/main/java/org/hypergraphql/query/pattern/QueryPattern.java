@@ -1,10 +1,9 @@
 package org.hypergraphql.query.pattern;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
-public class QueryPattern implements Query{
+public class QueryPattern implements Query {
 
     public final String name;
     public final String alias;
@@ -21,7 +20,7 @@ public class QueryPattern implements Query{
     public QueryPattern(String name,
                         String alias,
                         String nodeId,
-                        Map<String, Object>  args,
+                        Map<String, Object> args,
                         String targetType,
                         SubQueriesPattern fields,
                         String parentName,
@@ -32,7 +31,7 @@ public class QueryPattern implements Query{
         this.name = name;
         this.alias = alias;
         this.nodeId = nodeId;
-        this.args = args == null ? new HashMap<>(): args;
+        this.args = args == null ? new HashMap<>() : args;
         this.targetType = targetType;
         this.fields = fields;
         this.parentName = parentName;

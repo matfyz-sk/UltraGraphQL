@@ -6,14 +6,11 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import static graphql.Scalars.GraphQLBoolean;
-import static graphql.Scalars.GraphQLID;
-import static graphql.Scalars.GraphQLInt;
-import static graphql.Scalars.GraphQLString;
+import static graphql.Scalars.*;
 
 public class HGQLVocabulary {
 
-    public static final String HGQL_PREFIX= "hgql:";
+    public static final String HGQL_PREFIX = "hgql:";
     public static final String HGQL_SCHEMA_PREFIX = "hgql-schema:";
     public static final String HGQL_NAMESPACE = "http://hypergraphql.org/";
     public static final String HGQL_SCHEMA_NAMESPACE = HGQL_NAMESPACE + "schema/";
@@ -58,11 +55,11 @@ public class HGQLVocabulary {
 
     public static final Map<String, GraphQLOutputType> SCALAR_TYPES_TO_GRAPHQL_OUTPUT =
             Collections.unmodifiableMap(new HashMap<String, GraphQLOutputType>() {{
-        put(HGQL_STRING, GraphQLString);
-        put(HGQL_Int, GraphQLInt);
-        put(HGQL_Boolean, GraphQLBoolean);
-        put(HGQL_ID, GraphQLID);
-    }});
+                put(HGQL_STRING, GraphQLString);
+                put(HGQL_Int, GraphQLInt);
+                put(HGQL_Boolean, GraphQLBoolean);
+                put(HGQL_ID, GraphQLID);
+            }});
 
     public static final Map<String, String> JSONLD = Collections.unmodifiableMap(new HashMap<String, String>() {{
         put("_id", "@id");

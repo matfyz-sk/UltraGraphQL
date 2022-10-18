@@ -35,12 +35,13 @@ public class ModelContainer {
         this.model = model;
     }
 
-    public void close(){
+    public void close() {
         this.model.close();
     }
 
     /**
      * Return a Property instance in this model.
+     *
      * @param propertyURI the URI of the property
      * @return a property object
      */
@@ -51,6 +52,7 @@ public class ModelContainer {
 
     /**
      * Return a Resource instance with the given URI in this model.
+     *
      * @param resourceURI the URI of the resource
      * @return a resource instance
      */
@@ -61,8 +63,9 @@ public class ModelContainer {
 
     /**
      * Returns all subjects from the mapping configuration that have the given predicate and object.
+     *
      * @param predicateURI predicate the triple must contain
-     * @param objectURI object the triple must contain
+     * @param objectURI    object the triple must contain
      * @return List of subjects that occur a triple with the given predicate and object
      */
     List<RDFNode> getSubjectsOfObjectProperty(String predicateURI, String objectURI) {
@@ -109,7 +112,7 @@ public class ModelContainer {
 
             if (data.isLiteral()) {
                 if (!args.containsKey("lang") || args.get("lang").toString().equalsIgnoreCase(data.asLiteral().getLanguage())) {
-                        valList.add(data.asLiteral().getString());
+                    valList.add(data.asLiteral().getString());
                 }
             }
         }
@@ -118,6 +121,7 @@ public class ModelContainer {
 
     /**
      * Queries the model for all objects that have the given subject AND predicateURI.
+     *
      * @param subjectURI
      * @param predicateURI
      * @return
@@ -129,6 +133,7 @@ public class ModelContainer {
 
     /**
      * Queries the model for all objects that have the given subject AND predicateURI.
+     *
      * @param subject
      * @param predicateURI
      * @return
@@ -141,9 +146,10 @@ public class ModelContainer {
     /**
      * Queries the model for all objects that have the given subject AND predicateURI. If targetURI is null all objects are returned
      * otherwise only objects of the given typeURI are returned. Query: subject predicateURI ?object. ?object a targetURI.
+     *
      * @param subject
      * @param predicateURI
-     * @param targetURI Type the result should have
+     * @param targetURI    Type the result should have
      * @return
      */
     List<RDFNode> getValuesOfObjectProperty(RDFNode subject, String predicateURI, String targetURI) {
@@ -152,9 +158,9 @@ public class ModelContainer {
         List<RDFNode> rdfNodes = new ArrayList<>();
         iterator.forEachRemaining(node -> {
             if (!node.isLiteral()) {
-                if(targetURI == null) {
+                if (targetURI == null) {
                     rdfNodes.add(node);
-                } else if(this.model.contains(node.asResource(), getPropertyFromUri(HGQLVocabulary.RDF_TYPE), getResourceFromUri(targetURI))) {
+                } else if (this.model.contains(node.asResource(), getPropertyFromUri(HGQLVocabulary.RDF_TYPE), getResourceFromUri(targetURI))) {
                     rdfNodes.add(node); // Add node if (node rdf:type targetURI.)
                 }
             }
@@ -165,7 +171,7 @@ public class ModelContainer {
     RDFNode getValueOfObjectProperty(RDFNode subject, String predicateURI) {
 
         final List<RDFNode> values = getValuesOfObjectProperty(subject, predicateURI);
-        if(values == null || values.isEmpty()) {
+        if (values == null || values.isEmpty()) {
             return null;
         }
         return values.get(0);
@@ -186,10 +192,11 @@ public class ModelContainer {
     }
 
     /**
-     *  Adds a RDF triple to the local RDF Model of the Object. All parameters MUST be URIs.
-     * @param subjectURI subject of the triple
+     * Adds a RDF triple to the local RDF Model of the Object. All parameters MUST be URIs.
+     *
+     * @param subjectURI   subject of the triple
      * @param predicateURI predicate subject of the triple
-     * @param objectURI object subject of the triple
+     * @param objectURI    object subject of the triple
      */
     void insertObjectTriple(String subjectURI, String predicateURI, String objectURI) {
 
@@ -198,10 +205,11 @@ public class ModelContainer {
     }
 
     /**
-     *  Adds a RDF Literal triple to the RDF Model of the Object. The Object is here a Literal (String) value
-     * @param subjectURI subject of the triple
+     * Adds a RDF Literal triple to the RDF Model of the Object. The Object is here a Literal (String) value
+     *
+     * @param subjectURI   subject of the triple
      * @param predicateURI predicate of the triple
-     * @param value literal of the triple
+     * @param value        literal of the triple
      */
     void insertStringLiteralTriple(String subjectURI, String predicateURI, String value) {
 
@@ -209,14 +217,14 @@ public class ModelContainer {
 
     }
 
-    public List<RDFNode> getValuesOfObjectPropertyWithArgs(String subjectURI, String predicateURI, String targetURI, Map<String, Object> args){
+    public List<RDFNode> getValuesOfObjectPropertyWithArgs(String subjectURI, String predicateURI, String targetURI, Map<String, Object> args) {
         return getValuesOfObjectPropertyWithArgs(getResourceFromUri(subjectURI),
                 predicateURI,
                 targetURI,
                 args);
     }
 
-    public List<RDFNode> getValuesOfObjectPropertyWithArgs(RDFNode subjectURI, String predicateURI, String targetURI, Map<String, Object> args){
+    public List<RDFNode> getValuesOfObjectPropertyWithArgs(RDFNode subjectURI, String predicateURI, String targetURI, Map<String, Object> args) {
         final Property property = getPropertyFromUri(predicateURI);
         final Resource target = (targetURI == null) ? null : getResourceFromUri(targetURI);
 
@@ -227,52 +235,52 @@ public class ModelContainer {
     }
 
 
-        public List<RDFNode> getValuesOfObjectPropertyWithArgs(RDFNode subjectURI, RDFNode predicateURI, RDFNode targetURI, Map<String, Object> args){
+    public List<RDFNode> getValuesOfObjectPropertyWithArgs(RDFNode subjectURI, RDFNode predicateURI, RDFNode targetURI, Map<String, Object> args) {
 
         List<RDFNode> res = new ArrayList<>();
         SelectBuilder builder = new SelectBuilder();
-        builder.addPrefix( "rdfs",  "http://www.w3.org/2000/01/rdf-schema#" );
+        builder.addPrefix("rdfs", "http://www.w3.org/2000/01/rdf-schema#");
         builder.addPrefix("rdf", "http://www.w3.org/1999/02/22-rdf-syntax-ns#");
-        builder.addVar( "?object" );
-        if(args.containsKey("limit")){
+        builder.addVar("?object");
+        if (args.containsKey("limit")) {
             builder.setLimit((Integer) args.get("limit"));
         }
         // offset interferes with multiple services limiter are applied to fill the result pool and applied by extracting from the result pool. offset is therefore only applied during result pool fillup.
 //        if(args.containsKey("offset")){
 //            builder.setOffset((Integer) args.get("offset"));
 //        }
-        if(args.containsKey("_id")){
+        if (args.containsKey("_id")) {
             final Object idValue = args.get("_id");
-            if(idValue instanceof List){
+            if (idValue instanceof List) {
                 List<String> idlist = (List<String>) idValue;
                 String ids = "";
-                for(String id : idlist){
-                    builder.addValueVar("?object",getResourceFromUri(id));
+                for (String id : idlist) {
+                    builder.addValueVar("?object", getResourceFromUri(id));
 
                 }
 
-            }else{
+            } else {
 
             }
         }
-        if(args.containsKey("order")){
+        if (args.containsKey("order")) {
             String order = (String) args.get("order");
-            if(order.equals("ASC")){
+            if (order.equals("ASC")) {
                 builder.addOrderBy("?object", Order.ASCENDING);
-            }else if(order.equals("DESC")){
+            } else if (order.equals("DESC")) {
                 builder.addOrderBy("?object", Order.DESCENDING);
             }
 
         }
-        builder.addWhere(subjectURI, predicateURI,"?object");
-        if(targetURI != null){
+        builder.addWhere(subjectURI, predicateURI, "?object");
+        if (targetURI != null) {
             builder.addWhere("?object", "rdf:type", targetURI);
         }
         Query query = builder.build();
-        LOGGER.debug("SPARQL query aganst the result pool: \n {}",query.toString());
-        QueryExecution qexec = QueryExecutionFactory.create(query, this.model) ;
+        LOGGER.debug("SPARQL query aganst the result pool: \n {}", query.toString());
+        QueryExecution qexec = QueryExecutionFactory.create(query, this.model);
         ResultSet results = qexec.execSelect();
-        while (results.hasNext()){
+        while (results.hasNext()) {
             final QuerySolution next = results.next();
             final RDFNode rdfNode = next.get("?object");
             res.add(rdfNode);
@@ -280,42 +288,42 @@ public class ModelContainer {
         return res;
     }
 
-    List<String> getValuesOfDataPropertyWithArgs(RDFNode subject, String predicateURI, Map<String, Object> args){
+    List<String> getValuesOfDataPropertyWithArgs(RDFNode subject, String predicateURI, Map<String, Object> args) {
         final String OBJECT = "?object";
         List<String> res = new ArrayList<>();
         SelectBuilder builder = new SelectBuilder();
-        builder.addPrefix( "rdfs",  "http://www.w3.org/2000/01/rdf-schema#" );
+        builder.addPrefix("rdfs", "http://www.w3.org/2000/01/rdf-schema#");
         builder.addPrefix("rdf", "http://www.w3.org/1999/02/22-rdf-syntax-ns#");
-        builder.addVar( OBJECT );
-        if(args.containsKey("limit")){
+        builder.addVar(OBJECT);
+        if (args.containsKey("limit")) {
             builder.setLimit((Integer) args.get("limit"));
         }
-        if(args.containsKey("offset")){
+        if (args.containsKey("offset")) {
             builder.setOffset((Integer) args.get("offset"));
         }
-        if(args.containsKey("order")){
+        if (args.containsKey("order")) {
             String order = (String) args.get("order");
-            if(order.equals("ASC")){
+            if (order.equals("ASC")) {
                 builder.addOrderBy(OBJECT, Order.ASCENDING);
-            }else if(order.equals("DESC")){
+            } else if (order.equals("DESC")) {
                 builder.addOrderBy(OBJECT, Order.DESCENDING);
             }
 
         }
-        builder.addWhere(subject, getPropertyFromUri(predicateURI),OBJECT);
+        builder.addWhere(subject, getPropertyFromUri(predicateURI), OBJECT);
         Query query = builder.build();
-        LOGGER.debug("SPARQL query against the result pool: \n {}",query.toString());
-        QueryExecution qexec = QueryExecutionFactory.create(query, this.model) ;
+        LOGGER.debug("SPARQL query against the result pool: \n {}", query.toString());
+        QueryExecution qexec = QueryExecutionFactory.create(query, this.model);
         ResultSet results = qexec.execSelect();
-        while (results.hasNext()){
+        while (results.hasNext()) {
             final QuerySolution next = results.next();
             final RDFNode rdfNode = next.get("?object");
-            if(rdfNode.isLiteral()){
-                if(args.containsKey("lang")){
-                    if(rdfNode.asLiteral().getLanguage().equals(args.get("lang"))){
+            if (rdfNode.isLiteral()) {
+                if (args.containsKey("lang")) {
+                    if (rdfNode.asLiteral().getLanguage().equals(args.get("lang"))) {
                         res.add(rdfNode.asLiteral().getString());
                     }
-                }else{
+                } else {
                     res.add(rdfNode.asLiteral().getString());
                 }
 
@@ -324,7 +332,7 @@ public class ModelContainer {
         return res;
     }
 
-    public static void main(String[] arguments){
+    public static void main(String[] arguments) {
         ModelContainer model = new ModelContainer(ModelFactory.createDefaultModel());
         String subject = "http://example.org/alice";
         String predicate = "http://example.org/friends";

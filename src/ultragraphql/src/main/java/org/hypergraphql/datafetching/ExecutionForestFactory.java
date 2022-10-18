@@ -1,11 +1,6 @@
 package org.hypergraphql.datafetching;
 
-import graphql.language.Definition;
-import graphql.language.Document;
-import graphql.language.Field;
-import graphql.language.FragmentDefinition;
-import graphql.language.OperationDefinition;
-import graphql.language.SelectionSet;
+import graphql.language.*;
 import org.hypergraphql.datamodel.HGQLSchema;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,11 +16,12 @@ public class ExecutionForestFactory {
     /**
      * Generate ExecutionForest for the given query by adding an ExecutionTreeNode to the forest for each field of the
      * query
+     *
      * @param queryDocument valid GraphQL query
-     * @param schema HGQLSchema of the query
+     * @param schema        HGQLSchema of the query
      * @return ExecutionForest that contains ExecutionTreeNode for each field of the query
      */
-    public ExecutionForest getExecutionForest(Document queryDocument , HGQLSchema schema) {
+    public ExecutionForest getExecutionForest(Document queryDocument, HGQLSchema schema) {
 
         ExecutionForest forest = new ExecutionForest(true);
 
@@ -37,7 +33,7 @@ public class ExecutionForestFactory {
             if (child.getClass().getSimpleName().equals("Field")) {
 
                 String nodeId = "x_" + counter.incrementAndGet();
-                forest.getForest().add(new ExecutionTreeNode((Field) child, nodeId , schema));
+                forest.getForest().add(new ExecutionTreeNode((Field) child, nodeId, schema));
 
             }
         });
@@ -46,6 +42,7 @@ public class ExecutionForestFactory {
 
     /**
      * Extracts the SelectionSet from a given GraphQL query
+     *
      * @param queryDocument valid GraphQL query
      * @return SelectionSet of the given queryDocument
      */
@@ -53,12 +50,12 @@ public class ExecutionForestFactory {
 
         final Definition definition = queryDocument.getDefinitions().get(0);
 
-        if(definition.getClass().isAssignableFrom(FragmentDefinition.class)) {
+        if (definition.getClass().isAssignableFrom(FragmentDefinition.class)) {
 
             return getFragmentSelectionSet(queryDocument);
 
-        } else if(definition.getClass().isAssignableFrom(OperationDefinition.class)) {
-            final OperationDefinition operationDefinition = (OperationDefinition)definition;
+        } else if (definition.getClass().isAssignableFrom(OperationDefinition.class)) {
+            final OperationDefinition operationDefinition = (OperationDefinition) definition;
             return operationDefinition.getSelectionSet();
         }
         throw new IllegalArgumentException(queryDocument.getClass().getName() + " is not supported");
@@ -66,13 +63,14 @@ public class ExecutionForestFactory {
 
     /**
      * Replace the links to fragments in the query with the fragment definition.
+     *
      * @param queryDocument GraphQLQuery with fragments
      * @return GraphQLQuery without fragments
      */
     private static SelectionSet getFragmentSelectionSet(final Document queryDocument) {
 
         // NPE
-        final FragmentDefinition fragmentDefinition = (FragmentDefinition)queryDocument.getDefinitions().get(0);
+        final FragmentDefinition fragmentDefinition = (FragmentDefinition) queryDocument.getDefinitions().get(0);
         final SelectionSet originalSelectionSet = fragmentDefinition.getSelectionSet();
 
         final Optional<Definition> optionalDefinition = queryDocument.getDefinitions()
@@ -81,15 +79,15 @@ public class ExecutionForestFactory {
                 .findFirst();
 
         final OperationDefinition operationDefinition;
-        if(optionalDefinition.isPresent()) {
-            operationDefinition = (OperationDefinition)optionalDefinition.get();
+        if (optionalDefinition.isPresent()) {
+            operationDefinition = (OperationDefinition) optionalDefinition.get();
         } else {
             // bail
             throw new IllegalArgumentException("No OperationDefinition is available within the query");
         }
 
         // NPE?
-        final Field operationSelection = (Field)operationDefinition.getSelectionSet().getSelections().get(0);
+        final Field operationSelection = (Field) operationDefinition.getSelectionSet().getSelections().get(0);
 
         final String typeFieldName = operationSelection.getName();
 
