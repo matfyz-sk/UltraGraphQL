@@ -39,6 +39,11 @@ public class SPARQLMutationConverter {
      */
     public String translateMutation(Field mutation) {
         MUTATION_ACTION action = decideAction(mutation.getName());
+
+        if (action == null) {
+            return "";
+        }
+
         switch (action) {
             case INSERT:
                 return translateInsertMutation(mutation);
@@ -71,7 +76,7 @@ public class SPARQLMutationConverter {
                     .filter(argument -> !argument.getName().equals("_id"))
                     .map(argument -> translateArgument(rootObject, optionalID.get(), argument, MUTATION_ACTION.DELETE))
                     .collect(Collectors.joining("\n"));
-            return addDeleteDataWrapper(result);
+            return addSPARQLDeleteWrapper(result, null, getGraphName(getMutationService()));
 
         } else if (hasID && !hasOtherFields) {
             String id_uri = uriToResource(optionalID.get());
@@ -87,8 +92,7 @@ public class SPARQLMutationConverter {
                     .map(fieldOfTypeConfig -> optionalClause(toTriple(id_uri, uriToResource(fieldOfTypeConfig.getId()), toVar("o_" + i.getAndIncrement()))))
                     .collect(Collectors.joining("\n"));
 
-            return addDeleteWrapper(delete_all_type_fields + "\n" + delete_field_type) + "\n"
-                    + addWhereWrapper(delete_all_type_fields_optional);
+            return addSPARQLDeleteWrapper(delete_all_type_fields + "\n" + delete_field_type + "\n", delete_all_type_fields_optional, getGraphName(getMutationService()));
 
         } else if (!hasID && hasOtherFields) {
             // ID not defined but other fields
@@ -103,7 +107,7 @@ public class SPARQLMutationConverter {
                     .map(argument -> translateArgument(rootObject, null, argument, MUTATION_ACTION.DELETE))
                     .collect(Collectors.joining("\n"));
             triple += "\n" + delete_all_with_id_optional;
-            return addDeleteWrapper(delete_all_with_id) + "\n" + addWhereWrapper(triple);
+            return addSPARQLDeleteWrapper(delete_all_with_id + "\n", triple, getGraphName(getMutationService()));
         } else {
             // No arguments were given only perform the selectionSet
             return null;
@@ -123,26 +127,23 @@ public class SPARQLMutationConverter {
     /**
      * Add the SPARQL DELETE clause around the given triples
      *
-     * @param input SPARQL term that is suited inside the DELETE clause
+     * @param triples SPARQL term that is suited inside the DELETE clause
+     * @param where   SPARQL where part that is suited inside the DELETE clause
      * @return DELETE clause containing given input
      */
-    private String addDeleteWrapper(String input) {
-        return String.format("DELETE{\n%s\n}", input);
+    private String addSPARQLDeleteWrapper(String triples, String where, @NonNull String graph) {
+        if (where != null) {
+            return String.format("WITH<%s>\nDELETE{\n%s}\nWHERE{\n%s\n}", graph, triples, where);
+        }
+        return String.format("WITH<%s>\nDELETE{\n%s}", graph, triples);
     }
 
-    /**
-     * Add the SPARQL DELETE clause around the given triples
-     *
-     * @param input SPARQL term that is suited inside the DELETE clause
-     * @return DELETE clause containing given input
-     */
-    private String addDeleteDataWrapper(String input) {
-        return String.format("DELETE DATA{\n%s\n}", input);
+    private String addSPARQLInsertWrapper(String triples, @NonNull String graph) {
+        return String.format("INSERT DATA{\n%s\n}", getGraphPart(triples, graph));
     }
 
-    private String addSPARQLinsertWrapper(String triples, @NonNull String graph) {
-        String graphPart = String.format("GRAPH <%s>{\n%s\n}", graph, triples);
-        return String.format("INSERT DATA{\n%s\n}", graphPart);
+    private String getGraphPart(String triples, @NonNull String graph) {
+        return String.format("GRAPH <%s>{\n%s\n}", graph, triples);
     }
 
     /**
@@ -170,8 +171,11 @@ public class SPARQLMutationConverter {
             //type validation should already reject this mutation
         }
 
-        //ToDo: Add the insert wrapper around the new triples
-        return addSPARQLinsertWrapper(result, getGraphName(schema.getServiceList().values().stream().findFirst().orElse(null)));
+        return addSPARQLInsertWrapper(result, getGraphName(getMutationService()));
+    }
+
+    private Service getMutationService() {
+        return schema.getServiceList().values().stream().findFirst().orElse(null);
     }
 
     private String getGraphName(Service service) {
