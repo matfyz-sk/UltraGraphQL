@@ -3,7 +3,10 @@ package org.hypergraphql.datafetching.services.resultmodel;
 import org.hypergraphql.query.converters.SPARQLServiceConverter;
 import org.junit.jupiter.api.Test;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -37,10 +40,10 @@ class StringResultTest {
         //Testing safe fallback | isList=false and |values|>1 => return list and add error
         res.addString(BOB);
         Object obj = res.generateJSON();
-        if(obj instanceof Collection){
+        if (obj instanceof Collection) {
             assertTrue(((Collection<?>) obj).size() == 2);
             assertNotEquals("", res.errors);
-        }else{
+        } else {
             fail("Two values were added the safe fallback should result in returning a set containing both values.");
         }
 
@@ -52,38 +55,38 @@ class StringResultTest {
         res_list.addString(ALICE);
 
         Object obj_list = res_list.generateJSON();
-        if(obj_list instanceof Collection){
+        if (obj_list instanceof Collection) {
             assertTrue(((Collection<?>) obj_list).size() == 3);
             assertEquals("", res_list.errors);
-        }else{
+        } else {
             fail("Result is not a Collection but is defined as List.");
         }
 
         // Test ordering
         Map<String, Object> arguments = new HashMap<>();
-        arguments.put(SPARQLServiceConverter.ORDER,SPARQLServiceConverter.ORDER_DESC);
+        arguments.put(SPARQLServiceConverter.ORDER, SPARQLServiceConverter.ORDER_DESC);
         res_list.args = arguments;
         Collection<String> res_ordered = (Collection<String>) res_list.generateJSON();
         Iterator iterator = res_ordered.iterator();
-        if(iterator.hasNext()){
+        if (iterator.hasNext()) {
             assertEquals(EVE, iterator.next());
-        }else{
+        } else {
             fail("Result should have at least three result since three were added");
         }
-        if(iterator.hasNext()){
+        if (iterator.hasNext()) {
             assertEquals(BOB, iterator.next());
-        }else{
+        } else {
             fail("Result should have at least three result since three were added");
         }
-        if(iterator.hasNext()){
+        if (iterator.hasNext()) {
             assertEquals(ALICE, iterator.next());
-        }else{
+        } else {
             fail("Result should have at least three result since three were added");
         }
 
         // Test limit and offset
-        arguments.put(SPARQLServiceConverter.LIMIT,1);
-        arguments.put(SPARQLServiceConverter.OFFSET,1);
+        arguments.put(SPARQLServiceConverter.LIMIT, 1);
+        arguments.put(SPARQLServiceConverter.OFFSET, 1);
         Collection<String> obj_filtered = (Collection<String>) res_list.generateJSON();
         assertTrue(obj_filtered.size() == 1);
         assertEquals(BOB, obj_filtered.iterator().next());

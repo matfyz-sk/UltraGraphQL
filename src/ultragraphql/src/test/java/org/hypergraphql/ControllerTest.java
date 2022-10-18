@@ -10,19 +10,16 @@ import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
 import org.hypergraphql.config.system.HGQLConfig;
 import org.hypergraphql.services.HGQLConfigService;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Created by philipcoates on 2017-10-19T20:21
@@ -47,7 +44,7 @@ class ControllerTest {
 
     @AfterEach
     void stopServer() {
-        if(controller != null) {
+        if (controller != null) {
             controller.stop();
         }
     }
@@ -81,7 +78,7 @@ class ControllerTest {
     private Envelope getPath(final String path, final String acceptHeader) throws IOException {
 
         final Envelope envelope;
-        try(final CloseableHttpClient httpClient = HttpClients.createDefault()) {
+        try (final CloseableHttpClient httpClient = HttpClients.createDefault()) {
 
             final HttpGet get = new HttpGet(path);
             get.addHeader("Accept", acceptHeader);

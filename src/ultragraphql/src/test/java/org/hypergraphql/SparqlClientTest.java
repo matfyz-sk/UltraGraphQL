@@ -1,28 +1,5 @@
 package org.hypergraphql;
 
-import com.mashape.unirest.http.HttpResponse;
-import com.mashape.unirest.http.JsonNode;
-import com.mashape.unirest.http.Unirest;
-import com.mashape.unirest.http.exceptions.UnirestException;
-import org.apache.http.auth.AuthScope;
-import org.apache.http.auth.Credentials;
-import org.apache.http.auth.UsernamePasswordCredentials;
-import org.apache.http.client.CredentialsProvider;
-import org.apache.http.client.HttpClient;
-import org.apache.http.impl.client.BasicCredentialsProvider;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.jena.query.*;
-import org.apache.jena.riot.web.HttpOp;
-import org.apache.jena.sparql.ARQConstants.*;
-import org.apache.jena.sparql.ARQConstants;
-import org.apache.jena.sparql.engine.http.QueryEngineHTTP;
-import org.apache.jena.sparql.util.Context;
-import org.apache.jena.sparql.util.Symbol;
-
-
-import java.io.InputStream;
-
-
 /**
  * Created by philipcoates on 2017-10-19T20:22
  */

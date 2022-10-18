@@ -1,16 +1,5 @@
 package org.hypergraphql.datafetching;
 
-import org.apache.jena.rdf.model.Model;
-import org.apache.jena.rdf.model.ModelFactory;
-import org.junit.jupiter.api.Test;
-
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-
-import static org.junit.jupiter.api.Assertions.*;
-
 class SPARQLExecutionResultTest {
 
 //    @Test

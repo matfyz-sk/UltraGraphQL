@@ -19,10 +19,10 @@ class HGQLConfigTest {
     @BeforeEach
     void setUp() throws IOException {
         mapper = new ObjectMapper();
-        try(InputStream inputStream = new FileInputStream("./src/test/resources/test_config.json")){
+        try (InputStream inputStream = new FileInputStream("./src/test/resources/test_config.json")) {
             config = mapper.readValue(inputStream, HGQLConfig.class);
         }
-        try(InputStream inputStream = new FileInputStream("./src/test/resources/test_config_with_mapping.json")) {
+        try (InputStream inputStream = new FileInputStream("./src/test/resources/test_config_with_mapping.json")) {
             configMapping = mapper.readValue(inputStream, HGQLConfig.class);
         }
     }
@@ -80,19 +80,19 @@ class HGQLConfigTest {
 
     @Test
     void getServiceConfigs() {
-        assertEquals("dbpedia",config.getServiceConfigs().get(0).getId());
-        assertEquals("SPARQLEndpointService",config.getServiceConfigs().get(0).getType());
-        assertEquals("http://live.dbpedia.org/sparql/",config.getServiceConfigs().get(1).getUrl());
-        assertEquals("http://dbpedia.org",config.getServiceConfigs().get(0).getGraph());
-        assertEquals("test",config.getServiceConfigs().get(3).getUser());
-        assertEquals("pwd123",config.getServiceConfigs().get(3).getPassword());
+        assertEquals("dbpedia", config.getServiceConfigs().get(0).getId());
+        assertEquals("SPARQLEndpointService", config.getServiceConfigs().get(0).getType());
+        assertEquals("http://live.dbpedia.org/sparql/", config.getServiceConfigs().get(1).getUrl());
+        assertEquals("http://dbpedia.org", config.getServiceConfigs().get(0).getGraph());
+        assertEquals("test", config.getServiceConfigs().get(3).getUser());
+        assertEquals("pwd123", config.getServiceConfigs().get(3).getPassword());
 
-        assertEquals("dbpedia-sparql",configMapping.getServiceConfigs().get(0).getId());
-        assertEquals("SPARQLEndpointService",configMapping.getServiceConfigs().get(0).getType());
-        assertEquals("http://dbpedia.org/sparql/",configMapping.getServiceConfigs().get(0).getUrl());
-        assertEquals("http://dbpedia.org",configMapping.getServiceConfigs().get(0).getGraph());
-        assertEquals("",configMapping.getServiceConfigs().get(0).getUser());
-        assertEquals("",configMapping.getServiceConfigs().get(0).getPassword());
+        assertEquals("dbpedia-sparql", configMapping.getServiceConfigs().get(0).getId());
+        assertEquals("SPARQLEndpointService", configMapping.getServiceConfigs().get(0).getType());
+        assertEquals("http://dbpedia.org/sparql/", configMapping.getServiceConfigs().get(0).getUrl());
+        assertEquals("http://dbpedia.org", configMapping.getServiceConfigs().get(0).getGraph());
+        assertEquals("", configMapping.getServiceConfigs().get(0).getUser());
+        assertEquals("", configMapping.getServiceConfigs().get(0).getPassword());
     }
 
     @Test

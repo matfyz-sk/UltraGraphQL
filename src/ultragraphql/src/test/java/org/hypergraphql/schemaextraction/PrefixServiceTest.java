@@ -1,6 +1,5 @@
 package org.hypergraphql.schemaextraction;
 
-import net.bytebuddy.implementation.bind.MethodDelegationBinder;
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.rdf.model.impl.ResourceImpl;
 import org.junit.jupiter.api.BeforeEach;
@@ -8,9 +7,11 @@ import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
 import java.util.Map;
-import static org.junit.jupiter.api.Assertions.*;
+
 import static org.hypergraphql.config.schema.HGQLVocabulary.HGQL_SCHEMA_NAMESPACE;
 import static org.hypergraphql.config.schema.HGQLVocabulary.HGQL_SCHEMA_NAMESPACE_PREFIX;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class PrefixServiceTest {
 
@@ -26,7 +27,7 @@ class PrefixServiceTest {
     @Test
     void getNamespaceMapping() {
 
-        Map<String, String>  namespace = prefixService.getNamespaceMapping();
+        Map<String, String> namespace = prefixService.getNamespaceMapping();
         assertTrue(namespace.containsKey("http://www.example.org/"));
         assertEquals("ex", namespace.get("http://www.example.org/"));
         // check if the internal prefixes are added as well

@@ -2,15 +2,12 @@ package org.hypergraphql.services;
 
 import org.hypergraphql.config.system.HGQLConfig;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.io.InputStream;
 import java.util.Map;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 class HGQLQueryServiceTest {
 
@@ -37,7 +34,7 @@ class HGQLQueryServiceTest {
                 "}\n" +
                 "}";
 
-        final Map<String, Object> actual = service.results(query, null,null);
+        final Map<String, Object> actual = service.results(query, null, null);
 
         assertNotNull(actual);
         assertFalse(actual.isEmpty());

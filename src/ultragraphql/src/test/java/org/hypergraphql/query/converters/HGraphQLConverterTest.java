@@ -1,26 +1,15 @@
 package org.hypergraphql.query.converters;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import org.hypergraphql.Controller;
 import org.hypergraphql.config.system.HGQLConfig;
-import org.hypergraphql.datafetching.ExecutionForest;
-import org.hypergraphql.datafetching.ExecutionForestFactory;
-import org.hypergraphql.datafetching.ExecutionTreeNode;
-import org.hypergraphql.query.QueryValidator;
-import org.hypergraphql.query.ValidatedQuery;
 import org.hypergraphql.services.HGQLConfigService;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.InputStream;
-import java.util.HashSet;
-import java.util.Set;
-
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 //@Disabled
 class HGraphQLConverterTest {
@@ -37,7 +26,7 @@ class HGraphQLConverterTest {
         final HGQLConfigService configService = new HGQLConfigService();
         final InputStream inputStream = getClass().getClassLoader().getResourceAsStream(configPath);
         config = configService.loadHGQLConfig(configPath, inputStream, true); // ???
-        if(controller == null) {
+        if (controller == null) {
             controller = new Controller();
             controller.start(config);
         }
@@ -46,7 +35,7 @@ class HGraphQLConverterTest {
     @AfterEach
     void cleanUp() {
 
-        if(controller != null) {
+        if (controller != null) {
             controller.stop();
         }
     }

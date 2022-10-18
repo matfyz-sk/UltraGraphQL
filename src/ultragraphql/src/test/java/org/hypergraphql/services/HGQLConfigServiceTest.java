@@ -9,8 +9,6 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 class HGQLConfigServiceTest {
 
     static Logger log = Logger.getLogger(HGQLConfigServiceTest.class.getName());
@@ -19,7 +17,7 @@ class HGQLConfigServiceTest {
 
     @BeforeEach
     void setUp() throws FileNotFoundException {
-         config_1_input_stream = new FileInputStream(config_1);
+        config_1_input_stream = new FileInputStream(config_1);
     }
 
     @Test
