@@ -58,6 +58,73 @@ public class SPARQLMutationConverter {
     }
 
     /**
+     * Translates a given mutation into an SPARQL insert containing all information that were provided as triples.
+     *
+     * @param mutation GraphQL insert mutation
+     * @return SPARQL insert action
+     */
+    private String translateInsertMutation(Field mutation) {
+        TypeConfig rootObject = this.schema.getTypes().get(this.schema.getMutationFields().get(mutation.getName()));
+        final List<Argument> args = mutation.getArguments();   // containing the mutation information
+        String result = "";
+        Optional<String> id = args.stream()
+                .filter(argument -> argument.getName().equals("_id") && argument.getValue() instanceof StringValue)
+                .map(argument -> ((StringValue) argument.getValue()).getValue())
+                .findFirst();
+        if (id.isPresent()) {
+            result = toTriple(uriToResource(id.get()), rdf_type, uriToResource(rootObject.getId())) + "\n";
+            result += args.stream()
+                    .filter(argument -> !argument.getName().equals("_id"))
+                    .map(argument -> translateArgument(rootObject, id.get(), argument, MUTATION_ACTION.INSERT))
+                    .collect(Collectors.joining("\n"));
+        }
+        return addSPARQLInsertWrapper(result, getGraphName(getMutationService()));
+    }
+
+    /**
+     * Translates a given mutation into an SPARQL update containing all information that were provided as triples.
+     *
+     * @param mutation GraphQL update mutation
+     * @return SPARQL update action
+     */
+    private String translateUpdateMutation(Field mutation) {
+        TypeConfig rootObject = this.schema.getTypes().get(this.schema.getMutationFields().get(mutation.getName()));
+        final List<Argument> args = mutation.getArguments();   // containing the mutation information
+        String updateResult = "";
+        String deleteResult = "";
+        String where = "";
+
+        Optional<String> id = args.stream()
+                .filter(argument -> argument.getName().equals("_id") && argument.getValue() instanceof StringValue)
+                .map(argument -> ((StringValue) argument.getValue()).getValue())
+                .findFirst();
+
+        if (id.isPresent()) {
+            String id_uri = uriToResource(id.get());
+
+            updateResult = toTriple(id_uri, rdf_type, uriToResource(rootObject.getId())) + "\n";
+
+            updateResult += args.stream()
+                    .filter(argument -> !argument.getName().equals("_id"))
+                    .map(argument -> translateArgument(rootObject, id.get(), argument, MUTATION_ACTION.UPDATE))
+                    .collect(Collectors.joining("\n"));
+
+            List<String> argsToDelete = args.stream().map(Argument::getName).filter(name -> !name.equals("_id")).collect(Collectors.toList());
+
+            AtomicInteger i = new AtomicInteger(1);
+
+            List<FieldOfTypeConfig> listOfFieldsToUpdate = rootObject.getFields().values().stream().filter(fieldOfTypeConfig -> !fieldOfTypeConfig.getId().equals(RDF_TYPE) && argsToDelete.contains(fieldOfTypeConfig.getName())).collect(Collectors.toList());
+            deleteResult += listOfFieldsToUpdate.stream().map(fieldOfTypeConfig -> toTriple(id_uri, uriToResource(fieldOfTypeConfig.getId()), toVar("o_" + i.getAndIncrement())))
+                    .collect(Collectors.joining("\n"));
+
+            i.set(0);
+            where += listOfFieldsToUpdate.stream().map(fieldOfTypeConfig -> optionalClause(toTriple(id_uri, uriToResource(fieldOfTypeConfig.getId()), toVar("o_" + i.getAndIncrement()))))
+                    .collect(Collectors.joining("\n"));
+        }
+        return addSPARQLUpdateWrapper(deleteResult, updateResult, where, getGraphName(getMutationService()));
+    }
+
+    /**
      * Translates a given mutation into an SPARQL delete action using the provided information.
      *
      * @param mutation GraphQL delete mutation
@@ -66,13 +133,14 @@ public class SPARQLMutationConverter {
     private String translateDeleteMutation(Field mutation) {
         TypeConfig rootObject = this.schema.getTypes().get(this.schema.getMutationFields().get(mutation.getName()));
         final List<Argument> args = mutation.getArguments();   // containing the mutation information
+
         Optional<String> optionalID = args.stream()
                 .filter(argument -> argument.getName().equals("_id") && argument.getValue() instanceof StringValue)
                 .map(argument -> ((StringValue) argument.getValue()).getValue())
                 .findFirst();
+
         boolean hasID = optionalID.isPresent();
-        // all arguments that are not _id
-        boolean hasOtherFields = args.stream().anyMatch(argument -> !argument.getName().equals("_id"));  // has at least one field different from _id
+        boolean hasOtherFields = args.stream().anyMatch(argument -> !argument.getName().equals("_id"));  // has at least one field different from _id -> all arguments that are not _id
 
         if (hasID && hasOtherFields) {
             String result = "";
@@ -82,24 +150,19 @@ public class SPARQLMutationConverter {
                     .collect(Collectors.joining("\n"));
             return addSPARQLDeleteWrapper(result, null, getGraphName(getMutationService()));
 
-        } else if (hasID && !hasOtherFields) {
+        } else if (hasID) {  //hasID && !hasOtherFields -> ID defined but no other fields present
             String id_uri = uriToResource(optionalID.get());
             String delete_field_type = toTriple(id_uri, rdf_type, uriToResource(rootObject.getId()));
             AtomicInteger i = new AtomicInteger(1);
-            String delete_all_type_fields = rootObject.getFields().values().stream()
-                    .filter(fieldOfTypeConfig -> !fieldOfTypeConfig.getId().equals(RDF_TYPE))
-                    .map(fieldOfTypeConfig -> toTriple(id_uri, uriToResource(fieldOfTypeConfig.getId()), toVar("o_" + i.getAndIncrement())))
-                    .collect(Collectors.joining("\n"));
-            i.set(1);  // reset SPARQL variable id -> //ToDo: CHECK: separated handling could lead to different sorted lists and therefore incorrect assignment of the variables
-            String delete_all_type_fields_optional = rootObject.getFields().values().stream()
-                    .filter(fieldOfTypeConfig -> !fieldOfTypeConfig.getId().equals(RDF_TYPE))
-                    .map(fieldOfTypeConfig -> optionalClause(toTriple(id_uri, uriToResource(fieldOfTypeConfig.getId()), toVar("o_" + i.getAndIncrement()))))
-                    .collect(Collectors.joining("\n"));
 
+            List<FieldOfTypeConfig> fieldOfTypeConfigs = rootObject.getFields().values().stream().filter(fieldOfTypeConfig -> !fieldOfTypeConfig.getId().equals(RDF_TYPE)).collect(Collectors.toList());
+            String delete_all_type_fields = fieldOfTypeConfigs.stream().map(fieldOfTypeConfig -> toTriple(id_uri, uriToResource(fieldOfTypeConfig.getId()), toVar("o_" + i.getAndIncrement()))).collect(Collectors.joining("\n"));
+
+            i.set(1);  // reset SPARQL variable id
+
+            String delete_all_type_fields_optional = fieldOfTypeConfigs.stream().map(fieldOfTypeConfig -> optionalClause(toTriple(id_uri, uriToResource(fieldOfTypeConfig.getId()), toVar("o_" + i.getAndIncrement())))).collect(Collectors.joining("\n"));
             return addSPARQLDeleteWrapper(delete_all_type_fields + "\n" + delete_field_type + "\n", delete_all_type_fields_optional, getGraphName(getMutationService()));
-
-        } else if (!hasID && hasOtherFields) {
-            // ID not defined but other fields
+        } else if (hasOtherFields) { //!hasID && hasOtherFields -> ID not defined but other fields
             String var_root = rootObject.getName();
             String delete_all_with_id = toTriple(toVar(rootObject.getName()), toVar("p_1"), toVar("o")) + "\n"
                     + toTriple(toVar("s"), toVar("p_2"), toVar(rootObject.getName()));
@@ -145,79 +208,6 @@ public class SPARQLMutationConverter {
 
     private String getGraphPart(String triples, @NonNull String graph) {
         return String.format("GRAPH <%s>{\n%s\n}", graph, triples);
-    }
-
-    /**
-     * Translates a given mutation into an SPARQL insert containing all information that were provided as triples.
-     *
-     * @param mutation GraphQL insert mutation
-     * @return SPARQL insert action
-     */
-    private String translateInsertMutation(Field mutation) {
-        TypeConfig rootObject = this.schema.getTypes().get(this.schema.getMutationFields().get(mutation.getName()));
-        final List<Argument> args = mutation.getArguments();   // containing the mutation information
-        String result = "";
-        Optional<String> id = args.stream()
-                .filter(argument -> argument.getName().equals("_id") && argument.getValue() instanceof StringValue)
-                .map(argument -> ((StringValue) argument.getValue()).getValue())
-                .findFirst();
-        if (id.isPresent()) {
-            result = toTriple(uriToResource(id.get()), rdf_type, uriToResource(rootObject.getId())) + "\n";
-            result += args.stream()
-                    .filter(argument -> !argument.getName().equals("_id"))
-                    .map(argument -> translateArgument(rootObject, id.get(), argument, MUTATION_ACTION.INSERT))
-                    .collect(Collectors.joining("\n"));
-        } else {
-            //error id must be defined for insertion
-            //type validation should already reject this mutation
-        }
-        return addSPARQLInsertWrapper(result, getGraphName(getMutationService()));
-    }
-
-    /**
-     * Translates a given mutation into an SPARQL update containing all information that were provided as triples.
-     *
-     * @param mutation GraphQL update mutation
-     * @return SPARQL update action
-     */
-    private String translateUpdateMutation(Field mutation) {
-        TypeConfig rootObject = this.schema.getTypes().get(this.schema.getMutationFields().get(mutation.getName()));
-        final List<Argument> args = mutation.getArguments();   // containing the mutation information
-        String updateResult = "";
-        String deleteResult = "";
-        String where = "";
-
-        Optional<String> id = args.stream()
-                .filter(argument -> argument.getName().equals("_id") && argument.getValue() instanceof StringValue)
-                .map(argument -> ((StringValue) argument.getValue()).getValue())
-                .findFirst();
-
-        if (id.isPresent()) {
-            String id_uri = uriToResource(id.get());
-
-            updateResult = toTriple(id_uri, rdf_type, uriToResource(rootObject.getId())) + "\n";
-
-            updateResult += args.stream()
-                    .filter(argument -> !argument.getName().equals("_id"))
-                    .map(argument -> translateArgument(rootObject, id.get(), argument, MUTATION_ACTION.UPDATE))
-                    .collect(Collectors.joining("\n"));
-
-            List<String> argsToDelete = args.stream().map(Argument::getName).filter(name -> !name.equals("_id")).collect(Collectors.toList());
-
-            AtomicInteger i = new AtomicInteger(1);
-
-            List<FieldOfTypeConfig> listOfFieldsToUpdate = rootObject.getFields().values().stream().filter(fieldOfTypeConfig -> !fieldOfTypeConfig.getId().equals(RDF_TYPE) && argsToDelete.contains(fieldOfTypeConfig.getName())).collect(Collectors.toList());
-            deleteResult += listOfFieldsToUpdate.stream().map(fieldOfTypeConfig -> toTriple(id_uri, uriToResource(fieldOfTypeConfig.getId()), toVar("o_" + i.getAndIncrement())))
-                    .collect(Collectors.joining("\n"));
-
-            AtomicInteger i2 = new AtomicInteger(1);
-            where += listOfFieldsToUpdate.stream().map(fieldOfTypeConfig -> optionalClause(toTriple(id_uri, uriToResource(fieldOfTypeConfig.getId()), toVar("o_" + i2.getAndIncrement()))))
-                    .collect(Collectors.joining("\n"));
-        } else {
-            //error id must be defined for update
-            //type validation should already reject this mutation
-        }
-        return addSPARQLUpdateWrapper(deleteResult, updateResult, where, getGraphName(getMutationService()));
     }
 
     private Service getMutationService() {
