@@ -302,6 +302,7 @@ public class HGQLSchemaWiring {
 
         List<GraphQLFieldDefinition> mutationFields = new ArrayList<>();
         List<GraphQLFieldDefinition> builtInsertFields;
+        List<GraphQLFieldDefinition> builtUpdateFields;
         List<GraphQLFieldDefinition> builtDeleteFields;
 
         Set<TypeConfig> fields = this.hgqlSchema.getTypes().values().stream()
@@ -313,11 +314,16 @@ public class HGQLSchemaWiring {
                 .map(field -> registerGraphQLMutationField(field, MUTATION_ACTION.INSERT))
                 .collect(Collectors.toList());
 
+        builtUpdateFields = fields.stream()
+                .map(field -> registerGraphQLMutationField(field, MUTATION_ACTION.UPDATE))
+                .collect(Collectors.toList());
+
         builtDeleteFields = fields.stream()
                 .map(field -> registerGraphQLMutationField(field, MUTATION_ACTION.DELETE))
                 .collect(Collectors.toList());
 
         mutationFields.addAll(builtInsertFields);
+        mutationFields.addAll(builtUpdateFields);
         mutationFields.addAll(builtDeleteFields);
 
         return newObject()
@@ -332,6 +338,8 @@ public class HGQLSchemaWiring {
         String name = "";
         if (action == MUTATION_ACTION.INSERT) {
             name = String.format("%s%s", HGQL_MUTATION_INSERT_PREFIX, mutationfield.getName());
+        } else if (action == MUTATION_ACTION.UPDATE) {
+            name = String.format("%s%s", HGQL_MUTATION_UPDATE_PREFIX, mutationfield.getName());
         } else if (action == MUTATION_ACTION.DELETE) {
             name = String.format("%s%s", HGQL_MUTATION_DELETE_PREFIX, mutationfield.getName());
         } else {
@@ -376,6 +384,11 @@ public class HGQLSchemaWiring {
 
         }
         if (action == MUTATION_ACTION.INSERT) {
+            args.add(GraphQLArgument.newArgument()
+                    .name("_id")
+                    .type(GraphQLNonNull.nonNull(GraphQLID))
+                    .build());
+        } else if (action == MUTATION_ACTION.UPDATE) {
             args.add(GraphQLArgument.newArgument()
                     .name("_id")
                     .type(GraphQLNonNull.nonNull(GraphQLID))

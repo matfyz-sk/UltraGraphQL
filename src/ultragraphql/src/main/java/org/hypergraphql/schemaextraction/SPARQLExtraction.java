@@ -27,8 +27,8 @@ import java.io.FileNotFoundException;
 public class SPARQLExtraction {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SPARQLExtraction.class);
-    private MappingConfig mapConfig;
-    private QueryTemplatingEngine engine;
+    private final MappingConfig mapConfig;
+    private final QueryTemplatingEngine engine;
     private static final String RDF_FILE_ENDPOINT_ADDRESS = "http://localhost:";
     private static final String RDF_FILE_ENDPOINT_DATASET = "/dataset";
 

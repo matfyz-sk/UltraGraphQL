@@ -129,7 +129,9 @@ public class HGQLVocabulary {
     public static final String HGQL_MUTATION_INPUT_PREFIX = HGQL_MUTATION_INPUT + "_";
     public static final String HGQL_MUTATION_INPUT_FIELD_INFIX = "_as_";
     public static final String HGQL_MUTATION_INSERT_PREFIX = "insert_";
+    public static final String HGQL_MUTATION_UPDATE_PREFIX = "update_";
     public static final String HGQL_MUTATION_DELETE_PREFIX = "delete_";
+
 }
 
 

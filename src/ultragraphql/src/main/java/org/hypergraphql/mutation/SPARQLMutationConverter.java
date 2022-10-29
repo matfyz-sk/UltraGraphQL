@@ -2,6 +2,7 @@ package org.hypergraphql.mutation;
 
 import graphql.language.*;
 import io.micrometer.core.lang.NonNull;
+import org.hypergraphql.config.schema.FieldOfTypeConfig;
 import org.hypergraphql.config.schema.TypeConfig;
 import org.hypergraphql.datafetching.services.SPARQLEndpointService;
 import org.hypergraphql.datafetching.services.Service;
@@ -23,7 +24,7 @@ public class SPARQLMutationConverter {
     private static final String rdf_type = "a";
     private static final String GENERIC_GRAPH = "test";
 
-    public enum MUTATION_ACTION {INSERT, DELETE}
+    public enum MUTATION_ACTION {INSERT, UPDATE, DELETE}
 
     public SPARQLMutationConverter(HGQLSchema schema) {
         this.schema = schema;
@@ -32,7 +33,7 @@ public class SPARQLMutationConverter {
     /**
      * Translates a given GraphQL mutation into corresponding SPARQL actions.
      * If the given mutation is an insert mutation a SPARQL insert action is created.
-     * If the given mutation is an delete mutation a SPARQL delete action is created
+     * If the given mutation is a delete mutation a SPARQL delete action is created
      *
      * @param mutation GraphQL mutation
      * @return SPARQL action
@@ -47,6 +48,8 @@ public class SPARQLMutationConverter {
         switch (action) {
             case INSERT:
                 return translateInsertMutation(mutation);
+            case UPDATE:
+                return translateUpdateMutation(mutation);
             case DELETE:
                 return translateDeleteMutation(mutation);
             default:
@@ -69,7 +72,8 @@ public class SPARQLMutationConverter {
                 .findFirst();
         boolean hasID = optionalID.isPresent();
         // all arguments that are not _id
-        boolean hasOtherFields = args.stream().anyMatch(argument -> !argument.getName().equals("_id"));  // has atleast one field differnt form _id
+        boolean hasOtherFields = args.stream().anyMatch(argument -> !argument.getName().equals("_id"));  // has at least one field different from _id
+
         if (hasID && hasOtherFields) {
             String result = "";
             result += args.stream()
@@ -114,14 +118,15 @@ public class SPARQLMutationConverter {
         }
     }
 
-    /**
-     * Add the SPARQL WHERE clause around the given triples
-     *
-     * @param input SPARQL term that is suited inside the WHERE clause
-     * @return WHERE clause containing given input
-     */
-    private String addWhereWrapper(String input) {
-        return String.format("WHERE{\n%s\n}", input);
+    private String addSPARQLInsertWrapper(String triples, @NonNull String graph) {
+        return String.format("INSERT DATA{\n%s\n}", getGraphPart(triples, graph));
+    }
+
+    private String addSPARQLUpdateWrapper(String deleteTriples, String insertTriples, String where, @NonNull String graph) {
+        if (where != null) {
+            return String.format("WITH<%s>\nDELETE{\n%s}\nINSERT{\n%s}\nWHERE{\n%s\n}", graph, deleteTriples, insertTriples, where);
+        }
+        return String.format("WITH<%s>\nDELETE{\n%s}\nINSERT{\n%s}", graph, deleteTriples, insertTriples);
     }
 
     /**
@@ -136,10 +141,6 @@ public class SPARQLMutationConverter {
             return String.format("WITH<%s>\nDELETE{\n%s}\nWHERE{\n%s\n}", graph, triples, where);
         }
         return String.format("WITH<%s>\nDELETE{\n%s}", graph, triples);
-    }
-
-    private String addSPARQLInsertWrapper(String triples, @NonNull String graph) {
-        return String.format("INSERT DATA{\n%s\n}", getGraphPart(triples, graph));
     }
 
     private String getGraphPart(String triples, @NonNull String graph) {
@@ -170,8 +171,53 @@ public class SPARQLMutationConverter {
             //error id must be defined for insertion
             //type validation should already reject this mutation
         }
-
         return addSPARQLInsertWrapper(result, getGraphName(getMutationService()));
+    }
+
+    /**
+     * Translates a given mutation into an SPARQL update containing all information that were provided as triples.
+     *
+     * @param mutation GraphQL update mutation
+     * @return SPARQL update action
+     */
+    private String translateUpdateMutation(Field mutation) {
+        TypeConfig rootObject = this.schema.getTypes().get(this.schema.getMutationFields().get(mutation.getName()));
+        final List<Argument> args = mutation.getArguments();   // containing the mutation information
+        String updateResult = "";
+        String deleteResult = "";
+        String where = "";
+
+        Optional<String> id = args.stream()
+                .filter(argument -> argument.getName().equals("_id") && argument.getValue() instanceof StringValue)
+                .map(argument -> ((StringValue) argument.getValue()).getValue())
+                .findFirst();
+
+        if (id.isPresent()) {
+            String id_uri = uriToResource(id.get());
+
+            updateResult = toTriple(id_uri, rdf_type, uriToResource(rootObject.getId())) + "\n";
+
+            updateResult += args.stream()
+                    .filter(argument -> !argument.getName().equals("_id"))
+                    .map(argument -> translateArgument(rootObject, id.get(), argument, MUTATION_ACTION.UPDATE))
+                    .collect(Collectors.joining("\n"));
+
+            List<String> argsToDelete = args.stream().map(Argument::getName).filter(name -> !name.equals("_id")).collect(Collectors.toList());
+
+            AtomicInteger i = new AtomicInteger(1);
+
+            List<FieldOfTypeConfig> listOfFieldsToUpdate = rootObject.getFields().values().stream().filter(fieldOfTypeConfig -> !fieldOfTypeConfig.getId().equals(RDF_TYPE) && argsToDelete.contains(fieldOfTypeConfig.getName())).collect(Collectors.toList());
+            deleteResult += listOfFieldsToUpdate.stream().map(fieldOfTypeConfig -> toTriple(id_uri, uriToResource(fieldOfTypeConfig.getId()), toVar("o_" + i.getAndIncrement())))
+                    .collect(Collectors.joining("\n"));
+
+            AtomicInteger i2 = new AtomicInteger(1);
+            where += listOfFieldsToUpdate.stream().map(fieldOfTypeConfig -> optionalClause(toTriple(id_uri, uriToResource(fieldOfTypeConfig.getId()), toVar("o_" + i2.getAndIncrement()))))
+                    .collect(Collectors.joining("\n"));
+        } else {
+            //error id must be defined for update
+            //type validation should already reject this mutation
+        }
+        return addSPARQLUpdateWrapper(deleteResult, updateResult, where, getGraphName(getMutationService()));
     }
 
     private Service getMutationService() {
@@ -271,7 +317,7 @@ public class SPARQLMutationConverter {
         } else {
             results += toTriple(uriToResource(id), uriToResource(field_id), uriToResource(sub_id)) + "\n";
         }
-        if (action == MUTATION_ACTION.INSERT) {
+        if (action == MUTATION_ACTION.INSERT || action == MUTATION_ACTION.UPDATE) {
             results += toTriple(uriToResource(sub_id), rdf_type, uriToResource(subObject.getId())) + "\n";
         }
         results += valueFields.stream()
@@ -308,6 +354,8 @@ public class SPARQLMutationConverter {
     private MUTATION_ACTION decideAction(String mutationField) {
         if (mutationField.startsWith(HGQL_MUTATION_INSERT_PREFIX)) {
             return MUTATION_ACTION.INSERT;
+        } else if (mutationField.startsWith(HGQL_MUTATION_UPDATE_PREFIX)) {
+            return MUTATION_ACTION.UPDATE;
         } else if (mutationField.startsWith(HGQL_MUTATION_DELETE_PREFIX)) {
             return MUTATION_ACTION.DELETE;
         } else {

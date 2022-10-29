@@ -7,7 +7,6 @@ import org.hypergraphql.exception.HGQLConfigurationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
@@ -24,7 +23,7 @@ public class ExtractionController {
     static Logger LOGGER = LoggerFactory.getLogger(ExtractionController.class);
     private static final String SPARQL_ENDPOINT = "SPARQLEndpointService";
     private static final String LOCAL_RDF_MODEL = "LocalModelSPARQLService";
-    private List<ServiceConfig> serviceConfigs;
+    private final List<ServiceConfig> serviceConfigs;
     MappingConfig mapping;
     SPARQLExtraction extractor;
     RDFtoHGQL mapper;
@@ -56,9 +55,8 @@ public class ExtractionController {
                 Model serviceSchema = this.extractor.extractSchema(conf.getUrl(), conf.getUser(), conf.getPassword(), conf.getGraph());
                 this.mapper.create(serviceSchema, conf.getId());
             } else if (conf.getType().equals(LOCAL_RDF_MODEL)) {
-                Model serviceSchema = null;
+                Model serviceSchema;
                 LOGGER.debug("Extract schema form local RDF file for service " + conf.getId());
-                FileInputStream fileStream = null;
                 try {
                     serviceSchema = this.extractor.extractSchemaFromLocalRDFFile(conf.getFilepath(), conf.getFiletype(), conf.getGraph());
                 } catch (Exception e) {
