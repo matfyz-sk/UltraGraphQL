@@ -49,7 +49,7 @@ public class S3Service {
     Regions extractRegion(final URI uri) {
 
         final String regionString = uri.getHost().split("\\.")[0];
-        switch(regionString.toUpperCase()) {
+        switch (regionString.toUpperCase()) {
 
             case ("S3"):
                 return Regions.US_EAST_1;

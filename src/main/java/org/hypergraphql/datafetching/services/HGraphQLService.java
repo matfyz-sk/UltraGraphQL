@@ -1,6 +1,5 @@
 package org.hypergraphql.datafetching.services;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.mashape.unirest.http.HttpResponse;
@@ -29,7 +28,7 @@ public class HGraphQLService extends Service {
     private final static Logger LOGGER = LoggerFactory.getLogger(HGraphQLService.class);
 
     @Override
-    public TreeExecutionResult executeQuery(Query query, Set<String> input, Set<String> markers , String rootType, HGQLSchema schema) {
+    public TreeExecutionResult executeQuery(Query query, Set<String> input, Set<String> markers, String rootType, HGQLSchema schema) {
 
         Model model;
         Map<String, Set<String>> resultSet;

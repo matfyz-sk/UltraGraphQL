@@ -1,21 +1,30 @@
 {
-    "name": "hgql-example-with-sparql",
-    "schema": "gql/schema.graphql",
-    "extraction": false,
-    "mapping": "mapping.ttl",
-    "server": {
-        "port": 8080,
-        "graphql": "/graphql",
-        "graphiql": "/graphiql"
-    },
-    "services": [
-        {
-            "id": "dbpedia-sparql",
-            "type": "SPARQLEndpointService",
-            "url": "http://dbpedia.org/sparql/",
-            "graph": "http://dbpedia.org",
-            "user": "",
-            "password": ""
-        }
-    ]
+  "name": "matfyz-graphql-config",
+  "extraction": true,
+  "mutations": true,
+  "mutationService": "matfyz-graphql",
+  "server": {
+    "port": 8080,
+    "graphql": "/graphql",
+    "graphiql": "/graphiql"
+  },
+  "services": [
+    {
+      "id": "matfyz-graphql",
+      "type": "SPARQLEndpointService",
+      "url": "http://127.0.0.1:8890/sparql/",
+      "graph": "http://www.courses.matfyz.sk/",
+      "user": "SPARQL",
+      "password": "123456"
+    }
+  ],
+  "prefixes":{
+    "courses-data": "http://www.courses.matfyz.sk/data",
+    "courses": "http://www.courses.matfyz.sk/ontology#",
+    "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+    "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+    "schema": "http://schema.org/",
+    "owl": "http://www.w3.org/2002/07/owl#",
+    "xsd": "http://www.w3.org/2001/XMLSchema#"
+  }
 }

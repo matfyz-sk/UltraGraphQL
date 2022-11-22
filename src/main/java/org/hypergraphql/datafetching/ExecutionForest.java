@@ -1,6 +1,5 @@
 package org.hypergraphql.datafetching;
 
-import org.hypergraphql.config.schema.HGQLVocabulary;
 import org.hypergraphql.datafetching.services.resultmodel.QueryRootResult;
 import org.hypergraphql.datafetching.services.resultmodel.Result;
 import org.slf4j.Logger;
@@ -16,7 +15,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicReference;
 
-public class ExecutionForest  {
+public class ExecutionForest {
 
     private final static Logger LOGGER = LoggerFactory.getLogger(ExecutionForest.class);
     private boolean isRoot;
@@ -41,7 +40,7 @@ public class ExecutionForest  {
         ExecutorService executor = Executors.newFixedThreadPool(10);
 //        Model model = ModelFactory.createDefaultModel();
         AtomicReference<Result> formatedResult = new AtomicReference<>();
-        if(isRoot){
+        if (isRoot) {
             formatedResult.set(new QueryRootResult(ExecutionTreeNode.ROOT_TYPE, ExecutionTreeNode.ROOT_TYPE));
         }
         Set<Future<Result>> futureModels = new HashSet<>();
@@ -52,9 +51,9 @@ public class ExecutionForest  {
         futureModels.forEach(futureResult -> {
             try {
 //                model.add(futureModel.get());
-                if(formatedResult.get() == null){
+                if (formatedResult.get() == null) {
                     formatedResult.set(futureResult.get());
-                }else{
+                } else {
                     formatedResult.get().merge(futureResult.get());   //ToDo: This kind of merging does not apply correctly in the case of root queries
                 }
             } catch (InterruptedException | ExecutionException e) {

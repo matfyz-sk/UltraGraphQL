@@ -1,6 +1,5 @@
 package org.hypergraphql.services;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import graphql.*;
 import graphql.language.Definition;
 import graphql.language.OperationDefinition;
@@ -58,14 +57,14 @@ public class HGQLQueryService {
         }
         final List<Definition> definitions = validatedQuery.getParsedQuery().getDefinitions();
         Definition def = definitions.get(0);
-        if(def.getClass().isAssignableFrom(OperationDefinition.class)) {
-            final OperationDefinition operationDefinition = (OperationDefinition)def;
-            if(operationDefinition.getName() != null && operationDefinition.getName().equals("IntrospectionQuery")){
+        if (def.getClass().isAssignableFrom(OperationDefinition.class)) {
+            final OperationDefinition operationDefinition = (OperationDefinition) def;
+            if (operationDefinition.getName() != null && operationDefinition.getName().equals("IntrospectionQuery")) {
 
                 isIntrospectionQuery = true;
             }
         }
-        if (isIntrospectionQuery){
+        if (isIntrospectionQuery) {
 
             qlResult = graphql.execute(query);   // data correctly returned
             data.putAll(qlResult.getData());
@@ -92,15 +91,15 @@ public class HGQLQueryService {
 //                endTime = System.nanoTime();
 //                LOGGER.info("Time to query GraphQL response from result pool: {}", endTime - startTime);
 //                data.putAll(qlResult.getData());
-                if(formattedResult instanceof ObjectResult){
-                    Map<String, Object> json = ((ObjectResult)formattedResult).generateJSON();
+                if (formattedResult instanceof ObjectResult) {
+                    Map<String, Object> json = ((ObjectResult) formattedResult).generateJSON();
                     LOGGER.debug("Transformed JSON result: " + json);
                     data.putAll(json);
-                }else if(formattedResult instanceof QueryRootResult){
-                    Map<String, Object> json = ((QueryRootResult)formattedResult).generateJSON();
+                } else if (formattedResult instanceof QueryRootResult) {
+                    Map<String, Object> json = ((QueryRootResult) formattedResult).generateJSON();
                     LOGGER.debug("Transformed JSON result: " + json);
                     data.putAll(json);
-                }else{
+                } else {
                     LOGGER.error("Result of query should not be a single JSON Array");
                 }
                 data.put("@context", queryExecutionForest.getFullLdContext());
@@ -108,7 +107,7 @@ public class HGQLQueryService {
                 result.put("data", formattedResult.generateJSON());
             }
             //ToDo: Improve the Error build-up
-            if(formattedResult.getErrors() != null && !formattedResult.getErrors().equals("")){
+            if (formattedResult.getErrors() != null && !formattedResult.getErrors().equals("")) {
                 final GraphQLError graphQLError = GraphqlErrorBuilder.newError()
                         .message(formattedResult.getErrors())
                         .build();
@@ -119,7 +118,7 @@ public class HGQLQueryService {
         if (data != null) {
             result.put("data", data);
             //ToDo: Add the error messages from the result object
-            if(qlResult != null) {
+            if (qlResult != null) {
                 errors.addAll(qlResult.getErrors());
             }
         }

@@ -6,9 +6,6 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.util.EntityUtils;
-import org.apache.jena.atlas.json.JsonArray;
-import org.apache.jena.atlas.json.JsonObject;
-import org.hypergraphql.datafetching.services.SPARQLService;
 import org.hypergraphql.query.converters.SPARQLServiceConverter;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -39,6 +36,7 @@ class ApplicationTest {
 
     /**
      * This test is documented
+     *
      * @throws Exception
      */
     @Test
@@ -47,7 +45,7 @@ class ApplicationTest {
         String query = "{City{label(lang:\\\"de\\\")_id}}";
 
         JSONObject json_response = sendPost(config, query);
-        if(json_response == null) {
+        if (json_response == null) {
             fail("No Response from the HGQL instance received");
         }
         // the City Cologne is only in service_1
@@ -57,12 +55,12 @@ class ApplicationTest {
         boolean corfu_label = false;
         boolean corfu_id = false;
         for (Object o : json_response.getJSONObject("data").getJSONArray("City")) {
-            if(((JSONObject) o).get("_id").equals("http://dbpedia.org/resource/Corfu")){
+            if (((JSONObject) o).get("_id").equals("http://dbpedia.org/resource/Corfu")) {
                 corfu_id = true;
                 if (((JSONObject) o).getJSONArray("label").get(0).equals("Korfu")) {
                     corfu_label = true;
                 }
-            }else  if (((JSONObject) o).get("_id").equals("http://dbpedia.org/resource/koeln")) {
+            } else if (((JSONObject) o).get("_id").equals("http://dbpedia.org/resource/koeln")) {
                 cologne_id = true;
                 if (((JSONObject) o).getJSONArray("label").get(0).equals("Köln")) {
                     cologne_label = true;
@@ -79,7 +77,7 @@ class ApplicationTest {
         String query = "{City{label(lang:\\\"de\\\")_id}}";
 
         JSONObject json_response = sendPost(config, query);
-        if(json_response == null) {
+        if (json_response == null) {
             fail("No Response from the HGQL instance received");
         }
         // the City Cologne is only in service_1
@@ -89,12 +87,12 @@ class ApplicationTest {
         boolean corfu_label = false;
         boolean corfu_id = false;
         for (Object o : json_response.getJSONObject("data").getJSONArray("City")) {
-            if(((JSONObject) o).get("_id").equals("http://dbpedia.org/resource/Corfu")){
+            if (((JSONObject) o).get("_id").equals("http://dbpedia.org/resource/Corfu")) {
                 corfu_id = true;
                 if (((JSONObject) o).getJSONArray("label").get(0).equals("Korfu")) {
                     corfu_label = true;
                 }
-            }else  if (((JSONObject) o).get("_id").equals("http://dbpedia.org/resource/koeln")) {
+            } else if (((JSONObject) o).get("_id").equals("http://dbpedia.org/resource/koeln")) {
                 cologne_id = true;
                 if (((JSONObject) o).getJSONArray("label").get(0).equals("Köln")) {
                     cologne_label = true;
@@ -116,10 +114,10 @@ class ApplicationTest {
         boolean correctly_nested = false;
         for (Object o : json_response.getJSONObject("data").getJSONArray("Person")) {
             JSONObject person = (JSONObject) o;
-            if(person.getJSONArray("firstName").get(0).equals(alice_firstName)){
+            if (person.getJSONArray("firstName").get(0).equals(alice_firstName)) {
                 JSONObject address = (JSONObject) person.getJSONArray("address").get(0);
                 JSONObject city = (JSONObject) address.getJSONArray("city").get(0);
-                if(city.getJSONArray("label").get(0).equals(alice_residence)){
+                if (city.getJSONArray("label").get(0).equals(alice_residence)) {
                     correctly_nested = true;
                 }
             }
@@ -139,10 +137,10 @@ class ApplicationTest {
         boolean correctly_nested = false;
         for (Object o : json_response.getJSONObject("data").getJSONArray("eg_Person")) {
             JSONObject person = (JSONObject) o;
-            if(person.getJSONArray("eg_firstName").get(0).equals(alice_firstName)){
+            if (person.getJSONArray("eg_firstName").get(0).equals(alice_firstName)) {
                 JSONObject address = (JSONObject) person.getJSONArray("eg_address").get(0);
                 JSONObject city = (JSONObject) address.getJSONArray("eg_city").get(0);
-                if(city.getJSONArray("rdfs_label").get(0).equals(alice_residence)){
+                if (city.getJSONArray("rdfs_label").get(0).equals(alice_residence)) {
                     correctly_nested = true;
                 }
             }
@@ -160,9 +158,9 @@ class ApplicationTest {
         boolean alice = false;
         for (Object o : json_response.getJSONObject("data").getJSONArray("eg_Person")) {
             JSONObject person = (JSONObject) o;
-            if(person.getJSONArray("rdfs_label").get(0).equals("Alice")){
+            if (person.getJSONArray("rdfs_label").get(0).equals("Alice")) {
                 alice = true;
-            }else if(person.getJSONArray("rdfs_label").get(0).equals("Bob")){
+            } else if (person.getJSONArray("rdfs_label").get(0).equals("Bob")) {
                 bob = true;
             }
         }
@@ -179,7 +177,7 @@ class ApplicationTest {
         boolean alice = false;
         for (Object o : json_response.getJSONObject("data").getJSONArray("eg_Person")) {
             JSONObject person = (JSONObject) o;
-            if(person.getJSONArray("rdfs_label").get(0).equals("Alice")){
+            if (person.getJSONArray("rdfs_label").get(0).equals("Alice")) {
                 final JSONArray addressObjects = person.getJSONArray("eg_address");
                 for (Object object : addressObjects) {
                     JSONObject addressObject = (JSONObject) object;
@@ -187,14 +185,14 @@ class ApplicationTest {
                         assertTrue(alice = ((JSONArray) addressObject.get("eg_street")).get(0).equals("123 Fake Street"));
                     }
                 }
-            }else if(person.getJSONArray("rdfs_label").get(0).equals("Bob")){
+            } else if (person.getJSONArray("rdfs_label").get(0).equals("Bob")) {
                 final JSONArray addressObjects = person.getJSONArray("eg_address");
                 for (Object object : addressObjects) {
                     JSONObject addressObject = (JSONObject) object;
-                    if(addressObject.keySet().contains("dbo_street_name")){
+                    if (addressObject.keySet().contains("dbo_street_name")) {
                         assertTrue(bob = bob || ((JSONArray) addressObject.get("dbo_street_name")).get(0).equals("Evergreen Terrace"));
                     }
-                    if(addressObject.keySet().contains("dbo_street_name")){
+                    if (addressObject.keySet().contains("dbo_street_name")) {
                         assertTrue((bob = bob || (((JSONArray) addressObject.get("dbo_street_number")).get(0).equals("742"))));
                     }
                 }
@@ -215,16 +213,16 @@ class ApplicationTest {
         System.out.println(json_response);
         for (Object o : json_response.getJSONObject("data").getJSONArray("Person")) {
             JSONObject person = (JSONObject) o;
-            if(person.getJSONArray("firstName").get(0).equals("Alice")){
+            if (person.getJSONArray("firstName").get(0).equals("Alice")) {
                 JSONArray pets = person.getJSONArray("pet");
-                for(Object o1 : pets){
+                for (Object o1 : pets) {
                     JSONObject pet = (JSONObject) o1;
-                    if(pet.get("_id").equals("http://www.example.org/dog_a")){
+                    if (pet.get("_id").equals("http://www.example.org/dog_a")) {
                         has_type_1 = true;
-                        if(pet.getJSONArray("color").get(0).equals("brown")){
+                        if (pet.getJSONArray("color").get(0).equals("brown")) {
                             has_typeSpecificField_of_type_1 = true;
                         }
-                    }else if(pet.get("_id").equals("http://www.example.org/cat_a")){
+                    } else if (pet.get("_id").equals("http://www.example.org/cat_a")) {
                         has_type_2 = true;
                     }
                 }
@@ -247,9 +245,9 @@ class ApplicationTest {
         Thread.sleep(SOCKET_CLOSING);
         for (Object o : json_response.getJSONObject("data").getJSONArray("Person")) {
             JSONObject person = (JSONObject) o;
-            if(person.has(SPARQLServiceConverter.ID)){
-                if(person.getString("_id").equals("http://www.example.org/alice")){
-                    if(person.has("label")){
+            if (person.has(SPARQLServiceConverter.ID)) {
+                if (person.getString("_id").equals("http://www.example.org/alice")) {
+                    if (person.has("label")) {
                         JSONArray label = person.getJSONArray("label");
                         assertTrue(label.length() == 1);
                         assertEquals("Alice2", label.get(0));
@@ -274,7 +272,7 @@ class ApplicationTest {
 
 
     @Test
-    void literalHandlingTest() throws Exception{
+    void literalHandlingTest() throws Exception {
         String config = "build/resources/test/evaluation/literal_handling/config.json";
         String query = "{ex_Person{ex_name ex_address{...on " + HGQL_SCALAR_LITERAL_GQL_NAME +
                 "{" + HGQL_SCALAR_LITERAL_VALUE_GQL_NAME + "} ...on ex_Address{ex_house_number}}}}";
@@ -283,28 +281,29 @@ class ApplicationTest {
         JSONObject data = (JSONObject) json_response.get("data");
         Boolean hasLiteral = false;
         Boolean hasObject = false;
-        if(data != null){
+        if (data != null) {
             JSONObject person = (JSONObject) data.getJSONArray("ex_Person").get(0);
-            if(person != null){
+            if (person != null) {
                 JSONArray addr = person.getJSONArray("ex_address");
-                for(int i = 0; i< addr.length(); i++){
+                for (int i = 0; i < addr.length(); i++) {
                     JSONObject obj = (JSONObject) addr.get(i);
-                    if(obj.has(HGQL_SCALAR_LITERAL_VALUE_GQL_NAME)){
+                    if (obj.has(HGQL_SCALAR_LITERAL_VALUE_GQL_NAME)) {
                         assertTrue(obj.getJSONArray(HGQL_SCALAR_LITERAL_VALUE_GQL_NAME).get(0).equals("742 Evergreen Terrace"));
                         hasLiteral = true;
                     }
-                    if(obj.has("ex_house_number")){
+                    if (obj.has("ex_house_number")) {
                         assertTrue(obj.getJSONArray("ex_house_number").get(0).equals("742"));
                         hasObject = true;
                     }
-                };
+                }
+                ;
             }
         }
         assertTrue(hasLiteral && hasObject);
     }
 
     @Test
-    void testTrigDataHandling() throws Exception{
+    void testTrigDataHandling() throws Exception {
         String config = "build/resources/test/evaluation/trig/config.json";
         String query = "{City{_id label located_in{_id label consists_of{_id label}}}}";
         JSONObject json_response = sendPost(config, query);
@@ -312,7 +311,7 @@ class ApplicationTest {
         assertTrue(json_response != null);
         assertTrue(json_response.has("data"));
         assertTrue(json_response.getJSONObject("data").has("City"));
-        for (Object res_item : json_response.getJSONObject("data").getJSONArray("City")){
+        for (Object res_item : json_response.getJSONObject("data").getJSONArray("City")) {
             JSONObject res = (JSONObject) res_item;
             assertTrue(res.has("_id"));
             String[] match_id = {"http://www.example.org/#Berlin", "http://www.example.org/#Aachen"};
@@ -320,11 +319,10 @@ class ApplicationTest {
             assertTrue(Arrays.stream(match_id).anyMatch(s -> s.equals(match)));
             assertTrue(res.has("located_in"));
             assertEquals("http://www.example.org/#Germany", res.getJSONObject("located_in").getString("_id"));
-            assertTrue( res.getJSONObject("located_in").has("consists_of"));
-            assertTrue( res.getJSONObject("located_in").getJSONArray("consists_of").length() == 2);
+            assertTrue(res.getJSONObject("located_in").has("consists_of"));
+            assertTrue(res.getJSONObject("located_in").getJSONArray("consists_of").length() == 2);
         }
     }
-
 
 
     private JSONObject sendPost(String config, String query) throws Exception {
@@ -335,8 +333,8 @@ class ApplicationTest {
 
         try {
 
-            HttpPost request = new HttpPost("http://localhost:"+port+"/graphql");
-            StringEntity params =new StringEntity("{\"query\":\""+query+"\",\"variables\":null,\"operationName\":null}");
+            HttpPost request = new HttpPost("http://localhost:" + port + "/graphql");
+            StringEntity params = new StringEntity("{\"query\":\"" + query + "\",\"variables\":null,\"operationName\":null}");
             request.addHeader("content-type", "application/json+turtle");
             request.setEntity(params);
             HttpResponse response = httpClient.execute(request);
@@ -344,7 +342,7 @@ class ApplicationTest {
             //handle response here...
             JSONObject json_response = new JSONObject(EntityUtils.toString(response.getEntity()));
             return json_response;
-        }catch (Exception ex) {
+        } catch (Exception ex) {
             System.out.println(ex);
             //handle exception here
 

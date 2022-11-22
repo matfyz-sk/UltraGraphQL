@@ -11,14 +11,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
-import java.util.concurrent.*;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 import java.util.stream.Collectors;
 
 /**
  * The ManifoldService represents a set of multiple services. Incoming queries are forwarded to all services of this object and executed.
  * Returning results are merged and returned.
  * Note: This class is not intended to be used as a service type in the UGQL config file and will only be created internally
- *       if multiple service ids are assigned to one schema entity.
+ * if multiple service ids are assigned to one schema entity.
  */
 public class ManifoldService extends Service {
 
@@ -26,11 +28,11 @@ public class ManifoldService extends Service {
     private Set<Service> services;
     private String level = null;
 
-    public ManifoldService(){
+    public ManifoldService() {
         super();
     }
 
-    public ManifoldService(ManifoldService parent, String level){
+    public ManifoldService(ManifoldService parent, String level) {
         super();
         setParameters(parent.getServices());
         setLevel(level);
@@ -40,11 +42,12 @@ public class ManifoldService extends Service {
     /**
      * Executes the query by handing over the query to each service of this object to execute the query to then
      * merge the results of each service.
-     * @param query query or sub-query to be executed
-     * @param input Possible IRIs of the parent query that are used to limit the results of this query/sub-query
-     * @param markers variables for the SPARQL query
+     *
+     * @param query    query or sub-query to be executed
+     * @param input    Possible IRIs of the parent query that are used to limit the results of this query/sub-query
+     * @param markers  variables for the SPARQL query
      * @param rootType type of the query root
-     * @param schema HGQLSchema the query is based on
+     * @param schema   HGQLSchema the query is based on
      * @return Query results and IRIs for underlying queries
      */
     @Override
@@ -55,21 +58,21 @@ public class ManifoldService extends Service {
         Model model = ModelFactory.createDefaultModel();
         Result formatedResult = null;
 //        Set<Future<TreeExecutionResult>> futureResults = new HashSet<>();
-        for( Service service : services){
-              TreeExecutionResult res_part = service.executeQuery(query, input, markers, rootType, schema);
-              res_part.getResultSet().forEach((var, uri) ->{
-                  if(resultSet.get(var)== null){
-                      resultSet.put(var, uri);
-                  }else{
-                      resultSet.get(var).addAll(uri);
-                  }
-              });
+        for (Service service : services) {
+            TreeExecutionResult res_part = service.executeQuery(query, input, markers, rootType, schema);
+            res_part.getResultSet().forEach((var, uri) -> {
+                if (resultSet.get(var) == null) {
+                    resultSet.put(var, uri);
+                } else {
+                    resultSet.get(var).addAll(uri);
+                }
+            });
 //              model.add(res_part.getModel());
-              if(formatedResult == null){
-                  formatedResult = res_part.getFormatedResult();
-              }else{
-                  formatedResult.merge(res_part.getFormatedResult());
-              }
+            if (formatedResult == null) {
+                formatedResult = res_part.getFormatedResult();
+            } else {
+                formatedResult.merge(res_part.getFormatedResult());
+            }
 //            ExecutorService executor = Executors.newFixedThreadPool(5);
 //            CallableService execution = new CallableService(service, query, input, strings,rootType, schema);
 //            futureResults.add(executor.submit(execution));
@@ -88,10 +91,11 @@ public class ManifoldService extends Service {
     /**
      * Setup method for the class.
      * ATTENTION: It is possible that a ManifoldService contains another ManifoldService this behavior can lead to infinite
-     *            recursive executeQuery() calls if there is a circle in through the services.
+     * recursive executeQuery() calls if there is a circle in through the services.
+     *
      * @param services Set of services this service queries
      */
-    public void setParameters(Set<Service> services){
+    public void setParameters(Set<Service> services) {
         this.services = services;
         this.id = generateId(services);
     }
@@ -100,6 +104,7 @@ public class ManifoldService extends Service {
      * Generates a ManifoldService id for the given set of services.
      * Format of the id: Any ManifoldService begins with the prefix "manifoldService_" and then the ids of the services
      * are appended to this string in increasing order separated by the infix "_"
+     *
      * @param services Set of services
      * @return id of the ManifoldService that has the given set of services
      */
@@ -114,18 +119,20 @@ public class ManifoldService extends Service {
 
     /**
      * Getter method for the set of services stored in this object.
+     *
      * @return set of services
      */
-    public Set<Service> getServices(){
+    public Set<Service> getServices() {
         return services;
     }
 
     /**
      * Getter method to get a service by id.
+     *
      * @param id id of the requested service
      * @return Service that has the given id or null if service not present
      */
-    public Service getService(String id){
+    public Service getService(String id) {
         Optional<Service> optionalService = this.services.stream()
                 .filter(service -> service.getId().equals(id))
                 .findFirst();
@@ -134,22 +141,23 @@ public class ManifoldService extends Service {
 
     /**
      * Merge the given futureResults to one TreeExecutionResult
+     *
      * @param futureResults set of future results that should be merged
-     * @param resultUnion TreeExecutionResult object to store the merged result
+     * @param resultUnion   TreeExecutionResult object to store the merged result
      */
-    private void iterateFutureResults(final Set<Future<TreeExecutionResult>> futureResults, TreeExecutionResult resultUnion){
+    private void iterateFutureResults(final Set<Future<TreeExecutionResult>> futureResults, TreeExecutionResult resultUnion) {
         for (Future<TreeExecutionResult> futureExecutionResult : futureResults) {
             try {
                 TreeExecutionResult result = futureExecutionResult.get();
 //                resultUnion.getModel().add(result.getModel());
-                if(resultUnion.getFormatedResult() == null){
+                if (resultUnion.getFormatedResult() == null) {
                     resultUnion.setFormatedResult(result.getFormatedResult());
-                }else{
+                } else {
                     resultUnion.getFormatedResult().merge(result.getFormatedResult());
                 }
                 resultUnion.getResultSet().putAll(result.getResultSet());
             } catch (InterruptedException
-                    | ExecutionException e) {
+                     | ExecutionException e) {
                 e.printStackTrace();
             }
         }
@@ -190,7 +198,7 @@ public class ManifoldService extends Service {
 
         @Override
         public TreeExecutionResult call() throws Exception {
-            return this.service.executeQuery(query,input,strings,rootType,schema);
+            return this.service.executeQuery(query, input, strings, rootType, schema);
         }
     }
 }

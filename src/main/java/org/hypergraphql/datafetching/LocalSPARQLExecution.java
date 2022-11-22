@@ -1,18 +1,11 @@
 package org.hypergraphql.datafetching;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import org.apache.jena.query.*;
-import org.apache.jena.query.QueryExecution;
-import org.apache.jena.query.QueryExecutionFactory;
-import org.apache.jena.query.QueryFactory;
-import org.apache.jena.query.ResultSet;
-import org.apache.jena.rdf.model.Model;
 import org.hypergraphql.datafetching.services.SPARQLEndpointService;
 import org.hypergraphql.datafetching.services.resultmodel.Result;
 import org.hypergraphql.datamodel.HGQLSchema;
 import org.hypergraphql.query.converters.SPARQLServiceConverter;
 import org.hypergraphql.query.pattern.Query;
-
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -32,16 +25,15 @@ public class LocalSPARQLExecution extends SPARQLEndpointExecution {
 
 
     /**
-     *
-     * @param query query or sub-query to be executed
-     * @param inputSubset Possible IRIs of the parent query that are used to limit the results of this query/sub-query. Should be below the defined value limit (VALUES_SIZE_LIMIT)
-     * @param markers variables for the SPARQL query
+     * @param query                 query or sub-query to be executed
+     * @param inputSubset           Possible IRIs of the parent query that are used to limit the results of this query/sub-query. Should be below the defined value limit (VALUES_SIZE_LIMIT)
+     * @param markers               variables for the SPARQL query
      * @param sparqlEndpointService Service object with data model, query is executed on this model
-     * @param schema HGQLSchema the query is based on
-     * @param localmodel Local data model the query will be executed on
-     * @param rootType type of the query root
+     * @param schema                HGQLSchema the query is based on
+     * @param localmodel            Local data model the query will be executed on
+     * @param rootType              type of the query root
      */
-    public LocalSPARQLExecution(Query query, Set<String> inputSubset, Set<String> markers, SPARQLEndpointService sparqlEndpointService, HGQLSchema schema , Dataset localmodel, String rootType) {
+    public LocalSPARQLExecution(Query query, Set<String> inputSubset, Set<String> markers, SPARQLEndpointService sparqlEndpointService, HGQLSchema schema, Dataset localmodel, String rootType) {
         super(query, inputSubset, markers, sparqlEndpointService, schema, rootType);
         this.model = localmodel;   //ToDo:
         this.serviceId = sparqlEndpointService.getId();
@@ -49,6 +41,7 @@ public class LocalSPARQLExecution extends SPARQLEndpointExecution {
 
     /**
      * Executes the query assigned to the object and builds-up the formatted result
+     *
      * @return Query results and IRIs for underlying queries
      */
     @Override
@@ -61,7 +54,7 @@ public class LocalSPARQLExecution extends SPARQLEndpointExecution {
 
         SPARQLServiceConverter converter = new SPARQLServiceConverter(schema);
         String sparqlQuery = converter.getSelectQuery(query, inputSubset, rootType, serviceId);
-        LOGGER.debug("Service: {}; Query: {}", serviceId,sparqlQuery);
+        LOGGER.debug("Service: {}; Query: {}", serviceId, sparqlQuery);
         org.apache.jena.query.Query jenaQuery = QueryFactory.create(sparqlQuery);
 
         QueryExecution qexec = QueryExecutionFactory.create(jenaQuery, model);
@@ -72,9 +65,9 @@ public class LocalSPARQLExecution extends SPARQLEndpointExecution {
                     .forEach(marker -> resultSet.get(marker).add(solution.get(marker).asResource().getURI()));
 
             Result partialRes = this.sparqlEndpointService.getModelFromResults(query, solution, schema);
-            if(formatedResults.get() == null){
+            if (formatedResults.get() == null) {
                 formatedResults.set(partialRes);
-            }else{
+            } else {
                 formatedResults.get().merge(partialRes);
             }
         });

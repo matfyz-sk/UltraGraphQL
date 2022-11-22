@@ -21,15 +21,17 @@ public class MappingConfig {
 
     /**
      * Initialize the Mapping Configuration with the given model.
+     *
      * @param mapConfig Schema mapping configuration
      */
-    public MappingConfig(Model mapConfig){
+    public MappingConfig(Model mapConfig) {
         this.mapping = mapConfig;
         this.a = this.mapping.getProperty(HGQLVocabulary.RDF_TYPE);
     }
 
     /**
      * Returns all mappings to an HGQL object in the schema
+     *
      * @return Set of RDFNodes representing object mappings
      */
     Set<RDFNode> getTypeMapping() {
@@ -39,6 +41,7 @@ public class MappingConfig {
 
     /**
      * Returns all mappings to an HGQL field in the schema
+     *
      * @return Set of RDFNodes representing field mappings
      */
     Set<RDFNode> getFieldsMapping() {
@@ -48,6 +51,7 @@ public class MappingConfig {
 
     /**
      * Returns all mappings to the outputtype of an field in the HGQL schema
+     *
      * @return Set of Properties representing mappings to the outputtype of an field
      */
     Set<Property> getOutputTypeMapping() {
@@ -59,6 +63,7 @@ public class MappingConfig {
 
     /**
      * Returns all mappings to the domains of an field in the HGQL schema
+     *
      * @return Set of Properties representing mappings to the object of an field
      */
     Set<Property> getFieldAffiliationMapping() {
@@ -70,6 +75,7 @@ public class MappingConfig {
 
     /**
      * Returns all mappings to implied fields in the HGQL schema
+     *
      * @return Set of Properties representing mappings to the object of an field
      */
     Set<Property> getImpliedFieldMapping() {
@@ -81,6 +87,7 @@ public class MappingConfig {
 
     /**
      * Returns all mappings for objects that implement another object in the HGQL schema
+     *
      * @return Set of Properties representing mappings to the object of an field
      */
     Set<Property> getImplementsMapping() {
@@ -92,9 +99,10 @@ public class MappingConfig {
 
     /**
      * Returns all mappings to fields that share the output types in the HGQL schema
+     *
      * @return Set of Properties representing mappings to the object of an field
      */
-    Set<Property> getEquivalentFieldMapping(){   //ToDo: Change name to sharedOutputTyoe
+    Set<Property> getEquivalentFieldMapping() {   //ToDo: Change name to sharedOutputTyoe
         List<RDFNode> res = this.getSubjectsOfObjectProperty(a, HGQLVocabulary.HGQLS_SHARED_OUTPUTTYPE);
         return res.stream()
                 .map(this::getPropertyFromRDFNode)
@@ -103,9 +111,10 @@ public class MappingConfig {
 
     /**
      * Returns all mappings to objects that share the same set of fields in the HGQL schema
+     *
      * @return Set of Properties representing mappings to the object of an field
      */
-    Set<Property> getEquivalentTypeMapping(){
+    Set<Property> getEquivalentTypeMapping() {
         List<RDFNode> res = this.getSubjectsOfObjectProperty(a, HGQLVocabulary.HGQLS_IMPLEMENTS_MUTUALLY);
         return res.stream()
                 .map(this::getPropertyFromRDFNode)
@@ -114,9 +123,10 @@ public class MappingConfig {
 
     /**
      * Returns all mappings that represent that enteties are the same in the HGQL schema
+     *
      * @return Set of Properties representing mappings to the object of an field
      */
-    Set<Property> getSameAsMapping(){
+    Set<Property> getSameAsMapping() {
         List<RDFNode> res = this.getSubjectsOfObjectProperty(a, HGQLVocabulary.HGQLS_SAME_AS);
         return res.stream()
                 .map(this::getPropertyFromRDFNode)
@@ -124,9 +134,9 @@ public class MappingConfig {
     }
 
 
-
     /**
      * Return a Property instance in this model.
+     *
      * @param propertyURI the URI of the property
      * @return a property object
      */
@@ -137,6 +147,7 @@ public class MappingConfig {
 
     /**
      * Return a Property instance in this model.
+     *
      * @param node the property as RDFNode
      * @return a property object
      */
@@ -147,6 +158,7 @@ public class MappingConfig {
 
     /**
      * Return a Resource instance with the given URI in this model.
+     *
      * @param resourceURI the URI of the resource
      * @return a resource instance
      */
@@ -157,8 +169,9 @@ public class MappingConfig {
 
     /**
      * Returns all subjects from the mapping configuration that have the given predicate and object.
+     *
      * @param predicateURI predicate the triple must contain
-     * @param objectURI object the triple must contain
+     * @param objectURI    object the triple must contain
      * @return List of subjects that occur a triple with the given predicate and object
      */
     List<RDFNode> getSubjectsOfObjectProperty(String predicateURI, String objectURI) {
@@ -168,6 +181,7 @@ public class MappingConfig {
 
     /**
      * Returns all subjects from the mapping configuration that have the given predicate and object.
+     *
      * @param predicate predicate the triple must contain
      * @param objectURI object the triple must contain
      * @return List of subjects that occur a triple with the given predicate and object
@@ -186,7 +200,7 @@ public class MappingConfig {
                 System.getProperty("user.dir"));
         String inputFileName = "./src/main/resources/mapping.ttl";
         System.out.print(inputFileName);
-        model.read(new FileInputStream(inputFileName),null,"TTL");
+        model.read(new FileInputStream(inputFileName), null, "TTL");
         model.write(System.out);
         MappingConfig conf = new MappingConfig(model);
         System.out.print(conf.getTypeMapping());

@@ -19,9 +19,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Created by philipcoates on 2017-10-19T20:21
@@ -46,7 +44,7 @@ class ControllerTest {
 
     @AfterEach
     void stopServer() {
-        if(controller != null) {
+        if (controller != null) {
             controller.stop();
         }
     }
@@ -62,7 +60,7 @@ class ControllerTest {
         final Model model = ModelFactory.createDefaultModel();
         model.read(envelope.streamBody(), "", "text/turtle");
         assertTrue(model.size() > 0);
-        assertEquals(167, model.size());
+        assertEquals(652, model.size());
     }
 
     @Test
@@ -80,7 +78,7 @@ class ControllerTest {
     private Envelope getPath(final String path, final String acceptHeader) throws IOException {
 
         final Envelope envelope;
-        try(final CloseableHttpClient httpClient = HttpClients.createDefault()) {
+        try (final CloseableHttpClient httpClient = HttpClients.createDefault()) {
 
             final HttpGet get = new HttpGet(path);
             get.addHeader("Accept", acceptHeader);

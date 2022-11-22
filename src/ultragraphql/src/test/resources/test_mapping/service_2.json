@@ -1,7 +1,0 @@
-{
-  "id": "Service_2_endpont",
-  "type": "SPARQLEndpointService",
-  "url": "http://localhost:8002/dataset",
-  "user": "user1",
-  "password": "pwd123"
-}

@@ -7,7 +7,7 @@ public class LangUtils {
     public static Lang forName(final String rdfFormat) {
 
         final String ucRdfFormat = rdfFormat.toUpperCase();
-        switch(ucRdfFormat) {
+        switch (ucRdfFormat) {
 
             case "N3":
             case "TTL":

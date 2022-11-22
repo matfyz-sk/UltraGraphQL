@@ -7,7 +7,7 @@ public class SubQueriesPattern implements Query {
 
     public List<QueryPattern> subqueries;
 
-    public SubQueriesPattern(){
+    public SubQueriesPattern() {
 
     }
 
@@ -15,23 +15,23 @@ public class SubQueriesPattern implements Query {
         return subqueries;
     }
 
-    public void add(QueryPattern subquery){
-        if(subquery != null){
-            if(this.subqueries == null){
+    public void add(QueryPattern subquery) {
+        if (subquery != null) {
+            if (this.subqueries == null) {
                 this.subqueries = new ArrayList<>();
             }
             this.subqueries.add(subquery);
         }
     }
 
-    public void addAll(List<QueryPattern> subqueries){
-        if(this.subqueries == null){
+    public void addAll(List<QueryPattern> subqueries) {
+        if (this.subqueries == null) {
             this.subqueries = new ArrayList<>();
         }
         this.subqueries.addAll(subqueries);
     }
 
-    public void addAll(SubQueriesPattern subqueries){
+    public void addAll(SubQueriesPattern subqueries) {
         addAll(subqueries.getSubqueries());
     }
 

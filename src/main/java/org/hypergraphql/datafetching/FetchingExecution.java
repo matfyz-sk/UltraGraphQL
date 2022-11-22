@@ -19,7 +19,7 @@ public class FetchingExecution implements Callable<Result> {
         this.inputValues = inputValues;
         this.node = node;
     }
-    
+
     @Override
     public Result call() {
         return node.generateTreeModel(inputValues);

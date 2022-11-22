@@ -9,7 +9,10 @@ import org.hypergraphql.datamodel.HGQLSchema;
 import org.hypergraphql.query.QueryValidator;
 import org.hypergraphql.query.ValidatedQuery;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Receives every GraphQL request and check if the request is an query or mutation.
@@ -22,7 +25,7 @@ public class HGQLRequestService {
     HGQLQueryService query_service;
     HGQLMutationService mutation_service;
 
-    public HGQLRequestService(HGQLConfig config){
+    public HGQLRequestService(HGQLConfig config) {
         this.hgqlSchema = config.getHgqlSchema();
         this.schema = config.getSchema();
         this.query_service = new HGQLQueryService(config);
@@ -32,7 +35,8 @@ public class HGQLRequestService {
     /**
      * Validates the request and decides if the request is a mutation or query and forwards the request to the
      * corresponding handler.
-     * @param request GraphQL request
+     *
+     * @param request    GraphQL request
      * @param acceptType
      * @return Request result
      */
@@ -53,18 +57,18 @@ public class HGQLRequestService {
 
         final List<Definition> definitions = validatedQuery.getParsedQuery().getDefinitions();
         Definition def = definitions.get(0);
-        if(def.getClass().isAssignableFrom(OperationDefinition.class)) {
-            final OperationDefinition operationDefinition = (OperationDefinition)def;
-            if(operationDefinition.getOperation().name().equals(OperationDefinition.Operation.MUTATION.toString())){
+        if (def.getClass().isAssignableFrom(OperationDefinition.class)) {
+            final OperationDefinition operationDefinition = (OperationDefinition) def;
+            if (operationDefinition.getOperation().name().equals(OperationDefinition.Operation.MUTATION.toString())) {
                 System.out.println("Mutation");
                 final Map<String, Object> query_results = mutation_service.results(request, acceptType, validatedQuery);
                 result.put("mutation", query_results.get("mutation"));
-                errors.addAll((List<GraphQLError>)query_results.get("errors"));
+                errors.addAll((List<GraphQLError>) query_results.get("errors"));
                 data.putAll((Map<? extends String, ?>) query_results.get("data"));
                 result.put("data", data);
-            }else if(operationDefinition.getOperation().name().equals(OperationDefinition.Operation.QUERY.toString())){
+            } else if (operationDefinition.getOperation().name().equals(OperationDefinition.Operation.QUERY.toString())) {
                 final Map<String, Object> query_results = query_service.results(request, acceptType, validatedQuery);
-                errors.addAll((List<GraphQLError>)query_results.get("errors"));
+                errors.addAll((List<GraphQLError>) query_results.get("errors"));
                 data.putAll((Map<? extends String, ?>) query_results.get("data"));
                 result.put("data", data);
             }

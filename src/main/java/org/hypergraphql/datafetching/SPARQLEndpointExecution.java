@@ -7,7 +7,10 @@ import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.HttpClient;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.HttpClients;
-import org.apache.jena.query.*;
+import org.apache.jena.query.ARQ;
+import org.apache.jena.query.QueryExecutionFactory;
+import org.apache.jena.query.QueryFactory;
+import org.apache.jena.query.ResultSet;
 import org.apache.jena.riot.web.HttpOp;
 import org.apache.jena.sparql.engine.http.QueryEngineHTTP;
 import org.hypergraphql.datafetching.services.SPARQLEndpointService;
@@ -38,19 +41,18 @@ public class SPARQLEndpointExecution implements Callable<SPARQLExecutionResult> 
     Set<String> inputSubset;
     Set<String> markers;
     SPARQLEndpointService sparqlEndpointService;
-    protected HGQLSchema schema ;
+    protected HGQLSchema schema;
     protected Logger LOGGER = LoggerFactory.getLogger(SPARQLEndpointExecution.class);
     String rootType;
     SPARQLServiceConverter converter;
 
     /**
-     *
-     * @param query query or sub-query to be executed
-     * @param inputSubset Possible IRIs of the parent query that are used to limit the results of this query/sub-query. Should be below the defined value limit (VALUES_SIZE_LIMIT)
-     * @param markers variables for the SPARQL query
+     * @param query                 query or sub-query to be executed
+     * @param inputSubset           Possible IRIs of the parent query that are used to limit the results of this query/sub-query. Should be below the defined value limit (VALUES_SIZE_LIMIT)
+     * @param markers               variables for the SPARQL query
      * @param sparqlEndpointService Service object with data model, query is executed on this model
-     * @param schema HGQLSchema the query is based on
-     * @param rootType type of the query root
+     * @param schema                HGQLSchema the query is based on
+     * @param rootType              type of the query root
      */
     public SPARQLEndpointExecution(Query query, Set<String> inputSubset, Set<String> markers, SPARQLEndpointService sparqlEndpointService, HGQLSchema schema, String rootType) {
         this.query = query;
@@ -58,12 +60,13 @@ public class SPARQLEndpointExecution implements Callable<SPARQLExecutionResult> 
         this.markers = markers;
         this.sparqlEndpointService = sparqlEndpointService;
         this.schema = schema;
-        this.rootType=rootType;
+        this.rootType = rootType;
         this.converter = new SPARQLServiceConverter(schema);
     }
 
     /**
      * Executes the query assigned to the object and builds-up the formatted result
+     *
      * @return Query results and IRIs for underlying queries
      */
     @Override
@@ -75,7 +78,7 @@ public class SPARQLEndpointExecution implements Callable<SPARQLExecutionResult> 
         AtomicReference<Result> formatedResults = new AtomicReference<>();
 
         String sparqlQuery = converter.getSelectQuery(query, inputSubset, rootType, sparqlEndpointService.getId());
-        LOGGER.debug("Execute the following SPARQL query at the service {}: \n{}",sparqlEndpointService.getId(),sparqlQuery);
+        LOGGER.debug("Execute the following SPARQL query at the service {}: \n{}", sparqlEndpointService.getId(), sparqlQuery);
 
         CredentialsProvider credsProvider = new BasicCredentialsProvider();
         Credentials credentials =
@@ -98,9 +101,9 @@ public class SPARQLEndpointExecution implements Callable<SPARQLExecutionResult> 
                     .forEach(marker -> resultSet.get(marker).add(solution.get(marker).asResource().getURI()));
 
             Result partialRes = this.sparqlEndpointService.getModelFromResults(query, solution, schema);
-            if(formatedResults.get() == null){
+            if (formatedResults.get() == null) {
                 formatedResults.set(partialRes);
-            }else{
+            } else {
                 formatedResults.get().merge(partialRes);
             }
         });
@@ -108,7 +111,7 @@ public class SPARQLEndpointExecution implements Callable<SPARQLExecutionResult> 
         SPARQLExecutionResult sparqlExecutionResult = new SPARQLExecutionResult(resultSet, formatedResults.get());
         LOGGER.debug("Result: {}", sparqlExecutionResult);
         qEngine.close();
-        if(!qEngine.isClosed()){
+        if (!qEngine.isClosed()) {
             qEngine.abort();
         }
         return sparqlExecutionResult;
