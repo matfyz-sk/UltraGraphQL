@@ -23,7 +23,7 @@ public class SPARQLMutationConverter {
     private final HGQLSchema schema;
     private static final String rdf_type = "a";
     private static final String GENERIC_GRAPH = "test";
-    private static final Integer FIRST_INDEX_ATOMIC_INTEGER = 1;
+    private static final Integer FIRST_INDEX_ATOMIC_INTEGER = 0;
 
     public enum MUTATION_ACTION {INSERT, UPDATE, DELETE}
 
@@ -151,13 +151,13 @@ public class SPARQLMutationConverter {
 
         } else if (hasID) {  //hasID && !hasOtherFields -> ID defined but no other fields present
             String id_uri = uriToResource(optionalID.get());
-            AtomicInteger i = new AtomicInteger(1);
+            AtomicInteger i = new AtomicInteger(FIRST_INDEX_ATOMIC_INTEGER);
 
             List<FieldOfTypeConfig> fieldOfTypeConfigs = rootObject.getFields().values().stream().filter(fieldOfTypeConfig -> !fieldOfTypeConfig.getId().equals(RDF_TYPE)).collect(Collectors.toList());
             String delete_field_type = toTriple(id_uri, rdf_type, uriToResource(rootObject.getId())) + "\n";
 
             String delete_all_type_fields = fieldOfTypeConfigs.stream().map(fieldOfTypeConfig -> toTriple(id_uri, uriToResource(fieldOfTypeConfig.getId()), toVar("o_" + i.getAndIncrement()))).collect(Collectors.joining("\n"));
-            i.set(1);  // reset SPARQL variable id
+            i.set(FIRST_INDEX_ATOMIC_INTEGER);  // reset SPARQL variable id
             String where = fieldOfTypeConfigs.stream().map(fieldOfTypeConfig -> optionalClause(toTriple(id_uri, uriToResource(fieldOfTypeConfig.getId()), toVar("o_" + i.getAndIncrement())))).collect(Collectors.joining("\n"));
 
             return addSPARQLDeleteWrapper(String.join("\n", delete_all_type_fields, delete_field_type), where, getGraphName(getMutationService()));
