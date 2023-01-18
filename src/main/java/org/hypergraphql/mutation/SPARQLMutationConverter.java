@@ -23,6 +23,7 @@ public class SPARQLMutationConverter {
     private final HGQLSchema schema;
     private static final String rdf_type = "a";
     private static final String GENERIC_GRAPH = "test";
+    private static final Integer FIRST_INDEX_ATOMIC_INTEGER = 1;
 
     public enum MUTATION_ACTION {INSERT, UPDATE, DELETE}
 
@@ -109,13 +110,13 @@ public class SPARQLMutationConverter {
 
             List<String> argsToDelete = args.stream().map(Argument::getName).filter(name -> !name.equals("_id")).collect(Collectors.toList());
 
-            AtomicInteger i = new AtomicInteger(1);
+            AtomicInteger i = new AtomicInteger(FIRST_INDEX_ATOMIC_INTEGER);
 
             List<FieldOfTypeConfig> listOfFieldsToUpdate = rootObject.getFields().values().stream().filter(fieldOfTypeConfig -> !fieldOfTypeConfig.getId().equals(RDF_TYPE) && argsToDelete.contains(fieldOfTypeConfig.getName())).collect(Collectors.toList());
             String deleteResult = listOfFieldsToUpdate.stream().map(fieldOfTypeConfig -> toTriple(id_uri, uriToResource(fieldOfTypeConfig.getId()), toVar("o_" + i.getAndIncrement())))
                     .collect(Collectors.joining("\n"));
 
-            i.set(0);
+            i.set(FIRST_INDEX_ATOMIC_INTEGER); //reset Atomic Integer to the beginning
             String where = listOfFieldsToUpdate.stream().map(fieldOfTypeConfig -> optionalClause(toTriple(id_uri, uriToResource(fieldOfTypeConfig.getId()), toVar("o_" + i.getAndIncrement()))))
                     .collect(Collectors.joining("\n"));
             return addSPARQLUpdateWrapper(deleteResult, updateResult, where, getGraphName(getMutationService()));
