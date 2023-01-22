@@ -10,6 +10,8 @@ rdfs:Class a hgqls:object .
 
 # Field
 rdf:Property a hgqls:field .
+owl:DatatypeProperty a hgqls:field .
+owl:ObjectProperty a hgqls:field .
 
 # object implements (subObject)
 rdfs:subClassOf a hgqls:implements .
