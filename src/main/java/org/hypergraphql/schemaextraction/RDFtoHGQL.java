@@ -255,7 +255,9 @@ public class RDFtoHGQL {
                         NodeIterator outputTypes = schema.listObjectsOfProperty(field.asResource(), outputTypeMapping);   //ToDo: Handling of empty result
                         while (outputTypes.hasNext()) {
                             Type outputType = this.types.get(graphqlNameSanitation(this.prefixService.getId(outputTypes.next().asResource())));
-                            fieldObj.addOutputType(outputType);
+                            if(outputType != null){
+                                fieldObj.addOutputType(outputType);
+                            }
                         }
                     }
                     if (typeObj.getBase_interface_id() == null) {
