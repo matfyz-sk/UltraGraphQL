@@ -18,16 +18,16 @@ WHERE {
               SELECT DISTINCT ?s ?p ?o
               WHERE {
                    ?s ?p ?o.
-                   FILTER (STRSTARTS(str(?s), "http://www.courses.matfyz.sk/ontology#")).
+                   FILTER (STRSTARTS(str(?s), "?graphontology")).
                    FILTER (?p = rdf:type).
                    FILTER (?o = rdfs:Class).
-                    FILTER EXISTS {
-                                                 SELECT ?s
-                                                      WHERE {
-                                      ?a ?n ?s.
-                                      FILTER (STRSTARTS(str(?a), "http://www.w3.org/2002/07/owl") || STRSTARTS(str(?a), "http://www.courses.matfyz.sk/ontology#") ).
-                                      FILTER ( ?n = schema:domainIncludes || ?n = schema:rangeIncludes).}
-                                      }
+                   FILTER EXISTS {
+                                                SELECT ?s
+                                                     WHERE {
+                                     ?a ?n ?s.
+                                     FILTER (STRSTARTS(str(?a), "http://www.w3.org/2002/07/owl") || STRSTARTS(str(?a), "?graphontology") ).
+                                     FILTER ( ?n = schema:domainIncludes || ?n = schema:rangeIncludes).}
+                                     }
               }}
         }
     }
@@ -46,7 +46,7 @@ WHERE {
              SELECT DISTINCT ?s ?p ?o
               WHERE {
                    ?s ?p ?o.
-                   FILTER (STRSTARTS(str(?s), "http://www.w3.org/2002/07/owl") || STRSTARTS(str(?s), "http://www.courses.matfyz.sk/ontology#") ).
+                   FILTER (STRSTARTS(str(?s), "http://www.w3.org/2002/07/owl") || STRSTARTS(str(?s), "?graphontology") ).
                    FILTER ( ?p = schema:domainIncludes || ?p = schema:rangeIncludes || ?p = rdfs:subClassOf).
               }}
         }
@@ -66,7 +66,7 @@ WHERE {
              SELECT DISTINCT ?s ?p ?o
               WHERE {
                    ?s ?p ?o.
-                   FILTER (STRSTARTS(str(?s), "http://www.w3.org/2002/07/owl") || STRSTARTS(str(?s), "http://www.courses.matfyz.sk/ontology#") ).
+                   FILTER (STRSTARTS(str(?s), "http://www.w3.org/2002/07/owl") || STRSTARTS(str(?s), "?graphontology") ).
                    FILTER ( ?p = rdf:type ).
                    FILTER ( ?o = rdf:Property || ?o = owl:DatatypeProperty || ?o = owl:ObjectProperty ).
               }}

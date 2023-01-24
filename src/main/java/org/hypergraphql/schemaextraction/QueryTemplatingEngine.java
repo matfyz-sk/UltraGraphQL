@@ -32,6 +32,10 @@ public class QueryTemplatingEngine {
     private HashMap<String, String> one_node;
     private HashMap<String, Set<String>> all_nodes;
 
+    private static final String GRAPH = "graph";
+    private static final String GRAPH_ONTOLOGY = "graphontology";
+    private static final String FROM = "from";
+
 
     /**
      * Obtains a template query and a mapping configuration and initializes the template variables.
@@ -173,14 +177,18 @@ public class QueryTemplatingEngine {
         res.setIri("service", service);
         if (graph != null && !graph.equals("")) {
             String currQ = res.toString();
-            res = new ParameterizedSparqlString(currQ.replaceAll("(\\?" + "graph" + ")+\\b", "GRAPH <" + graph + ">"));
+            res = new ParameterizedSparqlString(currQ.replaceAll("(\\?" + GRAPH + ")+\\b", "GRAPH <" + graph + ">"));
             currQ = res.toString();
-            res = new ParameterizedSparqlString(currQ.replaceAll("(\\?" + "from" + ")+\\b", "FROM NAMED <" + graph + ">"));
+            res = new ParameterizedSparqlString(currQ.replaceAll("(\\?" + GRAPH_ONTOLOGY + ")+\\b", graph + "ontology#"));
+            currQ = res.toString();
+            res = new ParameterizedSparqlString(currQ.replaceAll("(\\?" + FROM + ")+\\b", "FROM NAMED <" + graph + ">"));
         } else {
             String currQ = res.toString();
-            res = new ParameterizedSparqlString(currQ.replaceAll("(\\?" + "graph" + ")+\\b", ""));
+            res = new ParameterizedSparqlString(currQ.replaceAll("(\\?" + GRAPH + ")+\\b", ""));
             currQ = res.toString();
-            res = new ParameterizedSparqlString(currQ.replaceAll("(\\?" + "from" + ")+\\b", ""));
+            res = new ParameterizedSparqlString(currQ.replaceAll("(\\?" + GRAPH_ONTOLOGY + ")+\\b", ""));
+            currQ = res.toString();
+            res = new ParameterizedSparqlString(currQ.replaceAll("(\\?" + FROM + ")+\\b", ""));
         }
         LOGGER.debug("Generated Extraction Query: {}", res.toString());
         return res.toString();
