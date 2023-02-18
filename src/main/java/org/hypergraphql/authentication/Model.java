@@ -1,44 +1,41 @@
 package org.hypergraphql.authentication;
 
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
-public class Model {
+abstract public class Model {
 
-    private ModelTypes type;
-    private Set<ModelTypes> subclasses;
-    private Rules rules;
-    private HashMap<String, Prop> props;
+    protected Set<Class<?>> subclasses;
+    protected Policies policies;
+    protected HashMap<String, Prop<?>> props;
 
-    public ModelTypes getType() {
-        return type;
+    protected Model() {
+        this.policies = classPolicies();
+        this.props = props();
+        this.subclasses = new HashSet<>(subclasses());
     }
 
-    public void setType(ModelTypes type) {
-        this.type = type;
-    }
-
-    public Set<ModelTypes> getSubclasses() {
+    public Set<Class<?>> getSubclasses() {
         return subclasses;
     }
 
-    public void setSubclasses(Set<ModelTypes> subclasses) {
-        this.subclasses = subclasses;
+    public Policies getPolicies() {
+        return policies;
     }
 
-    public Rules getRules() {
-        return rules;
-    }
-
-    public void setRules(Rules rules) {
-        this.rules = rules;
-    }
-
-    public HashMap<String, Prop> getProps() {
+    public HashMap<String, Prop<?>> getProps() {
         return props;
     }
 
-    public void setProps(HashMap<String, Prop> props) {
-        this.props = props;
+    protected abstract Policies classPolicies();
+
+    protected abstract List<Class<?>> subclasses();
+
+    protected abstract HashMap<String, Prop<?>> props();
+
+    public Prop<?> prop(boolean required, boolean multiple, Class<?> type, Policies policies) {
+        return new Prop<>(required, multiple, type, policies);
     }
 }
