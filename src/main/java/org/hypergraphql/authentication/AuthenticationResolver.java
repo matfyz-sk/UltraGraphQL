@@ -3,20 +3,35 @@ package org.hypergraphql.authentication;
 import org.hypergraphql.model.Course;
 import org.hypergraphql.model.CourseInstance;
 
+import java.math.BigDecimal;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Set;
 
 import static org.hypergraphql.authentication.PolicyTypes.SUPERADMIN;
 
 public class AuthenticationResolver {
 
-    public static <T extends Model> HashMap<Class<?>, T> getInstanceOfEveryClass() {
-        HashMap<Class<?>, T> hashMap = new HashMap<>();
+    public static HashMap<Class<?>, Model> getInstanceOfEveryClass() {
+        HashMap<Class<?>, Model> hashMap = new HashMap<>();
 
-        hashMap.put(Course.class, (T) new Course());
-        hashMap.put(CourseInstance.class, (T) new CourseInstance());
+        hashMap.put(Course.class, new Course());
+        hashMap.put(CourseInstance.class, new CourseInstance());
 
         return hashMap;
+    }
+
+    public static Model getSpecificClass(Class<?> className){
+        return getInstanceOfEveryClass().getOrDefault(className, null);
+    }
+
+    public static Set<Class<?>> getBaseDataTypes() {
+        return new HashSet<>(Arrays.asList(
+                String.class,
+                Integer.class,
+                BigDecimal.class
+        ));
     }
 
     public <T extends Model> boolean resolve(UserData userData, T classObject, Method method) {
@@ -34,7 +49,7 @@ public class AuthenticationResolver {
         return false;
     }
 
-    public <T extends Model> Set<String> getSpecificPolicies(Method method, T classObject) {
+    public Set<String> getSpecificPolicies(Method method, Model classObject) {
         if (classObject == null || method == null) {
             return null;
         }

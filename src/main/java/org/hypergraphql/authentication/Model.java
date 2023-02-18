@@ -14,7 +14,9 @@ abstract public class Model {
     protected Model() {
         this.policies = classPolicies();
         this.props = props();
-        this.subclasses = new HashSet<>(subclasses());
+
+        List<Class<?>> subclasses = subclasses();
+        this.subclasses =  subclasses == null ? new HashSet<>() : new HashSet<>(subclasses);;
     }
 
     public Set<Class<?>> getSubclasses() {

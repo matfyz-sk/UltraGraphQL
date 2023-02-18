@@ -20,7 +20,7 @@ public final class Course extends Model {
 
     @Override
     protected List<Class<?>> subclasses() {
-        return Arrays.asList(CourseInstance.class, String.class);
+        return Collections.singletonList(CourseInstance.class);
     }
 
     @Override
