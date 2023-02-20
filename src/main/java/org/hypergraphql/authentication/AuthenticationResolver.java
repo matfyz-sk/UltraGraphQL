@@ -1,7 +1,7 @@
 package org.hypergraphql.authentication;
 
-import org.hypergraphql.model.Course;
-import org.hypergraphql.model.CourseInstance;
+import org.hypergraphql.authentication.model.Course;
+import org.hypergraphql.authentication.model.CourseInstance;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
@@ -22,7 +22,7 @@ public class AuthenticationResolver {
         return hashMap;
     }
 
-    public static Model getSpecificClass(Class<?> className){
+    private static Model getSpecificClass(Class<?> className) {
         return getInstanceOfEveryClass().getOrDefault(className, null);
     }
 
@@ -39,7 +39,7 @@ public class AuthenticationResolver {
             return true;
         }
 
-        Set<String> policyToApply = getSpecificPolicies(method, classObject);
+        Set<String> policyToApply = getSpecificPolicies(method, classObject.getClass());
 
         if (policyToApply.contains(SUPERADMIN)) {
             return false;
@@ -49,12 +49,17 @@ public class AuthenticationResolver {
         return false;
     }
 
-    public Set<String> getSpecificPolicies(Method method, Model classObject) {
-        if (classObject == null || method == null) {
+    public Set<String> getSpecificPolicies(Method method, Class<?> className) {
+        if (className == null || method == null) {
             return null;
         }
 
-        Policies policy = classObject.getPolicies();
+        Model specificClass = getSpecificClass(className);
+        if (specificClass == null) {
+            return null;
+        }
+
+        Policies policy = specificClass.getPolicies();
         switch (method) {
             case GET:
                 return policy.getGet();

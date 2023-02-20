@@ -1,4 +1,4 @@
-package org.hypergraphql.model;
+package org.hypergraphql.authentication.model;
 
 import org.hypergraphql.authentication.Model;
 import org.hypergraphql.authentication.Policies;
@@ -7,7 +7,7 @@ import org.hypergraphql.authentication.Prop;
 import java.util.HashMap;
 import java.util.List;
 
-public final class Topic extends Model {
+public class Team extends Model {
 
     @Override
     protected Policies classPolicies() {
@@ -23,4 +23,5 @@ public final class Topic extends Model {
     protected HashMap<String, Prop<?>> props() {
         return null;
     }
+
 }
