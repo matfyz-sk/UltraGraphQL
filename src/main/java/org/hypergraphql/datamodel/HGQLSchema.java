@@ -8,6 +8,7 @@ import graphql.schema.GraphQLTypeReference;
 import graphql.schema.idl.TypeDefinitionRegistry;
 import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.rdf.model.RDFNode;
+import org.hypergraphql.authentication.AuthenticationResolver;
 import org.hypergraphql.config.schema.*;
 import org.hypergraphql.datafetching.ExecutionTreeNode;
 import org.hypergraphql.datafetching.services.ManifoldService;
@@ -25,6 +26,8 @@ import static org.hypergraphql.config.schema.HGQLVocabulary.*;
 public class HGQLSchema {
 
     private final static Logger LOGGER = LoggerFactory.getLogger(HGQLSchema.class);
+
+    private final AuthenticationResolver authenticationResolver;
 
     private String schemaUri;
     private String schemaNamespace;
@@ -110,8 +113,11 @@ public class HGQLSchema {
      * @param services   All services that this HGQL Schema supports
      * @throws HGQLConfigurationException Thrown if the schema context is missing or incorrect
      */
-    public HGQLSchema(TypeDefinitionRegistry registry, String schemaName, Map<String, Service> services)
+    public HGQLSchema(TypeDefinitionRegistry registry, String schemaName, Map<String, Service> services, String modelJson)
             throws HGQLConfigurationException {
+
+        this.authenticationResolver = new AuthenticationResolver(modelJson);
+
         this.serviceList = services;
         schemaUri = HGQL_SCHEMA_NAMESPACE + schemaName;
         schemaNamespace = schemaUri + "/";

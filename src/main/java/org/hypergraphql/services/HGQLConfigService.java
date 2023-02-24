@@ -145,7 +145,7 @@ public class HGQLConfigService {
                 reader = selectAppropriateReader(fullSchemaPath, username, password, classpath);  // Contains the schema as character stream
             }
             final TypeDefinitionRegistry registry = schemaParser.parse(reader);
-            final HGQLSchemaWiring wiring = new HGQLSchemaWiring(registry, config.getName(), config.getServiceConfigs(), config.getMutations());
+            final HGQLSchemaWiring wiring = new HGQLSchemaWiring(registry, config.getName(), config.getServiceConfigs(), config.getMutations(), config.getModelJson());
             config.setGraphQLSchema(wiring.getSchema());
             config.setHgqlSchema(wiring.getHgqlSchema());
             return config;

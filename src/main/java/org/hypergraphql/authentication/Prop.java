@@ -1,13 +1,13 @@
 package org.hypergraphql.authentication;
 
-public class Prop<T> {
+public class Prop {
 
     private boolean required;
     private boolean multiple;
-    private Class<T> type;
+    private String type;
     private Policies policy;
 
-    public Prop(boolean required, boolean multiple, Class<T> type, Policies policy) {
+    public Prop(boolean required, boolean multiple, String type, Policies policy) {
         this.required = required;
         this.multiple = multiple;
         this.type = type;
@@ -30,19 +30,19 @@ public class Prop<T> {
         this.multiple = multiple;
     }
 
-    public Class<T> getType() {
+    public String getType() {
         return type;
     }
 
-    public void setType(Class<T> type) {
+    public void setType(String type) {
         this.type = type;
     }
 
-    public Policies getRules() {
+    public Policies getPolicy() {
         return policy;
     }
 
-    public void setRules(Policies policy) {
+    public void setPolicy(Policies policy) {
         this.policy = policy;
     }
 }

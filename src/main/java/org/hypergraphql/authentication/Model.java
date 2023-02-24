@@ -1,43 +1,50 @@
 package org.hypergraphql.authentication;
 
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
-abstract public class Model {
+public class Model {
 
-    protected Set<Class<?>> subclasses;
-    protected Policies policies;
-    protected HashMap<String, Prop<?>> props;
+    private Set<String> subclasses;
+    private String type;
+    private Policies policy;
+    private HashMap<String, Prop> props;
 
-    protected Model() {
-        this.policies = classPolicies();
-        this.props = props();
-
-        List<Class<?>> subclasses = subclasses();
-        this.subclasses =  subclasses == null ? new HashSet<>() : new HashSet<>(subclasses);;
+    protected Model(Set<String> subclasses, Policies policy, HashMap<String, Prop> props) {
+        this.subclasses = subclasses;
+        this.policy = policy;
+        this.props = props;
     }
 
-    public Set<Class<?>> getSubclasses() {
+    public Set<String> getSubclasses() {
         return subclasses;
     }
 
-    public Policies getPolicies() {
-        return policies;
+    public void setSubclasses(Set<String> subclasses) {
+        this.subclasses = subclasses;
     }
 
-    public HashMap<String, Prop<?>> getProps() {
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public Policies getPolicy() {
+        return policy;
+    }
+
+    public void setPolicy(Policies policy) {
+        this.policy = policy;
+    }
+
+    public HashMap<String, Prop> getProps() {
         return props;
     }
 
-    protected abstract Policies classPolicies();
-
-    protected abstract List<Class<?>> subclasses();
-
-    protected abstract HashMap<String, Prop<?>> props();
-
-    public Prop<?> prop(boolean required, boolean multiple, Class<?> type, Policies policies) {
-        return new Prop<>(required, multiple, type, policies);
+    public void setProps(HashMap<String, Prop> props) {
+        this.props = props;
     }
 }

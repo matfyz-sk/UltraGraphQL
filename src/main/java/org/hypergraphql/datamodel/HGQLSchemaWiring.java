@@ -86,7 +86,7 @@ public class HGQLSchemaWiring {
      * @throws HGQLConfigurationException
      */
     public HGQLSchemaWiring(TypeDefinitionRegistry registry, String schemaName, List<ServiceConfig> serviceConfigs) throws HGQLConfigurationException {
-        this(registry, schemaName, serviceConfigs, false);
+        this(registry, schemaName, serviceConfigs, false, null);
     }
 
     /**
@@ -101,10 +101,10 @@ public class HGQLSchemaWiring {
      * @param mutations      True if mutations should be added to the schema otherwise false
      * @throws HGQLConfigurationException
      */
-    public HGQLSchemaWiring(TypeDefinitionRegistry registry, String schemaName, List<ServiceConfig> serviceConfigs, Boolean mutations) throws HGQLConfigurationException {
+    public HGQLSchemaWiring(TypeDefinitionRegistry registry, String schemaName, List<ServiceConfig> serviceConfigs, Boolean mutations, String modelJson) throws HGQLConfigurationException {
 
         try {
-            this.hgqlSchema = new HGQLSchema(registry, schemaName, generateServices(serviceConfigs));
+            this.hgqlSchema = new HGQLSchema(registry, schemaName, generateServices(serviceConfigs), modelJson);
             this.schema = generateSchema(mutations);
 
         } catch (Exception e) {

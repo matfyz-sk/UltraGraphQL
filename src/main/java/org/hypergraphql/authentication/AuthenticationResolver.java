@@ -1,7 +1,6 @@
 package org.hypergraphql.authentication;
 
-import org.hypergraphql.authentication.model.Course;
-import org.hypergraphql.authentication.model.CourseInstance;
+import com.google.gson.Gson;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
@@ -13,17 +12,16 @@ import static org.hypergraphql.authentication.PolicyTypes.SUPERADMIN;
 
 public class AuthenticationResolver {
 
-    public static HashMap<Class<?>, Model> getInstanceOfEveryClass() {
-        HashMap<Class<?>, Model> hashMap = new HashMap<>();
+    private final HashMap<String, Model> classes;
 
-        hashMap.put(Course.class, new Course());
-        hashMap.put(CourseInstance.class, new CourseInstance());
+    public AuthenticationResolver(String modelJson) {
+        Gson g = new Gson();
 
-        return hashMap;
+        classes = new HashMap<>();
     }
 
-    private static Model getSpecificClass(Class<?> className) {
-        return getInstanceOfEveryClass().getOrDefault(className, null);
+    private Model getSpecificClass(String className) {
+        return getClasses().getOrDefault(className, null);
     }
 
     public static Set<Class<?>> getBaseDataTypes() {
@@ -34,12 +32,12 @@ public class AuthenticationResolver {
         ));
     }
 
-    public <T extends Model> boolean resolve(UserData userData, T classObject, Method method) {
+    public boolean resolve(UserData userData, Model classObject, Method method) {
         if (userData.isSuperAdmin()) {
             return true;
         }
 
-        Set<String> policyToApply = getSpecificPolicies(method, classObject.getClass());
+        Set<String> policyToApply = getSpecificPolicies(method, classObject.getType());
 
         if (policyToApply.contains(SUPERADMIN)) {
             return false;
@@ -49,7 +47,7 @@ public class AuthenticationResolver {
         return false;
     }
 
-    public Set<String> getSpecificPolicies(Method method, Class<?> className) {
+    public Set<String> getSpecificPolicies(Method method, String className) {
         if (className == null || method == null) {
             return null;
         }
@@ -59,7 +57,7 @@ public class AuthenticationResolver {
             return null;
         }
 
-        Policies policy = specificClass.getPolicies();
+        Policies policy = specificClass.getPolicy();
         switch (method) {
             case GET:
                 return policy.getGet();
@@ -73,4 +71,7 @@ public class AuthenticationResolver {
         return null;
     }
 
+    public HashMap<String, Model> getClasses() {
+        return classes;
+    }
 }

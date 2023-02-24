@@ -3,6 +3,7 @@
   "extraction": true,
   "mutations": true,
   "mutationService": "matfyz-graphql",
+  "modelJson": "./src/ultragraphql/model.json",
   "server": {
     "port": 8080,
     "graphql": "/graphql",
