@@ -1,12 +1,12 @@
 package org.hypergraphql.authentication;
 
-import com.google.gson.Gson;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.core.type.TypeReference;
 
+import java.io.*;
 import java.math.BigDecimal;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 import static org.hypergraphql.authentication.PolicyTypes.SUPERADMIN;
 
@@ -15,9 +15,25 @@ public class AuthenticationResolver {
     private final HashMap<String, Model> classes;
 
     public AuthenticationResolver(String modelJson) {
-        Gson g = new Gson();
+
+        File jsonFile = new File(modelJson);
+        ObjectMapper objectMapper = new ObjectMapper();
 
         classes = new HashMap<>();
+
+        try {
+            JsonNode rootNode = objectMapper.readTree(jsonFile);
+            Iterator<JsonNode> jsonNodeIterator = rootNode.elements();
+
+            while(jsonNodeIterator.hasNext()){
+                JsonNode currentClass = jsonNodeIterator.next();
+
+                System.out.println(currentClass);
+            }
+
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private Model getSpecificClass(String className) {
