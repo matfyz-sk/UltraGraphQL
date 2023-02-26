@@ -57,11 +57,13 @@ public class AuthenticationResolver {
         }
 
         HashMap<String, Prop> props = new HashMap<>();
-        Iterator<JsonNode> jsonNodeIterator = jsonNode.elements();
+        Iterator<Map.Entry<String, JsonNode>> jsonNodeIterator = jsonNode.fields();
 
         while (jsonNodeIterator.hasNext()) {
-            JsonNode propJsonNode = jsonNodeIterator.next();
+            Map.Entry<String, JsonNode> propJsonEntry = jsonNodeIterator.next();
             //objectMapper.readValue(prop, Prop.class);
+
+            JsonNode propJsonNode = propJsonEntry.getValue();
 
             boolean required = propJsonNode.get("required").asBoolean();
             boolean multiple = propJsonNode.get("multiple").asBoolean();
@@ -75,7 +77,7 @@ public class AuthenticationResolver {
             propObject.setMultiple(multiple);
             propObject.setType(type);
 
-            props.put(type, propObject);
+            props.put(propJsonEntry.getKey(), propObject);
         }
 
         return props;
