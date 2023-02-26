@@ -7,13 +7,6 @@ public class Prop {
     private String type;
     private Policies policy;
 
-    public Prop(boolean required, boolean multiple, String type, Policies policy) {
-        this.required = required;
-        this.multiple = multiple;
-        this.type = type;
-        this.policy = policy;
-    }
-
     public boolean isRequired() {
         return required;
     }

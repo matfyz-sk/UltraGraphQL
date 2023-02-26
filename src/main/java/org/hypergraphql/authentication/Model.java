@@ -10,12 +10,6 @@ public class Model {
     private Policies policy;
     private HashMap<String, Prop> props;
 
-    protected Model(Set<String> subclasses, Policies policy, HashMap<String, Prop> props) {
-        this.subclasses = subclasses;
-        this.policy = policy;
-        this.props = props;
-    }
-
     public Set<String> getSubclasses() {
         return subclasses;
     }
