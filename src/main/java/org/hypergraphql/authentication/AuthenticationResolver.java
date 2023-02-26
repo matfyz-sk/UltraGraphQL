@@ -40,11 +40,16 @@ public class AuthenticationResolver {
         Model classModel = new Model();
 
         String className = classNode.get("type").get(0).asText();
+
+        JsonNode subClassOfJsonNode = classNode.get("subclassOf");
+        String subClassOf = subClassOfJsonNode != null ? subClassOfJsonNode.get(0).asText() : null;
+
         Set<String> subClasses = iterateThroughJsonList(classNode.get("subclasses"), JsonNode::asText);
         HashMap<String, Prop> props = createPropsFromJson(classNode.get("props"));
 
         classModel.setType(className);
         classModel.setSubclasses(subClasses);
+        classModel.setSubclassOf(subClassOf);
         classModel.setProps(props);
         classModel.setPolicy(new Policies(null, null, null, null));
 

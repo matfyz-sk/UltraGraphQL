@@ -6,6 +6,7 @@ import java.util.Set;
 public class Model {
 
     private Set<String> subclasses;
+    private String subclassOf;
     private String type;
     private Policies policy;
     private HashMap<String, Prop> props;
@@ -16,6 +17,14 @@ public class Model {
 
     public void setSubclasses(Set<String> subclasses) {
         this.subclasses = subclasses;
+    }
+
+    public String getSubclassOf() {
+        return subclassOf;
+    }
+
+    public void setSubclassOf(String subclassOf) {
+        this.subclassOf = subclassOf;
     }
 
     public String getType() {
