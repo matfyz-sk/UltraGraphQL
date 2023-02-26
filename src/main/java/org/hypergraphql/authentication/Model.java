@@ -8,7 +8,7 @@ public class Model {
     private Set<String> subclasses;
     private String subclassOf;
     private String type;
-    private Policies policy;
+    private Policies policies;
     private HashMap<String, Prop> props;
 
     public Set<String> getSubclasses() {
@@ -35,12 +35,12 @@ public class Model {
         this.type = type;
     }
 
-    public Policies getPolicy() {
-        return policy;
+    public Policies getPolicies() {
+        return policies;
     }
 
-    public void setPolicy(Policies policy) {
-        this.policy = policy;
+    public void setPolicies(Policies policies) {
+        this.policies = policies;
     }
 
     public HashMap<String, Prop> getProps() {

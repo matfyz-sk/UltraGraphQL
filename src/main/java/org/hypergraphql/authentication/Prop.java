@@ -5,7 +5,7 @@ public class Prop {
     private boolean required;
     private boolean multiple;
     private String type;
-    private Policies policy;
+    private Policies policies;
 
     public boolean isRequired() {
         return required;
@@ -31,11 +31,11 @@ public class Prop {
         this.type = type;
     }
 
-    public Policies getPolicy() {
-        return policy;
+    public Policies getPolicies() {
+        return policies;
     }
 
-    public void setPolicy(Policies policy) {
-        this.policy = policy;
+    public void setPolicies(Policies policies) {
+        this.policies = policies;
     }
 }

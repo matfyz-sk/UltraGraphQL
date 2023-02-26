@@ -9,8 +9,6 @@ import java.math.BigDecimal;
 import java.util.*;
 import java.util.function.Function;
 
-import static org.hypergraphql.authentication.PolicyTypes.SUPERADMIN;
-
 public class AuthenticationResolver {
 
     private final HashMap<String, Model> classes = new HashMap<>();
@@ -47,13 +45,69 @@ public class AuthenticationResolver {
         Set<String> subClasses = iterateThroughJsonList(classNode.get("subclasses"), JsonNode::asText);
         HashMap<String, Prop> props = createPropsFromJson(classNode.get("props"));
 
+        Policies policies = createPoliciesForClassModel(classNode);
+
         classModel.setType(className);
         classModel.setSubclasses(subClasses);
         classModel.setSubclassOf(subClassOf);
         classModel.setProps(props);
-        classModel.setPolicy(new Policies(null, null, null, null));
+        classModel.setPolicies(policies);
 
         return classModel;
+    }
+
+    private Policies createPoliciesForClassModel(JsonNode classJsonNode) {
+        Policies policies = new Policies();
+
+        Policy showPolicy = createPolicy(classJsonNode.get("show"));
+        Policy createPolicy = createPolicy(classJsonNode.get("create"));
+        Policy changePolicy = createPolicy(classJsonNode.get("change"));
+        Policy deletePolicy = createPolicy(classJsonNode.get("delete"));
+
+        JsonNode courseInstanceJsonNode = classJsonNode.get("courseInstance");
+        if (courseInstanceJsonNode != null) {
+            //TODO add logic for courseInstance and merge it with previous one
+        }
+
+        policies.setGet(showPolicy);
+        policies.setInsert(createPolicy);
+        policies.setUpdate(changePolicy);
+        policies.setDelete(deletePolicy);
+
+        return policies;
+    }
+
+    private Policy createPolicy(JsonNode policyJsonNode) {
+        if (policyJsonNode == null) {
+            return null;
+        }
+        Policy policy = new Policy();
+        Iterator<JsonNode> policiesJsonNodeIterator = policyJsonNode.elements();
+
+        while (policiesJsonNodeIterator.hasNext()) {
+            JsonNode currentPolicyNameJsonNode = policiesJsonNodeIterator.next();
+            if (ModelJsonPolicyTypes.ALL.name().equals(currentPolicyNameJsonNode.asText().toUpperCase())) {
+                return null;
+            }
+        }
+        return policy;
+    }
+
+    private Policies createPoliciesForPropModel(JsonNode propsJsonNode) {
+        Policies policies = new Policies();
+
+        //TODO rework this attributes to match with the one in prop attributes
+        Policy showPolicy = createPolicy(propsJsonNode.get("show"));
+        Policy createPolicy = createPolicy(propsJsonNode.get("create"));
+        Policy changePolicy = createPolicy(propsJsonNode.get("change"));
+        Policy deletePolicy = createPolicy(propsJsonNode.get("delete"));
+
+        policies.setGet(showPolicy);
+        policies.setInsert(createPolicy);
+        policies.setUpdate(changePolicy);
+        policies.setDelete(deletePolicy);
+
+        return policies;
     }
 
     private HashMap<String, Prop> createPropsFromJson(JsonNode jsonNode) {
@@ -75,12 +129,13 @@ public class AuthenticationResolver {
             String dataType = propJsonNode.get("dataType").asText();
             JsonNode objectClass = propJsonNode.get("objectClass");
             String type = objectClass != null ? objectClass.asText() : dataType;
+            Policies policies = createPoliciesForPropModel(propJsonNode);
 
             Prop propObject = new Prop();
-
             propObject.setRequired(required);
             propObject.setMultiple(multiple);
             propObject.setType(type);
+            propObject.setPolicies(policies);
 
             props.put(propJsonEntry.getKey(), propObject);
         }
@@ -122,17 +177,22 @@ public class AuthenticationResolver {
             return true;
         }
 
-        Set<String> policyToApply = getSpecificPolicies(method, classObject.getType());
+        Policy policyToApply = getSpecificPolicies(method, classObject.getType());
 
-        if (policyToApply.contains(SUPERADMIN)) {
-            return false;
+        /* No policy specified, action can be performed by anyone. */
+        if (policyToApply == null) {
+            return true;
         }
 
-        //TODO continue
+        //TODO apply policy here
+        /*if (policyToApply.contains(SUPERADMIN)) {
+            return false;
+        }*/
+
         return false;
     }
 
-    public Set<String> getSpecificPolicies(Method method, String className) {
+    public Policy getSpecificPolicies(Method method, String className) {
         if (className == null || method == null) {
             return null;
         }
@@ -142,7 +202,7 @@ public class AuthenticationResolver {
             return null;
         }
 
-        Policies policy = specificClass.getPolicy();
+        Policies policy = specificClass.getPolicies();
         switch (method) {
             case GET:
                 return policy.getGet();

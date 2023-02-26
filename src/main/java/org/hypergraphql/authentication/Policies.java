@@ -1,56 +1,41 @@
 package org.hypergraphql.authentication;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
 public class Policies {
 
-    private Set<String> get;
-    private Set<String> insert;
-    private Set<String> update;
-    private Set<String> delete;
+    private Policy get;
+    private Policy insert;
+    private Policy update;
+    private Policy delete;
 
-    public Policies(List<String> get, List<String> insert, List<String> update, List<String> delete) {
-        this.get = transferListToSet(get);
-        this.insert = transferListToSet(insert);
-        this.update = transferListToSet(update);
-        this.delete = transferListToSet(delete);
-    }
-
-    private Set<String> transferListToSet(List<String> list) {
-        return list == null ? new HashSet<>() : new HashSet<>(list);
-    }
-
-    public Set<String> getGet() {
+    public Policy getGet() {
         return get;
     }
 
-    public void setGet(Set<String> get) {
+    public void setGet(Policy get) {
         this.get = get;
     }
 
-    public Set<String> getInsert() {
+    public Policy getInsert() {
         return insert;
     }
 
-    public void setInsert(Set<String> insert) {
+    public void setInsert(Policy insert) {
         this.insert = insert;
     }
 
-    public Set<String> getUpdate() {
+    public Policy getUpdate() {
         return update;
     }
 
-    public void setUpdate(Set<String> update) {
+    public void setUpdate(Policy update) {
         this.update = update;
     }
 
-    public Set<String> getDelete() {
+    public Policy getDelete() {
         return delete;
     }
 
-    public void setDelete(Set<String> delete) {
+    public void setDelete(Policy delete) {
         this.delete = delete;
     }
 }
