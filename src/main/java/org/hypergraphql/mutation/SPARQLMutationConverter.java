@@ -7,8 +7,10 @@ import org.hypergraphql.config.schema.TypeConfig;
 import org.hypergraphql.datafetching.services.SPARQLEndpointService;
 import org.hypergraphql.datafetching.services.Service;
 import org.hypergraphql.datamodel.HGQLSchema;
+import org.hypergraphql.util.UID;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
@@ -21,14 +23,16 @@ import static org.hypergraphql.query.converters.SPARQLServiceConverter.*;
  */
 public class SPARQLMutationConverter {
     private final HGQLSchema schema;
+    private final Map<String, String> prefixes;
     private static final String rdf_type = "a";
     private static final String GENERIC_GRAPH = "test";
     private static final Integer FIRST_INDEX_ATOMIC_INTEGER = 0;
 
     public enum MUTATION_ACTION {INSERT, UPDATE, DELETE}
 
-    public SPARQLMutationConverter(HGQLSchema schema) {
+    public SPARQLMutationConverter(HGQLSchema schema, Map<String, String> prefixes) {
         this.schema = schema;
+        this.prefixes = prefixes;
     }
 
     /**
@@ -68,20 +72,19 @@ public class SPARQLMutationConverter {
         TypeConfig rootObject = this.schema.getTypes().get(this.schema.getMutationFields().get(mutation.getName()));
         final List<Argument> args = mutation.getArguments();   // containing the mutation information
 
-        Optional<String> id = args.stream()
+        Optional<String> idFromParameter = args.stream()
                 .filter(argument -> argument.getName().equals("_id") && argument.getValue() instanceof StringValue)
                 .map(argument -> ((StringValue) argument.getValue()).getValue())
                 .findFirst();
 
-        if (id.isPresent()) {
-            String result = toTriple(uriToResource(id.get()), rdf_type, uriToResource(rootObject.getId())) + "\n";
-            result += args.stream()
-                    .filter(argument -> !argument.getName().equals("_id"))
-                    .map(argument -> translateArgument(rootObject, id.get(), argument, MUTATION_ACTION.INSERT))
-                    .collect(Collectors.joining("\n"));
-            return addSPARQLInsertWrapper(result, getGraphName(getMutationService()));
-        }
-        return null;
+        String id = idFromParameter.orElseGet(() -> UID.next(rootObject.getId(), getPrefixes()));
+
+        String result = toTriple(uriToResource(id), rdf_type, uriToResource(rootObject.getId())) + "\n";
+        result += args.stream()
+                .filter(argument -> !argument.getName().equals("_id"))
+                .map(argument -> translateArgument(rootObject, id, argument, MUTATION_ACTION.INSERT))
+                .collect(Collectors.joining("\n"));
+        return addSPARQLInsertWrapper(result, getGraphName(getMutationService()));
     }
 
     /**
@@ -352,5 +355,9 @@ public class SPARQLMutationConverter {
             // unknown mutation action
             return null;
         }
+    }
+
+    public Map<String, String> getPrefixes() {
+        return prefixes;
     }
 }

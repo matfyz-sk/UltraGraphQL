@@ -381,12 +381,12 @@ public class HGQLSchemaWiring {
                     }
                 }
             }
-
         }
+
         if (action == MUTATION_ACTION.INSERT) {
             args.add(GraphQLArgument.newArgument()
                     .name("_id")
-                    .type(GraphQLNonNull.nonNull(GraphQLID))
+                    .type(GraphQLID) //If not GraphQLNonNull.nonNull is called then this is not required parameter
                     .build());
         } else if (action == MUTATION_ACTION.UPDATE) {
             args.add(GraphQLArgument.newArgument()

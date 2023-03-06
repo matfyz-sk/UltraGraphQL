@@ -33,7 +33,7 @@ public class HGQLMutationService {
         this.config = config;
         this.hgqlSchema = config.getHgqlSchema();
         this.schema = config.getSchema();
-        this.converter = new SPARQLMutationConverter(this.hgqlSchema);
+        this.converter = new SPARQLMutationConverter(this.hgqlSchema, this.config.getPrefixes());
         this.query_handler = new HGQLQueryService(config);
         this.graphql = GraphQL.newGraphQL(config.getSchema()).build();
     }
