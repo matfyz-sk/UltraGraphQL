@@ -7,7 +7,7 @@ import org.hypergraphql.config.schema.TypeConfig;
 import org.hypergraphql.datafetching.services.SPARQLEndpointService;
 import org.hypergraphql.datafetching.services.Service;
 import org.hypergraphql.datamodel.HGQLSchema;
-import org.hypergraphql.util.UID;
+import org.hypergraphql.util.UIDUtils;
 
 import java.util.List;
 import java.util.Map;
@@ -43,7 +43,7 @@ public class SPARQLMutationConverter {
      * @param mutation GraphQL mutation
      * @return SPARQL action
      */
-    public String translateMutation(Field mutation) {
+    public String translateMutation(Field mutation, Service service) {
         MUTATION_ACTION action = decideAction(mutation.getName());
 
         if (action == null) {
@@ -52,7 +52,7 @@ public class SPARQLMutationConverter {
 
         switch (action) {
             case INSERT:
-                return translateInsertMutation(mutation);
+                return translateInsertMutation(mutation, service);
             case UPDATE:
                 return translateUpdateMutation(mutation);
             case DELETE:
@@ -68,7 +68,7 @@ public class SPARQLMutationConverter {
      * @param mutation GraphQL insert mutation
      * @return SPARQL insert action
      */
-    private String translateInsertMutation(Field mutation) {
+    private String translateInsertMutation(Field mutation, Service service) {
         TypeConfig rootObject = this.schema.getTypes().get(this.schema.getMutationFields().get(mutation.getName()));
         final List<Argument> args = mutation.getArguments();   // containing the mutation information
 
@@ -77,7 +77,7 @@ public class SPARQLMutationConverter {
                 .map(argument -> ((StringValue) argument.getValue()).getValue())
                 .findFirst();
 
-        String id = idFromParameter.orElseGet(() -> UID.next(rootObject.getId(), getPrefixes()));
+        String id = idFromParameter.orElseGet(() -> service instanceof SPARQLEndpointService ? UIDUtils.next(rootObject.getId(), getPrefixes(), service) : null);
 
         String result = toTriple(uriToResource(id), rdf_type, uriToResource(rootObject.getId())) + "\n";
         result += args.stream()

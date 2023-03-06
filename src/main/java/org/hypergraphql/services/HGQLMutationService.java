@@ -46,9 +46,9 @@ public class HGQLMutationService {
         List<String> sparql_translation = new ArrayList<>();
         List<Field> mutation_fields = new ArrayList<>();
         for (Selection selection : selections) {
-            String mutation = this.converter.translateMutation((Field) selection);
-            LOGGER.info(mutation);
             final Service service = this.hgqlSchema.getServiceList().get(this.config.getMutationService());
+            String mutation = this.converter.translateMutation((Field) selection, service);
+            LOGGER.info(mutation);
             if (service instanceof LocalModelSPARQLService) {
                 ((LocalModelSPARQLService) service).executeUpdate(mutation);
             } else if (service instanceof SPARQLEndpointService) {
