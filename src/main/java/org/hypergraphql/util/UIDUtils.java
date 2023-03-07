@@ -7,13 +7,12 @@ import java.util.Map;
 
 public class UIDUtils {
 
-    private static final String COURSES_ONTOLOGY_UGQL_PREFIX = "courses";
-    private static final String COURSES_DATA_UGQL_PREFIX = "courses-data";
+
     private static final String ALPHABET = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
     private static final int IDENTIFIER_LENGTH = 5;
 
     public static String next(String classIRI, Map<String, String> prefixes, Service service) {
-        String ontologyPrefix = prefixes.get(COURSES_ONTOLOGY_UGQL_PREFIX);
+        String ontologyPrefix = prefixes.get(GlobalValues.COURSES_ONTOLOGY_UGQL_PREFIX);
         String className = classIRI.replace(ontologyPrefix, "");
 
         String nextId = createNext(className, prefixes);
@@ -29,7 +28,7 @@ public class UIDUtils {
         for (int i = 0; i < IDENTIFIER_LENGTH; i++) {
             rtn.append(ALPHABET.charAt((int) Math.floor(Math.random() * ALPHABET.length())));
         }
-        return String.join("/", prefixes.get(COURSES_DATA_UGQL_PREFIX), className.toLowerCase(), rtn.toString());
+        return String.join("/", prefixes.get(GlobalValues.COURSES_DATA_UGQL_PREFIX), className.toLowerCase(), rtn.toString());
     }
 
 }

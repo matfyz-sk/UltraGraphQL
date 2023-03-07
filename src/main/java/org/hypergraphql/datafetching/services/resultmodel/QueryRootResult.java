@@ -3,6 +3,7 @@ package org.hypergraphql.datafetching.services.resultmodel;
 import java.util.HashMap;
 import java.util.Map;
 
+
 /**
  * The QueryRootResult stores the results of root queries. Root queries are the defined query fields of the GQL schema.
  * They are executed separately against the SPARQL endpoints but returned as one result.
@@ -33,7 +34,6 @@ public class QueryRootResult extends Result<Map<String, Object>> {
     public Map<String, Object> generateJSON() {
         Map<String, Object> field = new HashMap<>();
         for (Map.Entry<String, Result> entry : this.root_result.entrySet()) {
-            String name = entry.getValue().alias == null ? entry.getValue().name : entry.getValue().alias;
             if (entry.getValue() instanceof ObjectResult) {
                 field.putAll(((ObjectResult) entry.getValue()).generateJSON());
                 this.errors += entry.getValue().errors;

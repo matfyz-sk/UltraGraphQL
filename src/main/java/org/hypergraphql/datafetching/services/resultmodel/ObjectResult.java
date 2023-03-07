@@ -1,10 +1,14 @@
 package org.hypergraphql.datafetching.services.resultmodel;
 
 import org.hypergraphql.query.converters.SPARQLServiceConverter;
+import org.hypergraphql.util.BaseUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -116,9 +120,9 @@ public class ObjectResult extends Result<Map<String, Object>> {
 
     @Override
     public Map<String, Object> generateJSON() {
-        List<Object> subfields = new ArrayList<>();
+        List<Object> subfields;
         Map<String, Object> field = new HashMap<>();
-        String fieldName = this.alias == null ? this.name : this.alias;
+        String fieldName = this.alias == null ? BaseUtils.createObjectKeyWithoutKnownPrefixes(this.name) : this.alias;
         if (!isList()) {
             if (this.subfields.size() <= 1) {
                 if (this.subfields.isEmpty()) {
@@ -142,7 +146,7 @@ public class ObjectResult extends Result<Map<String, Object>> {
         }
         try {
             if (this.args != null && this.args.get(SPARQLServiceConverter.ORDER) != null) {
-                Comparator comparator = null;
+                Comparator comparator;
                 // If new order features are added extend the comparator cases here
                 switch (this.args.get(SPARQLServiceConverter.ORDER).toString()) {
                     case SPARQLServiceConverter.ORDER_ASC:
@@ -175,7 +179,8 @@ public class ObjectResult extends Result<Map<String, Object>> {
                     for (Map.Entry<String, Result> entry : objectEntry.entrySet()) {
                         String key = entry.getKey();
                         Result values = entry.getValue();
-                        String name = values.alias == null ? key : values.alias;
+
+                        String name = values.alias == null ? BaseUtils.createObjectKeyWithoutKnownPrefixes(key) : values.alias;
                         if (values instanceof ObjectResult) {
                             object.put(name, ((ObjectResult) values).generateJSON().get(name));
                         } else {

@@ -17,6 +17,7 @@ import org.hypergraphql.query.pattern.Query;
 import org.hypergraphql.query.pattern.QueryPattern;
 import org.hypergraphql.query.pattern.QueryPatternBuilder;
 import org.hypergraphql.query.pattern.SubQueriesPattern;
+import org.hypergraphql.util.BaseUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -424,7 +425,7 @@ public class ExecutionTreeNode {
         String contextLdKey = (field.getAlias() == null) ? field.getName() : field.getAlias();
         String contextLdValue = getContextLdValue(contextLdKey);
 
-        this.ldContext.put(contextLdKey, contextLdValue);
+        this.ldContext.put(BaseUtils.createObjectKeyWithoutKnownPrefixes(contextLdKey), contextLdValue);
 
 //        if (args.isEmpty()) {
 //            query.set(ARGS, null);
