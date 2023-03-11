@@ -7,10 +7,7 @@ import org.hypergraphql.config.schema.FieldConfig;
 import org.hypergraphql.config.schema.TypeConfig;
 import org.hypergraphql.config.system.ServiceConfig;
 import org.hypergraphql.datafetching.TreeExecutionResult;
-import org.hypergraphql.datafetching.services.resultmodel.BooleanResult;
-import org.hypergraphql.datafetching.services.resultmodel.ObjectResult;
-import org.hypergraphql.datafetching.services.resultmodel.Result;
-import org.hypergraphql.datafetching.services.resultmodel.StringResult;
+import org.hypergraphql.datafetching.services.resultmodel.*;
 import org.hypergraphql.datamodel.HGQLSchema;
 import org.hypergraphql.datamodel.QueryNode;
 import org.hypergraphql.query.converters.SPARQLServiceConverter;
@@ -362,8 +359,16 @@ public abstract class Service {
         } else if (currentNode.targetType.equals("Boolean")) {
             res = new BooleanResult(currentNode.nodeId, field, alias, currentNode.args);
 //            res.setNodeId(currentNode.nodeId);
-        }
-        else if (currentNode.targetType.equals(HGQL_SCALAR_LITERAL_GQL_NAME)) {
+        } else if (currentNode.targetType.equals("Integer")) {
+            res = new IntegerResult(currentNode.nodeId, field, alias, currentNode.args);
+//            res.setNodeId(currentNode.nodeId);
+        } else if (currentNode.targetType.equals("Float")) {
+            res = new FloatResult(currentNode.nodeId, field, alias, currentNode.args);
+//            res.setNodeId(currentNode.nodeId);
+        } else if (currentNode.targetType.equals("DateTime")) {
+            res = new DateTimeResult(currentNode.nodeId, field, alias, currentNode.args);
+//            res.setNodeId(currentNode.nodeId);
+        } else if (currentNode.targetType.equals(HGQL_SCALAR_LITERAL_GQL_NAME)) {
 //            String nodeId = currentNode.nodeId;
             res = new ObjectResult(currentNode.nodeId, field, alias, currentNode.args);
 //            res.setNodeId(nodeId);
@@ -600,6 +605,18 @@ public abstract class Service {
                     }
                     if (res instanceof BooleanResult) {
                         ((BooleanResult) res).addBoolean(object.asLiteral().getBoolean());
+                        res.setNodeId(currentNode.nodeId);
+                    }
+                    if (res instanceof IntegerResult) {
+                        ((IntegerResult) res).addInteger(object.asLiteral().getInt());
+                        res.setNodeId(currentNode.nodeId);
+                    }
+                    if (res instanceof FloatResult) {
+                        ((FloatResult) res).addFloat(object.asLiteral().getFloat());
+                        res.setNodeId(currentNode.nodeId);
+                    }
+                    if (res instanceof DateTimeResult) {
+                        ((DateTimeResult) res).addDateTime(object.asLiteral().getDatatype());
                         res.setNodeId(currentNode.nodeId);
                     }
                 }

@@ -221,13 +221,17 @@ public class Field {
         } else {
             String res = getOutputtypeName();
             if (isList) {
-                res = String.format("[%s]", res); //TODO add here replace of hgqls_
+                res = String.format("[%s]", replaceHGQLPrefix(res));
             }
             if (isNonNull) {
                 res += "!";
             }
-            return res != null ? res.replace("hgqls_", "") : "String";
+            return replaceHGQLPrefix(res);
         }
+    }
+
+    private String replaceHGQLPrefix(String res) {
+        return res != null ? res.replace("hgqls_", "") : "String";
     }
 
     private String buildDirectives() {

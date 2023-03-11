@@ -31,6 +31,8 @@ public class RDFtoHGQL {
     private Type stringObjType;
     private Type booleanObjType;
     private Type integerObjType;
+    private Type floatObjType;
+    private Type dateTimeObjtType;
 
     public RDFtoHGQL(MappingConfig mappingConf) {
         this(mappingConf, null);
@@ -273,7 +275,11 @@ public class RDFtoHGQL {
                                 fieldObj.addOutputType(getBooleanObjType(schema));
                             } else if (XML_INTEGER.equals(resourceUri)) {
                                 fieldObj.addOutputType(getIntegerObjType(schema));
-                            } else {
+                            } /*else if (XML_FLOAT.equals(resourceUri)) {
+                                fieldObj.addOutputType(getFloatObjType(schema));
+                            } else if (XML_DATETIME.equals(resourceUri)) {
+                                fieldObj.addOutputType(getDateTimeObjtType(schema));
+                            }*/ else {
                                 Type outputType = this.types.get(graphqlNameSanitation(this.prefixService.getId(resource)));
                                 if (outputType != null) {
                                     fieldObj.addOutputType(outputType);
@@ -579,4 +585,17 @@ public class RDFtoHGQL {
         return integerObjType;
     }
 
+    public Type getFloatObjType(Model schema) {
+        if (floatObjType == null) {
+            floatObjType = buildHGQLType(schema, HGQL_SCHEMA_FLOAT);
+        }
+        return floatObjType;
+    }
+
+    public Type getDateTimeObjtType(Model schema) {
+        if (dateTimeObjtType == null) {
+            dateTimeObjtType = buildHGQLType(schema, HGQL_SCHEMA_DATETIME);
+        }
+        return dateTimeObjtType;
+    }
 }

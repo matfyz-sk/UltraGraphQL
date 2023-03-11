@@ -224,14 +224,14 @@ public class HGQLSchemaWiring {
         res.add(newInputObjectField()
                 .name(name)
                 .description(description)
-                .type(GraphQLList.list(scalarType)) //TODO Not always a list check through fieldOfTypeConfig isList
+                .type(fieldOfTypeConfig.isList() ? GraphQLList.list(scalarType) : scalarType)
                 .build());
     }
 
     private void addAsScalarArgumentType(String description, List<GraphQLArgument> args, FieldOfTypeConfig field, GraphQLScalarType scalarType) {
         args.add(GraphQLArgument.newArgument()
                 .name(field.getName())
-                .type(GraphQLList.list(scalarType)) //TODO Not always a list check through fieldOfTypeConfig isList
+                .type(field.isList() ? GraphQLList.list(scalarType) : scalarType)
                 .description(description)
                 .build());
     }

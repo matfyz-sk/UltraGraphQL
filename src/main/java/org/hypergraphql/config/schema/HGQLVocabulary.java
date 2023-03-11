@@ -22,6 +22,8 @@ public class HGQLVocabulary {
     public static final String HGQL_STRING = HGQL_NAMESPACE + "String";
     public static final String HGQL_INT = HGQL_NAMESPACE + "Int";
     public static final String HGQL_BOOLEAN = HGQL_NAMESPACE + "Boolean";
+    public static final String HGQL_FLOAT = HGQL_NAMESPACE + "Float";
+    public static final String HGQL_DATETIME = HGQL_NAMESPACE + "DateTime";
     public static final String HGQL_ID = HGQL_NAMESPACE + "ID";
     public static final String HGQL_LIST_TYPE = HGQL_NAMESPACE + "ListType";
     public static final String HGQL_NON_NULL_TYPE = HGQL_NAMESPACE + "NonNullType";
@@ -50,6 +52,8 @@ public class HGQLVocabulary {
         put("String", HGQL_STRING);
         put("Int", HGQL_INT);
         put("Boolean", HGQL_BOOLEAN);
+        put("Float", HGQL_FLOAT);
+        put("DateTime", HGQL_DATETIME);
         put("ID", HGQL_ID);
     }});
 
@@ -58,6 +62,8 @@ public class HGQLVocabulary {
                 put(HGQL_STRING, GraphQLString);
                 put(HGQL_INT, GraphQLInt);
                 put(HGQL_BOOLEAN, GraphQLBoolean);
+                put(HGQL_FLOAT, GraphQLFloat);
+                put(HGQL_DATETIME, GraphQLString); //TODO Change to DateTime
                 put(HGQL_ID, GraphQLID);
             }});
 
@@ -74,10 +80,12 @@ public class HGQLVocabulary {
     public static final String HGQL_SCHEMA_STRING = HGQL_SCHEMA_NAMESPACE + "String";
     public static final String HGQL_SCHEMA_BOOLEAN = HGQL_SCHEMA_NAMESPACE + "Boolean";
     public static final String HGQL_SCHEMA_INTEGER = HGQL_SCHEMA_NAMESPACE + "Int";
+    public static final String HGQL_SCHEMA_FLOAT = HGQL_SCHEMA_NAMESPACE + "Float";
+    public static final String HGQL_SCHEMA_DATETIME = HGQL_SCHEMA_NAMESPACE + "DateTime";
     public static final String XML = "http://www.w3.org/2001/XMLSchema#";
     public static final String XML_STRING = XML + "String";
     public static final String XML_BOOLEAN = XML + "Boolean";
-    public static final String XML_INTEGER = XML + "Integer"; //TODO check if correct
+    public static final String XML_INTEGER = XML + "Integer";
     public static final String XML_DATETIME = XML + "DateTime";
     public static final String XML_FLOAT = XML + "Float";
 
