@@ -14,6 +14,7 @@ import org.hypergraphql.datafetching.services.resultmodel.QueryRootResult;
 import org.hypergraphql.datafetching.services.resultmodel.Result;
 import org.hypergraphql.datamodel.HGQLSchema;
 import org.hypergraphql.mutation.SPARQLMutationConverter;
+import org.hypergraphql.mutation.SPARQLMutationValue;
 import org.hypergraphql.query.ValidatedQuery;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,19 +48,20 @@ public class HGQLMutationService {
         List<Field> mutation_fields = new ArrayList<>();
         for (Selection selection : selections) {
             final Service service = this.hgqlSchema.getServiceList().get(this.config.getMutationService());
-            String mutation = this.converter.translateMutation((Field) selection, service);
-            LOGGER.info(mutation);
+            SPARQLMutationValue mutation = this.converter.translateMutation((Field) selection, service);
+            LOGGER.info(mutation.getTranslatedMutation());
             if (service instanceof LocalModelSPARQLService) {
-                ((LocalModelSPARQLService) service).executeUpdate(mutation);
+                ((LocalModelSPARQLService) service).executeUpdate(mutation.getTranslatedMutation());
             } else if (service instanceof SPARQLEndpointService) {
-                ((SPARQLEndpointService) service).executeUpdate(mutation);
+                ((SPARQLEndpointService) service).executeUpdate(mutation.getTranslatedMutation());
             }
             //ToDo: Add a new response category "mutation" that informs about the status of the query (or in error segment)
-            sparql_translation.addAll(Arrays.asList(mutation.split("\n")));
+            sparql_translation.addAll(Arrays.asList(mutation.getTranslatedMutation().split("\n")));
             mutation_fields.add(Field.newField()
                     .name(this.hgqlSchema.getMutationFields().get(((Field) selection).getName()))
                     .alias(((Field) selection).getAlias())
                     .comments(selection.getComments())
+                    .arguments(Arrays.asList(new Argument("_id", mutation.getId())))
                     .directives(((Field) selection).getDirectives())
                     .selectionSet(((Field) selection).getSelectionSet())
                     .build());

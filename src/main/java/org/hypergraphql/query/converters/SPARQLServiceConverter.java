@@ -294,7 +294,17 @@ public class SPARQLServiceConverter {
      */
     private String getSelectRoot_GET_BY_ID(QueryPattern queryField, String serviceId) {
 
-        List<String> urisIter = (List<String>) queryField.args.get(ID);
+        Object urisArg = queryField.args.get(ID);
+        List<String> urisIter;
+
+        if (urisArg instanceof String) {
+            urisIter = Arrays.asList((String) urisArg);
+        } else if (urisArg instanceof List) {
+            urisIter = (List<String>) urisArg;
+        } else {
+            //TODO add proper handling
+            urisIter = null;
+        }
 
         Set<String> uris = new HashSet<>(urisIter); // convert to set to remove duplicates
 
