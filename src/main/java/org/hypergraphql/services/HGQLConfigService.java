@@ -112,7 +112,6 @@ public class HGQLConfigService {
                 }
                 LOGGER.info("{}", config.getMappingFile() == null ? "Using default mapping" : "Using provided mapping");
 
-
 //                final String fullQueryPath = config.getQueryFile() != null ? extractFullSchemaPath(hgqlConfigPath,
 //                        config.getQueryFile()) : getFileFromResources(extraction_query_file_name).getAbsolutePath();
                 String extraction_query;

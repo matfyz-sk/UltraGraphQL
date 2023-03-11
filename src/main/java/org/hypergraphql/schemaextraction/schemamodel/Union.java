@@ -33,7 +33,7 @@ public class Union extends Interface {   // ToDo: Rename Union to sharedFieldsIn
     }
 
     /**
-     * Returns the name of the sharedInterface, but if only one type is definend then the name of this type is returned.
+     * Returns the name of the sharedInterface, but if only one type is defined then the name of this type is returned.
      * Is the one type the Literal objectType, then an empty set is returned.
      *
      * @return Name of the sharedInterface or the type if the sharedInterface only contains one type. In case of type Literal or no type an empty string is returned.

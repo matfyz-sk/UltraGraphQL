@@ -10,8 +10,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static org.hypergraphql.config.schema.HGQLVocabulary.HGQL_SCALAR_LITERAL_URI;
-import static org.hypergraphql.config.schema.HGQLVocabulary.HGQL_SCALAR_LITERAL_VALUE_URI;
+import static org.hypergraphql.config.schema.HGQLVocabulary.*;
 
 /**
  * RDFtoHGQL obtains a mapping configuration and can then be used to generate HGQL schema from RDF schemata.
@@ -29,6 +28,10 @@ public class RDFtoHGQL {
     private PrefixService prefixService;
     private Model model = ModelFactory.createDefaultModel();
 
+    private Type stringObjType;
+    private Type booleanObjType;
+    private Type integerObjType;
+
     public RDFtoHGQL(MappingConfig mappingConf) {
         this(mappingConf, null);
     }
@@ -36,6 +39,21 @@ public class RDFtoHGQL {
     public RDFtoHGQL(MappingConfig mappingConf, Map<String, String> namespace_prefixes) {
         this.mapConfig = mappingConf;
         this.prefixService = new PrefixService(invert(namespace_prefixes));
+    }
+
+    public Type buildHGQLType(Model schema, String resourceName) {
+        Resource typeResource = schema.getResource(resourceName);
+        Resource value = schema.getResource(HGQL_SCALAR_LITERAL_VALUE_URI);
+        buildType(typeResource, null);
+        Type valueObject = this.types.get(graphqlNameSanitation(this.prefixService.getId(typeResource)));
+        if (!valueObject.getFields().stream().anyMatch(field -> field.getId().equals(graphqlNameSanitation(this.prefixService.getId(value))))) {
+            Interface literal_inter = valueObject.getBase_interface();
+            Field literal_value = new Field(value, prefixService);
+            literal_value.addOutputType(valueObject);
+            literal_inter.addField(literal_value);
+            this.fields.put(graphqlNameSanitation(this.prefixService.getId(value)), literal_value);
+        }
+        return valueObject;
     }
 
     /**
@@ -51,19 +69,7 @@ public class RDFtoHGQL {
 
         this.model.add(schema);
 
-        // add the Literal objectType as place holder for the scalar string and replacement for Literals in multiple output types.
-        Resource literal = schema.getResource(HGQL_SCALAR_LITERAL_URI);
-        buildType(literal, null);
-        Type literal_obj = this.types.get(graphqlNameSanitation(this.prefixService.getId(literal)));
-        Resource value = schema.getResource(HGQL_SCALAR_LITERAL_VALUE_URI);
-        if (!literal_obj.getFields().stream().anyMatch(field -> field.getId().equals(graphqlNameSanitation(this.prefixService.getId(value))))) {
-            Interface literal_inter = literal_obj.getBase_interface();
-            Field literal_value = new Field(value, prefixService);
-            literal_value.addOutputType(literal_obj);
-            literal_inter.addField(literal_value);
-            this.fields.put(graphqlNameSanitation(this.prefixService.getId(value)), literal_value);
-        }
-
+        buildHGQLType(schema, HGQL_SCALAR_LITERAL_URI);
         // Type
 
         Set<RDFNode> types = mapConfig.getTypeMapping();   // Get all objects that represent a type in HGQL
@@ -77,9 +83,7 @@ public class RDFtoHGQL {
             }
         }
 
-
-        // implements Interface (subClassOf)
-
+        // Implements Interface (subClassOf)
         Set<Property> impls = mapConfig.getImplementsMapping();
         Set<Property> getSubclassCain = mapConfig.getSameAsMapping();
         for (Type type : this.types.values()) {
@@ -118,13 +122,12 @@ public class RDFtoHGQL {
             }
         }
 
-
         // Field
-
         Set<RDFNode> fieldMappings = mapConfig.getFieldsMapping();   // Get all objects that represent a field in HGQL
         for (RDFNode fieldMapping : fieldMappings) {   //iterate over all field mappings
             ResIterator iterator = schema.listSubjectsWithProperty(a, fieldMapping);  //fields in the schema under the current mapping object 'field'
             while (iterator.hasNext()) {   //iterate over all fields in the schema under the current mapping
+                //TODO check here the type
                 RDFNode field = iterator.next();
                 buildField(schema, field, serviceId);
             }
@@ -171,7 +174,7 @@ public class RDFtoHGQL {
 
     /**
      * Converts a set of RDFNodes(as string) to one string containing the nodes as alternative path.
-     * The reurned string is intended to be used in a property path query.
+     * The returned string is intended to be used in a property path query.
      *
      * @param nodes RDFNodes
      * @return Given nodes as alternative paths
@@ -241,7 +244,7 @@ public class RDFtoHGQL {
                         System.out.print("NULL");
                         return;
                     }
-                    Field fieldObj = null;
+                    Field fieldObj;
                     if (!this.fields.containsKey(id)) {
                         fieldObj = new Field(field.asResource(), this.prefixService);
                         this.fields.put(fieldObj.getId(), fieldObj);
@@ -254,9 +257,27 @@ public class RDFtoHGQL {
                     for (Property outputTypeMapping : outputTypeMappings) {   //iterate over all outputType mappings
                         NodeIterator outputTypes = schema.listObjectsOfProperty(field.asResource(), outputTypeMapping);   //ToDo: Handling of empty result
                         while (outputTypes.hasNext()) {
-                            Type outputType = this.types.get(graphqlNameSanitation(this.prefixService.getId(outputTypes.next().asResource())));
-                            if(outputType != null){
-                                fieldObj.addOutputType(outputType);
+                            Resource resource = outputTypes.next().asResource();
+                            if (resource == null) {
+                                continue;
+                            }
+                            String resourceUri = resource.getURI();
+
+                            if (RDF_LIST.equals(resourceUri)) {
+                                fieldObj.setList(true);
+                            }
+
+                            if (XML_STRING.equals(resourceUri)) {
+                                fieldObj.addOutputType(getStringObjType(schema));
+                            } else if (XML_BOOLEAN.equals(resourceUri)) {
+                                fieldObj.addOutputType(getBooleanObjType(schema));
+                            } else if (XML_INTEGER.equals(resourceUri)) {
+                                fieldObj.addOutputType(getIntegerObjType(schema));
+                            } else {
+                                Type outputType = this.types.get(graphqlNameSanitation(this.prefixService.getId(resource)));
+                                if (outputType != null) {
+                                    fieldObj.addOutputType(outputType);
+                                }
                             }
                         }
                     }
@@ -537,5 +558,25 @@ public class RDFtoHGQL {
                 .collect(Collectors.toMap(Map.Entry::getValue, Map.Entry::getKey));
     }
 
+    public Type getStringObjType(Model schema) {
+        if (stringObjType == null) {
+            stringObjType = buildHGQLType(schema, HGQL_SCHEMA_STRING);
+        }
+        return stringObjType;
+    }
+
+    public Type getBooleanObjType(Model schema) {
+        if (booleanObjType == null) {
+            booleanObjType = buildHGQLType(schema, HGQL_SCHEMA_BOOLEAN);
+        }
+        return booleanObjType;
+    }
+
+    public Type getIntegerObjType(Model schema) {
+        if (integerObjType == null) {
+            integerObjType = buildHGQLType(schema, HGQL_SCHEMA_INTEGER);
+        }
+        return integerObjType;
+    }
 
 }

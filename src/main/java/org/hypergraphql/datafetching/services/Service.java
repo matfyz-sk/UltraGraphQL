@@ -7,6 +7,7 @@ import org.hypergraphql.config.schema.FieldConfig;
 import org.hypergraphql.config.schema.TypeConfig;
 import org.hypergraphql.config.system.ServiceConfig;
 import org.hypergraphql.datafetching.TreeExecutionResult;
+import org.hypergraphql.datafetching.services.resultmodel.BooleanResult;
 import org.hypergraphql.datafetching.services.resultmodel.ObjectResult;
 import org.hypergraphql.datafetching.services.resultmodel.Result;
 import org.hypergraphql.datafetching.services.resultmodel.StringResult;
@@ -358,7 +359,11 @@ public abstract class Service {
         if (currentNode.targetType.equals("String")) {
             res = new StringResult(currentNode.nodeId, field, alias, currentNode.args);
 //            res.setNodeId(currentNode.nodeId);
-        } else if (currentNode.targetType.equals(HGQL_SCALAR_LITERAL_GQL_NAME)) {
+        } else if (currentNode.targetType.equals("Boolean")) {
+            res = new BooleanResult(currentNode.nodeId, field, alias, currentNode.args);
+//            res.setNodeId(currentNode.nodeId);
+        }
+        else if (currentNode.targetType.equals(HGQL_SCALAR_LITERAL_GQL_NAME)) {
 //            String nodeId = currentNode.nodeId;
             res = new ObjectResult(currentNode.nodeId, field, alias, currentNode.args);
 //            res.setNodeId(nodeId);
@@ -591,6 +596,10 @@ public abstract class Service {
                     // object is literal
                     if (res instanceof StringResult) {
                         ((StringResult) res).addString(object.asLiteral().getString());
+                        res.setNodeId(currentNode.nodeId);
+                    }
+                    if (res instanceof BooleanResult) {
+                        ((BooleanResult) res).addBoolean(object.asLiteral().getBoolean());
                         res.setNodeId(currentNode.nodeId);
                     }
                 }

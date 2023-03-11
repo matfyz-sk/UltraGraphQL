@@ -218,6 +218,24 @@ public class HGQLSchemaWiring {
                 .build();
     }
 
+    private void addAsScalarInputType(String name, String description, Set<GraphQLInputObjectField> res, FieldOfTypeConfig fieldOfTypeConfig, GraphQLScalarType scalarType, String nameOutputType) {
+        this.hgqlSchema.addInputField(name, fieldOfTypeConfig.getName());
+        this.hgqlSchema.addinputFieldsOutput(name, nameOutputType);
+        res.add(newInputObjectField()
+                .name(name)
+                .description(description)
+                .type(GraphQLList.list(scalarType)) //TODO Not always a list check through fieldOfTypeConfig isList
+                .build());
+    }
+
+    private void addAsScalarArgumentType(String description, List<GraphQLArgument> args, FieldOfTypeConfig field, GraphQLScalarType scalarType) {
+        args.add(GraphQLArgument.newArgument()
+                .name(field.getName())
+                .type(GraphQLList.list(scalarType)) //TODO Not always a list check through fieldOfTypeConfig isList
+                .description(description)
+                .build());
+    }
+
     /**
      * Generates the input fields for the given field. If the output type of the given field is an interface then for all
      * objects that implement the interface a input field is generated with the corresponding type as output. If the
@@ -244,14 +262,13 @@ public class HGQLSchemaWiring {
                     "as direct Literal of the field that linked to the literal placeholder object";
         }
         String name = fieldOfTypeConfig.getName();
+
         if (fieldOfTypeConfig.getGraphqlOutputType().equals(GraphQLString) || fieldOfTypeConfig.getGraphqlOutputType().equals(GraphQLList.list(GraphQLString))) {
-            this.hgqlSchema.addInputField(name, fieldOfTypeConfig.getName());
-            this.hgqlSchema.addinputFieldsOutput(name, "String");
-            res.add(newInputObjectField()
-                    .name(name)
-                    .description(description)
-                    .type(GraphQLList.list(GraphQLString))
-                    .build());
+            addAsScalarInputType(name, description, res, fieldOfTypeConfig, GraphQLString, "String");
+        } else if (fieldOfTypeConfig.getGraphqlOutputType().equals(GraphQLInt) || fieldOfTypeConfig.getGraphqlOutputType().equals(GraphQLList.list(GraphQLInt))) {
+            addAsScalarInputType(name, description, res, fieldOfTypeConfig, GraphQLInt, "Int");
+        } else if (fieldOfTypeConfig.getGraphqlOutputType().equals(GraphQLBoolean) || fieldOfTypeConfig.getGraphqlOutputType().equals(GraphQLList.list(GraphQLBoolean))) {
+            addAsScalarInputType(name, description, res, fieldOfTypeConfig, GraphQLBoolean, "Boolean");
         } else {
             TypeConfig output_type = this.hgqlSchema.getTypes().get(fieldOfTypeConfig.getTargetName());
             if (output_type.isInterface()) {
@@ -354,11 +371,11 @@ public class HGQLSchemaWiring {
                 .collect(Collectors.toSet());
         for (FieldOfTypeConfig field : fields) {
             if (field.getGraphqlOutputType().equals(GraphQLString) || field.getGraphqlOutputType().equals(GraphQLList.list(GraphQLString))) {
-                args.add(GraphQLArgument.newArgument()
-                        .name(field.getName())
-                        .type(GraphQLList.list(GraphQLString))
-                        .description(description)
-                        .build());
+                addAsScalarArgumentType(description, args, field, GraphQLString);
+            } else if (field.getGraphqlOutputType().equals(GraphQLBoolean) || field.getGraphqlOutputType().equals(GraphQLList.list(GraphQLBoolean))) {
+                addAsScalarArgumentType(description, args, field, GraphQLBoolean);
+            } else if (field.getGraphqlOutputType().equals(GraphQLInt) || field.getGraphqlOutputType().equals(GraphQLList.list(GraphQLInt))) {
+                addAsScalarArgumentType(description, args, field, GraphQLInt);
             } else {
                 TypeConfig outputType = this.hgqlSchema.getTypes().get(field.getTargetName());
                 if (outputType.isObject()) {

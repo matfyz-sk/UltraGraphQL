@@ -15,7 +15,7 @@ public class Field {
     private String id;
     private PrefixService prefixService;
     private Union outputType;
-    private Boolean isList = true;   // default
+    private Boolean isList = false;   // default
     private Boolean isNonNull = false;   // default
     private Boolean isClone = false;   // indicates if this object is a clone
     private Field baseObject = null;
@@ -217,16 +217,16 @@ public class Field {
 
     private String buildOutputType() {
         if (getOutputtypeName().equals("")) {
-            return "[String]";
+            return isList ? "[String]" : "String";
         } else {
             String res = getOutputtypeName();
             if (isList) {
-                res = String.format("[%s]", res);
+                res = String.format("[%s]", res); //TODO add here replace of hgqls_
             }
             if (isNonNull) {
                 res += "!";
             }
-            return res;
+            return res != null ? res.replace("hgqls_", "") : "String";
         }
     }
 

@@ -20,8 +20,8 @@ public class HGQLVocabulary {
     public static final String HGQL_OBJECT_TYPE = HGQL_NAMESPACE + "ObjectType";
     public static final String HGQL_SCALAR_TYPE = HGQL_NAMESPACE + "ScalarType";
     public static final String HGQL_STRING = HGQL_NAMESPACE + "String";
-    public static final String HGQL_Int = HGQL_NAMESPACE + "Int";
-    public static final String HGQL_Boolean = HGQL_NAMESPACE + "Boolean";
+    public static final String HGQL_INT = HGQL_NAMESPACE + "Int";
+    public static final String HGQL_BOOLEAN = HGQL_NAMESPACE + "Boolean";
     public static final String HGQL_ID = HGQL_NAMESPACE + "ID";
     public static final String HGQL_LIST_TYPE = HGQL_NAMESPACE + "ListType";
     public static final String HGQL_NON_NULL_TYPE = HGQL_NAMESPACE + "NonNullType";
@@ -48,16 +48,16 @@ public class HGQLVocabulary {
 
     public static final Map<String, String> SCALAR_TYPES = Collections.unmodifiableMap(new HashMap<String, String>() {{
         put("String", HGQL_STRING);
-        put("Int", HGQL_Int);
-        put("Boolean", HGQL_Boolean);
+        put("Int", HGQL_INT);
+        put("Boolean", HGQL_BOOLEAN);
         put("ID", HGQL_ID);
     }});
 
     public static final Map<String, GraphQLOutputType> SCALAR_TYPES_TO_GRAPHQL_OUTPUT =
             Collections.unmodifiableMap(new HashMap<String, GraphQLOutputType>() {{
                 put(HGQL_STRING, GraphQLString);
-                put(HGQL_Int, GraphQLInt);
-                put(HGQL_Boolean, GraphQLBoolean);
+                put(HGQL_INT, GraphQLInt);
+                put(HGQL_BOOLEAN, GraphQLBoolean);
                 put(HGQL_ID, GraphQLID);
             }});
 
@@ -69,6 +69,17 @@ public class HGQLVocabulary {
     // Additions for Automatic Schema Extraction
     public static final String RDF_PREFIX = "http://www.w3.org/1999/02/22-rdf-syntax-ns#";
     public static final String RDF_TYPE = RDF_PREFIX + "type";
+    public static final String RDF_LIST = RDF_PREFIX + "List";
+
+    public static final String HGQL_SCHEMA_STRING = HGQL_SCHEMA_NAMESPACE + "String";
+    public static final String HGQL_SCHEMA_BOOLEAN = HGQL_SCHEMA_NAMESPACE + "Boolean";
+    public static final String HGQL_SCHEMA_INTEGER = HGQL_SCHEMA_NAMESPACE + "Int";
+    public static final String XML = "http://www.w3.org/2001/XMLSchema#";
+    public static final String XML_STRING = XML + "String";
+    public static final String XML_BOOLEAN = XML + "Boolean";
+    public static final String XML_INTEGER = XML + "Integer"; //TODO check if correct
+    public static final String XML_DATETIME = XML + "DateTime";
+    public static final String XML_FLOAT = XML + "Float";
 
     public static final String HGQLS_MAPPING = HGQL_NAMESPACE + "mapping/";
     public static final String HGQLS_OBJECT = HGQLS_MAPPING + "object";
