@@ -9,6 +9,7 @@ import org.hypergraphql.datafetching.services.SPARQLEndpointService;
 import org.hypergraphql.datafetching.services.Service;
 import org.hypergraphql.datamodel.HGQLSchema;
 import org.hypergraphql.util.UIDUtils;
+import org.joda.time.DateTime;
 
 import java.util.List;
 import java.util.Map;
@@ -18,6 +19,7 @@ import java.util.stream.Collectors;
 
 import static org.hypergraphql.config.schema.HGQLVocabulary.*;
 import static org.hypergraphql.query.converters.SPARQLServiceConverter.*;
+import static org.hypergraphql.util.GlobalValues.COURSES_ONTOLOGY_UGQL_PREFIX;
 
 /**
  * Provides methods to translate GraphQL mutations to corresponding SPARQL actions.
@@ -26,6 +28,7 @@ public class SPARQLMutationConverter {
     private final HGQLSchema schema;
     private final Map<String, String> prefixes;
     private static final String rdf_type = "a";
+    private static final String CREATED = "created";
     private static final String GENERIC_GRAPH = "test";
     private static final Integer FIRST_INDEX_ATOMIC_INTEGER = 0;
 
@@ -80,12 +83,20 @@ public class SPARQLMutationConverter {
 
         String id = idFromParameter.orElseGet(() -> service instanceof SPARQLEndpointService ? UIDUtils.next(rootObject.getId(), getPrefixes(), service) : null);
 
-        String result = toTriple(uriToResource(id), rdf_type, uriToResource(rootObject.getId())) + "\n";
+        String resourceId = uriToResource(id);
+        String result = toTriple(resourceId, rdf_type, uriToResource(rootObject.getId())) + "\n";
+        result += addCreatedAttributeToResult(resourceId, getPrefixes());
         result += args.stream()
                 .filter(argument -> !argument.getName().equals(ID))
                 .map(argument -> translateArgument(rootObject, id, argument, MUTATION_ACTION.INSERT))
                 .collect(Collectors.joining("\n"));
         return new SPARQLMutationValue(addSPARQLInsertWrapper(result, getGraphName(getMutationService())), new StringValue(id));
+    }
+
+    public String addCreatedAttributeToResult(String uriResource, Map<String, String> prefixes) {
+        String predicateCreated = uriToResource(prefixes.get(COURSES_ONTOLOGY_UGQL_PREFIX) + CREATED);
+        DateTime currentDateTime = new org.joda.time.DateTime();
+        return toTriple(uriResource, predicateCreated, "\"" + currentDateTime + "\"") + "\n";
     }
 
     /**
@@ -123,7 +134,7 @@ public class SPARQLMutationConverter {
             i.set(FIRST_INDEX_ATOMIC_INTEGER); //reset Atomic Integer to the beginning
             String where = listOfFieldsToUpdate.stream().map(fieldOfTypeConfig -> optionalClause(toTriple(id_uri, uriToResource(fieldOfTypeConfig.getId()), toVar("o_" + i.getAndIncrement()))))
                     .collect(Collectors.joining("\n"));
-            return new SPARQLMutationValue(addSPARQLUpdateWrapper(deleteResult, updateResult, where, getGraphName(getMutationService())), new StringValue(id_uri));
+            return new SPARQLMutationValue(addSPARQLUpdateWrapper(deleteResult, updateResult, where, getGraphName(getMutationService())), new StringValue(id.get()));
         }
         return null;
     }
@@ -154,6 +165,7 @@ public class SPARQLMutationConverter {
             return new SPARQLMutationValue(addSPARQLDeleteWrapper(result, null, getGraphName(getMutationService())), new StringValue(optionalID.get()));
 
         } else if (hasID) {  //hasID && !hasOtherFields -> ID defined but no other fields present
+            //TODO seems like it is not deleting correctly
             String id_uri = uriToResource(optionalID.get());
             AtomicInteger i = new AtomicInteger(FIRST_INDEX_ATOMIC_INTEGER);
 
@@ -164,9 +176,10 @@ public class SPARQLMutationConverter {
             i.set(FIRST_INDEX_ATOMIC_INTEGER);  // reset SPARQL variable id
             String where = fieldOfTypeConfigs.stream().map(fieldOfTypeConfig -> optionalClause(toTriple(id_uri, uriToResource(fieldOfTypeConfig.getId()), toVar("o_" + i.getAndIncrement())))).collect(Collectors.joining("\n"));
 
-            return new SPARQLMutationValue(addSPARQLDeleteWrapper(String.join("\n", delete_all_type_fields, delete_field_type), where, getGraphName(getMutationService())), new StringValue(id_uri));
+            return new SPARQLMutationValue(addSPARQLDeleteWrapper(String.join("\n", delete_all_type_fields, delete_field_type), where, getGraphName(getMutationService())), new StringValue(optionalID.get()));
 
         } else if (hasOtherFields) { //!hasID && hasOtherFields -> ID not defined but other fields
+            //TODO add when field is null to remove all items where the field is null (not exist)
             String var_root = rootObject.getName();
             String delete_all_with_id = toTriple(toVar(rootObject.getName()), toVar("p_1"), toVar("o")) + "\n"
                     + toTriple(toVar("s"), toVar("p_2"), toVar(rootObject.getName()));
@@ -180,7 +193,7 @@ public class SPARQLMutationConverter {
                     .collect(Collectors.joining("\n"));
             where += "\n" + delete_all_with_id_optional;
 
-            return new SPARQLMutationValue(addSPARQLDeleteWrapper(delete_all_with_id + "\n", where, getGraphName(getMutationService())), new StringValue(delete_all_with_id));
+            return new SPARQLMutationValue(addSPARQLDeleteWrapper(delete_all_with_id + "\n", where, getGraphName(getMutationService())), new StringValue("")); //TODO return correct ID
         }
         return null;
     }
