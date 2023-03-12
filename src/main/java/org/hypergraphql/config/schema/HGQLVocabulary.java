@@ -82,12 +82,15 @@ public class HGQLVocabulary {
     public static final String HGQL_SCHEMA_INTEGER = HGQL_SCHEMA_NAMESPACE + "Int";
     public static final String HGQL_SCHEMA_FLOAT = HGQL_SCHEMA_NAMESPACE + "Float";
     public static final String HGQL_SCHEMA_DATETIME = HGQL_SCHEMA_NAMESPACE + "DateTime";
+
+
+    /* XML properties starts with lower case */
     public static final String XML = "http://www.w3.org/2001/XMLSchema#";
-    public static final String XML_STRING = XML + "String";
-    public static final String XML_BOOLEAN = XML + "Boolean";
-    public static final String XML_INTEGER = XML + "Integer";
-    public static final String XML_DATETIME = XML + "DateTime";
-    public static final String XML_FLOAT = XML + "Float";
+    public static final String XML_STRING = XML + "string";
+    public static final String XML_BOOLEAN = XML + "boolean";
+    public static final String XML_INTEGER = XML + "integer";
+    public static final String XML_DATETIME = XML + "dateTime";
+    public static final String XML_FLOAT = XML + "float";
 
     public static final String HGQLS_MAPPING = HGQL_NAMESPACE + "mapping/";
     public static final String HGQLS_OBJECT = HGQLS_MAPPING + "object";
