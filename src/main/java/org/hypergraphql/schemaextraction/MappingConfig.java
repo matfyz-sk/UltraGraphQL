@@ -62,6 +62,18 @@ public class MappingConfig {
     }
 
     /**
+     * Returns all mappings to the use of a field in the HGQL schema
+     *
+     * @return Set of Properties representing mappings to the use of a field
+     */
+    Set<Property> getUseMapping() {
+        List<RDFNode> res = this.getSubjectsOfObjectProperty(a, HGQLVocabulary.HGQLS_USE);
+        return res.stream()
+                .map(this::getPropertyFromRDFNode)
+                .collect(Collectors.toSet());
+    }
+
+    /**
      * Returns all mappings to the domains of an field in the HGQL schema
      *
      * @return Set of Properties representing mappings to the object of an field

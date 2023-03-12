@@ -1,6 +1,7 @@
 PREFIX owl: <http://www.w3.org/2002/07/owl#>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+prefix xsd: <http://www.w3.org/2001/XMLSchema#>
 PREFIX schema: <http://schema.org/>
 
 # Delete any leftovers of previous schemata
@@ -47,7 +48,7 @@ WHERE {
               WHERE {
                    ?s ?p ?o.
                    FILTER (STRSTARTS(str(?s), "http://www.w3.org/2002/07/owl") || STRSTARTS(str(?s), "?graphontology") ).
-                   FILTER ( ?p = schema:domainIncludes || ?p = schema:rangeIncludes || ?p = rdfs:subClassOf).
+                   FILTER ( ?p = schema:domainIncludes || ?p = schema:rangeIncludes || ?p = rdfs:subClassOf || ?p = xsd:use ).
               }}
         }
     }

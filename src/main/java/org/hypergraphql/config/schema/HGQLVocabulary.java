@@ -102,6 +102,7 @@ public class HGQLVocabulary {
     public static final String HGQLS_IMPLEMENTS_MUTUALLY = HGQLS_MAPPING + "implementsMutually";
     public static final String HGQLS_SHARED_OUTPUTTYPE = HGQLS_MAPPING + "sharedOutputType";
     public static final String HGQLS_SAME_AS = HGQLS_MAPPING + "sameAs";
+    public static final String HGQLS_USE = HGQLS_MAPPING + "use";
 
     public static final String HGQL_DIRECTIVE_SCHEMA = "schema";
     public static final String HGQL_DIRECTIVE_PARAMETER_IMPLIED_BY = "impliedBy";
@@ -109,6 +110,9 @@ public class HGQLVocabulary {
     public static final String HGQL_DIRECTIVE_SERVICE = "service";
     public static final String HGQL_DIRECTIVE_SERVICE_PARAMETER_ID = "id";
 
+    // use
+    public static final String HGQL_OPTIONAL = "optional";
+    public static final String HGQL_REQUIRED = "required";
 
     // class
     public static final String HGQL_QUERY_TEMPLATE_CLASS = "class";

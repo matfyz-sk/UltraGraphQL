@@ -218,22 +218,59 @@ public class HGQLSchemaWiring {
                 .build();
     }
 
+    private GraphQLInputType getGraphQLInputType(FieldOfTypeConfig fieldOfTypeConfig, GraphQLScalarType scalarType) {
+        GraphQLInputType graphQLInputType = fieldOfTypeConfig.isList() ? GraphQLList.list(scalarType) : scalarType;
+
+        if (isNotNullGraphQLOutputScalarType(fieldOfTypeConfig.getGraphqlOutputType(), scalarType)) {
+            return GraphQLNonNull.nonNull(graphQLInputType);
+        }
+        return graphQLInputType;
+    }
+
     private void addAsScalarInputType(String name, String description, Set<GraphQLInputObjectField> res, FieldOfTypeConfig fieldOfTypeConfig, GraphQLScalarType scalarType, String nameOutputType) {
         this.hgqlSchema.addInputField(name, fieldOfTypeConfig.getName());
         this.hgqlSchema.addinputFieldsOutput(name, nameOutputType);
+
         res.add(newInputObjectField()
                 .name(name)
                 .description(description)
-                .type(fieldOfTypeConfig.isList() ? GraphQLList.list(scalarType) : scalarType)
+                .type(getGraphQLInputType(fieldOfTypeConfig, scalarType))
                 .build());
     }
 
     private void addAsScalarArgumentType(String description, List<GraphQLArgument> args, FieldOfTypeConfig field, GraphQLScalarType scalarType) {
         args.add(GraphQLArgument.newArgument()
                 .name(field.getName())
-                .type(field.isList() ? GraphQLList.list(scalarType) : scalarType)
+                .type(getGraphQLInputType(field, scalarType))
                 .description(description)
                 .build());
+    }
+
+    private boolean checkGraphQLOutputScalarType(GraphQLOutputType graphQLOutputType, GraphQLScalarType scalarType) {
+        return graphQLOutputType.equals(scalarType) || graphQLOutputType.equals(GraphQLList.list(scalarType)) || graphQLOutputType.equals(GraphQLNonNull.nonNull(scalarType));
+    }
+
+    private GraphQLScalarType getGraphQLScalarType(GraphQLOutputType graphQLOutputType) {
+        for (GraphQLScalarType graphQLScalarType : getSupportedGraphQLScalarTypes()) {
+            if (checkGraphQLOutputScalarType(graphQLOutputType, graphQLScalarType)) {
+                return graphQLScalarType;
+            }
+        }
+        return null;
+    }
+
+    private List<GraphQLScalarType> getSupportedGraphQLScalarTypes() {
+        return Arrays.asList(
+                GraphQLString,
+                GraphQLInt,
+                GraphQLBoolean,
+                GraphQLFloat
+                //TODO add dateTime
+        );
+    }
+
+    private boolean isNotNullGraphQLOutputScalarType(GraphQLOutputType graphQLOutputType, GraphQLScalarType scalarType) {
+        return graphQLOutputType.equals(GraphQLNonNull.nonNull(scalarType));
     }
 
     /**
@@ -262,13 +299,10 @@ public class HGQLSchemaWiring {
                     "as direct Literal of the field that linked to the literal placeholder object";
         }
         String name = fieldOfTypeConfig.getName();
+        GraphQLScalarType graphQLScalarType = getGraphQLScalarType(fieldOfTypeConfig.getGraphqlOutputType());
 
-        if (fieldOfTypeConfig.getGraphqlOutputType().equals(GraphQLString) || fieldOfTypeConfig.getGraphqlOutputType().equals(GraphQLList.list(GraphQLString))) {
-            addAsScalarInputType(name, description, res, fieldOfTypeConfig, GraphQLString, "String");
-        } else if (fieldOfTypeConfig.getGraphqlOutputType().equals(GraphQLInt) || fieldOfTypeConfig.getGraphqlOutputType().equals(GraphQLList.list(GraphQLInt))) {
-            addAsScalarInputType(name, description, res, fieldOfTypeConfig, GraphQLInt, "Int");
-        } else if (fieldOfTypeConfig.getGraphqlOutputType().equals(GraphQLBoolean) || fieldOfTypeConfig.getGraphqlOutputType().equals(GraphQLList.list(GraphQLBoolean))) {
-            addAsScalarInputType(name, description, res, fieldOfTypeConfig, GraphQLBoolean, "Boolean");
+        if (graphQLScalarType != null) {
+            addAsScalarInputType(name, description, res, fieldOfTypeConfig, graphQLScalarType, graphQLScalarType.getName());
         } else {
             TypeConfig output_type = this.hgqlSchema.getTypes().get(fieldOfTypeConfig.getTargetName());
             if (output_type.isInterface()) {
@@ -370,12 +404,10 @@ public class HGQLSchemaWiring {
                 .filter(fieldOfTypeConfig -> !fieldOfTypeConfig.getId().equals(RDF_TYPE))  // Exclude the type field as this would alter the schema;   //ToDo: Add the exclusion of field that are used for schema extraction
                 .collect(Collectors.toSet());
         for (FieldOfTypeConfig field : fields) {
-            if (field.getGraphqlOutputType().equals(GraphQLString) || field.getGraphqlOutputType().equals(GraphQLList.list(GraphQLString))) {
-                addAsScalarArgumentType(description, args, field, GraphQLString);
-            } else if (field.getGraphqlOutputType().equals(GraphQLBoolean) || field.getGraphqlOutputType().equals(GraphQLList.list(GraphQLBoolean))) {
-                addAsScalarArgumentType(description, args, field, GraphQLBoolean);
-            } else if (field.getGraphqlOutputType().equals(GraphQLInt) || field.getGraphqlOutputType().equals(GraphQLList.list(GraphQLInt))) {
-                addAsScalarArgumentType(description, args, field, GraphQLInt);
+            GraphQLScalarType graphQLScalarType = getGraphQLScalarType(field.getGraphqlOutputType());
+
+            if (graphQLScalarType != null) {
+                addAsScalarArgumentType(description, args, field, graphQLScalarType);
             } else {
                 TypeConfig outputType = this.hgqlSchema.getTypes().get(field.getTargetName());
                 if (outputType.isObject()) {

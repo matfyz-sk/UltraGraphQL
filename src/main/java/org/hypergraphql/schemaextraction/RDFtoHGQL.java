@@ -256,6 +256,26 @@ public class RDFtoHGQL {
                         fieldObj.addServiceDirective(serviceId);
                     }
                     fieldObj.addServiceDirective(serviceId);
+
+                    Set<Property> useTypeMappings = mapConfig.getUseMapping();
+
+                    for (Property useTypeMapping : useTypeMappings) {
+                        NodeIterator useTypes = schema.listObjectsOfProperty(field.asResource(), useTypeMapping);
+
+                        while (useTypes.hasNext()) {
+                            Literal literal = useTypes.next().asLiteral();
+
+                            if (literal == null) {
+                                continue;
+                            }
+
+                            if (HGQL_REQUIRED.equals(literal.getString())) {
+                                fieldObj.setNonNull(true);
+                            }
+                        }
+
+                    }
+
                     for (Property outputTypeMapping : outputTypeMappings) {   //iterate over all outputType mappings
                         NodeIterator outputTypes = schema.listObjectsOfProperty(field.asResource(), outputTypeMapping);   //ToDo: Handling of empty result
                         while (outputTypes.hasNext()) {
