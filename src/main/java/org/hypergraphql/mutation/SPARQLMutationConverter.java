@@ -20,6 +20,7 @@ import java.util.stream.Collectors;
 import static org.hypergraphql.config.schema.HGQLVocabulary.*;
 import static org.hypergraphql.query.converters.SPARQLServiceConverter.*;
 import static org.hypergraphql.util.GlobalValues.COURSES_ONTOLOGY_UGQL_PREFIX;
+import static org.hypergraphql.util.GlobalValues.CREATED_PROP;
 
 /**
  * Provides methods to translate GraphQL mutations to corresponding SPARQL actions.
@@ -28,7 +29,6 @@ public class SPARQLMutationConverter {
     private final HGQLSchema schema;
     private final Map<String, String> prefixes;
     private static final String rdf_type = "a";
-    private static final String CREATED = "created";
     private static final String GENERIC_GRAPH = "test";
     private static final Integer FIRST_INDEX_ATOMIC_INTEGER = 0;
 
@@ -94,7 +94,7 @@ public class SPARQLMutationConverter {
     }
 
     public String addCreatedAttributeToResult(String uriResource, Map<String, String> prefixes) {
-        String predicateCreated = uriToResource(prefixes.get(COURSES_ONTOLOGY_UGQL_PREFIX) + CREATED);
+        String predicateCreated = uriToResource(prefixes.get(COURSES_ONTOLOGY_UGQL_PREFIX) + CREATED_PROP);
         DateTime currentDateTime = new org.joda.time.DateTime();
         return toTriple(uriResource, predicateCreated, "\"" + currentDateTime + "\"") + "\n";
     }
