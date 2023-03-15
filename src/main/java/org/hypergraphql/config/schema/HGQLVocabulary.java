@@ -82,6 +82,9 @@ public class HGQLVocabulary {
     public static final String HGQL_SCHEMA_INTEGER = HGQL_SCHEMA_NAMESPACE + "Int";
     public static final String HGQL_SCHEMA_FLOAT = HGQL_SCHEMA_NAMESPACE + "Float";
     public static final String HGQL_SCHEMA_DATETIME = HGQL_SCHEMA_NAMESPACE + "DateTime";
+    public static final String HGQL_SCHEMA_DECIMAL = HGQL_SCHEMA_NAMESPACE + "BigDecimal";
+    public static final String HGQL_SCHEMA_LONG = HGQL_SCHEMA_NAMESPACE + "Long";
+    public static final String HGQL_SCHEMA_SHORT = HGQL_SCHEMA_NAMESPACE + "Short";
 
 
     /* XML properties starts with lower case */
@@ -91,6 +94,9 @@ public class HGQLVocabulary {
     public static final String XML_INTEGER = XML + "integer";
     public static final String XML_DATETIME = XML + "dateTime";
     public static final String XML_FLOAT = XML + "float";
+    public static final String XML_DECIMAL = XML + "decimal";
+    public static final String XML_LONG = XML + "long";
+    public static final String XML_SHORT = XML + "short";
 
     public static final String HGQLS_MAPPING = HGQL_NAMESPACE + "mapping/";
     public static final String HGQLS_OBJECT = HGQLS_MAPPING + "object";
