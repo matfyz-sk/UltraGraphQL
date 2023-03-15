@@ -19,20 +19,16 @@ import static org.hypergraphql.config.schema.HGQLVocabulary.*;
  */
 public class RDFtoHGQL {
     private MappingConfig mapConfig;
-    private Map<String, Type> types = new HashMap<String, Type>();
-    private Map<String, Field> fields = new HashMap<String, Field>();
-    private Map<String, Directive> directives = new HashMap<String, Directive>();
-    private Map<String, Interface> interfaces = new HashMap<String, Interface>();
-    private Map<String, Inputtype> inputtypes = new HashMap<String, Inputtype>();
+    private Map<String, Type> types = new HashMap<>();
+    private Map<String, Field> fields = new HashMap<>();
+    private Map<String, Directive> directives = new HashMap<>();
+    private Map<String, Interface> interfaces = new HashMap<>();
+    private Map<String, Inputtype> inputtypes = new HashMap<>();
     private Map<String, String> context = new HashMap<>();   // (hgql_id, uri)
     private PrefixService prefixService;
     private Model model = ModelFactory.createDefaultModel();
 
-    private Type stringObjType;
-    private Type booleanObjType;
-    private Type integerObjType;
-    private Type floatObjType;
-    private Type dateTimeObjtType;
+    private HashMap<String, Type> scalarObjTypes = new HashMap<>();
 
     public RDFtoHGQL(MappingConfig mappingConf) {
         this(mappingConf, null);
@@ -290,16 +286,16 @@ public class RDFtoHGQL {
                             }
 
                             if (XML_STRING.equals(resourceUri)) {
-                                fieldObj.addOutputType(getStringObjType(schema));
+                                fieldObj.addOutputType(getScalarObjType(schema, HGQL_SCHEMA_STRING));
                             } else if (XML_BOOLEAN.equals(resourceUri)) {
-                                fieldObj.addOutputType(getBooleanObjType(schema));
+                                fieldObj.addOutputType(getScalarObjType(schema, HGQL_SCHEMA_BOOLEAN));
                             } else if (XML_INTEGER.equals(resourceUri)) {
-                                fieldObj.addOutputType(getIntegerObjType(schema));
-                            } /*else if (XML_FLOAT.equals(resourceUri)) {
-                                fieldObj.addOutputType(getFloatObjType(schema));
+                                fieldObj.addOutputType(getScalarObjType(schema, HGQL_SCHEMA_INTEGER));
+                            } else if (XML_FLOAT.equals(resourceUri)) {
+                                fieldObj.addOutputType(getScalarObjType(schema, HGQL_SCHEMA_FLOAT));
                             } else if (XML_DATETIME.equals(resourceUri)) {
-                                fieldObj.addOutputType(getDateTimeObjtType(schema));
-                            }*/ else {
+                                fieldObj.addOutputType(getScalarObjType(schema, HGQL_SCHEMA_DATETIME));
+                            } else {
                                 Type outputType = this.types.get(graphqlNameSanitation(this.prefixService.getId(resource)));
                                 if (outputType != null) {
                                     fieldObj.addOutputType(outputType);
@@ -584,38 +580,13 @@ public class RDFtoHGQL {
                 .collect(Collectors.toMap(Map.Entry::getValue, Map.Entry::getKey));
     }
 
-    public Type getStringObjType(Model schema) {
-        if (stringObjType == null) {
-            stringObjType = buildHGQLType(schema, HGQL_SCHEMA_STRING);
+    private Type getScalarObjType(Model schema, String scalarTypeName) {
+        if (scalarObjTypes.containsKey(scalarTypeName)) {
+            return scalarObjTypes.get(scalarTypeName);
         }
-        return stringObjType;
+        Type scalarType = buildHGQLType(schema, scalarTypeName);
+        scalarObjTypes.put(scalarTypeName, scalarType);
+        return scalarType;
     }
 
-    public Type getBooleanObjType(Model schema) {
-        if (booleanObjType == null) {
-            booleanObjType = buildHGQLType(schema, HGQL_SCHEMA_BOOLEAN);
-        }
-        return booleanObjType;
-    }
-
-    public Type getIntegerObjType(Model schema) {
-        if (integerObjType == null) {
-            integerObjType = buildHGQLType(schema, HGQL_SCHEMA_INTEGER);
-        }
-        return integerObjType;
-    }
-
-    public Type getFloatObjType(Model schema) {
-        if (floatObjType == null) {
-            floatObjType = buildHGQLType(schema, HGQL_SCHEMA_FLOAT);
-        }
-        return floatObjType;
-    }
-
-    public Type getDateTimeObjtType(Model schema) {
-        if (dateTimeObjtType == null) {
-            dateTimeObjtType = buildHGQLType(schema, HGQL_SCHEMA_DATETIME);
-        }
-        return dateTimeObjtType;
-    }
 }
