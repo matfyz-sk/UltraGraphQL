@@ -131,6 +131,10 @@ public class HGQLSchema {
         rdfSchema.insertStringLiteralTriple(HGQL_INT, HGQL_HAS_NAME, "Int");
         rdfSchema.insertObjectTriple(HGQL_BOOLEAN, RDF_TYPE, HGQL_SCALAR_TYPE);
         rdfSchema.insertStringLiteralTriple(HGQL_BOOLEAN, HGQL_HAS_NAME, "Boolean");
+        rdfSchema.insertObjectTriple(HGQL_FLOAT, RDF_TYPE, HGQL_SCALAR_TYPE);
+        rdfSchema.insertStringLiteralTriple(HGQL_FLOAT, HGQL_HAS_NAME, "Float");
+        rdfSchema.insertObjectTriple(HGQL_DATETIME, RDF_TYPE, HGQL_SCALAR_TYPE);
+        rdfSchema.insertStringLiteralTriple(HGQL_DATETIME, HGQL_HAS_NAME, "DateTime");
         rdfSchema.insertObjectTriple(HGQL_ID, RDF_TYPE, HGQL_SCALAR_TYPE);
         rdfSchema.insertStringLiteralTriple(HGQL_ID, HGQL_HAS_NAME, "ID");
 
