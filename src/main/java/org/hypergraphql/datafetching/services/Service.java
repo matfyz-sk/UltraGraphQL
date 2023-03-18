@@ -356,47 +356,51 @@ public abstract class Service {
         Result res;
         String field = currentNode.name;
         String alias = currentNode.alias;
-        if (currentNode.targetType.equals("String")) {
-            res = new StringResult(currentNode.nodeId, field, alias, currentNode.args);
-//            res.setNodeId(currentNode.nodeId);
-        } else if (currentNode.targetType.equals("Boolean")) {
-            res = new BooleanResult(currentNode.nodeId, field, alias, currentNode.args);
-//            res.setNodeId(currentNode.nodeId);
-        } else if (currentNode.targetType.equals("Integer")) {
-            res = new IntegerResult(currentNode.nodeId, field, alias, currentNode.args);
-//            res.setNodeId(currentNode.nodeId);
-        } else if (currentNode.targetType.equals("Float")) {
-            res = new FloatResult(currentNode.nodeId, field, alias, currentNode.args);
-//            res.setNodeId(currentNode.nodeId);
-        } else if (currentNode.targetType.equals("DateTime")) {
-            res = new DateTimeResult(currentNode.nodeId, field, alias, currentNode.args);
-//            res.setNodeId(currentNode.nodeId);
-        } else if (currentNode.targetType.equals(HGQL_SCALAR_LITERAL_GQL_NAME)) {
-//            String nodeId = currentNode.nodeId;
-            res = new ObjectResult(currentNode.nodeId, field, alias, currentNode.args);
-//            res.setNodeId(nodeId);
-            ((ObjectResult) res).addObject(HGQL_QUERY_NAMESPACE + currentNode.nodeId.hashCode()); // Add Literal Placeholder object
-
-        } else {
-            res = new ObjectResult(currentNode.nodeId, field, alias, currentNode.args);
-//            String nodeId = currentNode.nodeId;
-//            res.setNodeId(nodeId);
-            if (results.contains(currentNode.nodeId)) {
-                ((ObjectResult) res).addObject(results.get(currentNode.nodeId).toString());
-            }
+        switch (currentNode.targetType) {
+            case SCALAR_STRING:
+                res = new StringResult(currentNode.nodeId, field, alias, currentNode.args);
+                break;
+            case SCALAR_BOOLEAN:
+                res = new BooleanResult(currentNode.nodeId, field, alias, currentNode.args);
+                break;
+            case SCALAR_INT:
+                res = new IntegerResult(currentNode.nodeId, field, alias, currentNode.args);
+                break;
+            case SCALAR_FLOAT:
+                res = new FloatResult(currentNode.nodeId, field, alias, currentNode.args);
+                break;
+            case SCALAR_DATETIME:
+                res = new DateTimeResult(currentNode.nodeId, field, alias, currentNode.args);
+                break;
+            case SCALAR_DECIMAL:
+                res = new BigDecimalResult(currentNode.nodeId, field, alias, currentNode.args);
+                break;
+            case SCALAR_LONG:
+                res = new LongResult(currentNode.nodeId, field, alias, currentNode.args);
+                break;
+            case SCALAR_SHORT:
+                res = new ShortResult(currentNode.nodeId, field, alias, currentNode.args);
+                break;
+            case HGQL_SCALAR_LITERAL_GQL_NAME:
+                res = new ObjectResult(currentNode.nodeId, field, alias, currentNode.args);
+                ((ObjectResult) res).addObject(HGQL_QUERY_NAMESPACE + currentNode.nodeId.hashCode()); // Add Literal Placeholder object
+                break;
+            default:
+                res = new ObjectResult(currentNode.nodeId, field, alias, currentNode.args);
+                if (results.contains(currentNode.nodeId)) {
+                    ((ObjectResult) res).addObject(results.get(currentNode.nodeId).toString());
+                }
+                break;
         }
+        res.setNodeId(currentNode.nodeId);
+
         if (parentNode == null) {
             // root query field
             res.isList(true);
         } else {
             final String targetName = parentNode.targetType;
-            if (targetName.equals(HGQL_SCALAR_LITERAL_GQL_NAME)) {
-                res.isList(false);
-            } else {
-                res.isList(schema.getTypes().get(targetName).getField(field).isList());
-            }
+            res.isList(!targetName.equals(HGQL_SCALAR_LITERAL_GQL_NAME) && schema.getTypes().get(targetName).getField(field).isList());
         }
-
         // insert the actual results in to the object that were created above
         populateModel(results, currentNode, res, propertyString, targetTypeString);
 

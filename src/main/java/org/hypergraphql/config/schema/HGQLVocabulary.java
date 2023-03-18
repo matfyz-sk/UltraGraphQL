@@ -11,6 +11,18 @@ import static org.hypergraphql.schemaextraction.ExtendedScalars.GraphQLDateTime;
 
 public class HGQLVocabulary {
 
+
+    /* These types should be also used in mapping @see Service#buildModel */
+    public static final String SCALAR_STRING = "String";
+    public static final String SCALAR_INT = "Int";
+    public static final String SCALAR_BOOLEAN = "Boolean";
+    public static final String SCALAR_FLOAT = "Float";
+    public static final String SCALAR_DECIMAL = "Decimal";
+    public static final String SCALAR_LONG = "Long";
+    public static final String SCALAR_SHORT = "Short";
+    public static final String SCALAR_DATETIME = "DateTime";
+    public static final String SCALAR_ID = "ID";
+
     public static final String HGQL_PREFIX = "hgql:";
     public static final String HGQL_SCHEMA_PREFIX = "hgql-schema:";
     public static final String HGQL_NAMESPACE = "http://hypergraphql.org/";
@@ -20,15 +32,17 @@ public class HGQLVocabulary {
     public static final String HGQL_QUERY_NAMESPACE = HGQL_QUERY_URI + "/";
     public static final String HGQL_OBJECT_TYPE = HGQL_NAMESPACE + "ObjectType";
     public static final String HGQL_SCALAR_TYPE = HGQL_NAMESPACE + "ScalarType";
-    public static final String HGQL_STRING = HGQL_NAMESPACE + "String";
-    public static final String HGQL_INT = HGQL_NAMESPACE + "Int";
-    public static final String HGQL_BOOLEAN = HGQL_NAMESPACE + "Boolean";
-    public static final String HGQL_FLOAT = HGQL_NAMESPACE + "Float";
-    public static final String HGQL_DECIMAL = HGQL_NAMESPACE + "Decimal";
-    public static final String HGQL_LONG = HGQL_NAMESPACE + "Long";
-    public static final String HGQL_SHORT = HGQL_NAMESPACE + "Short";
-    public static final String HGQL_DATETIME = HGQL_NAMESPACE + "DateTime";
-    public static final String HGQL_ID = HGQL_NAMESPACE + "ID";
+
+    public static final String HGQL_STRING = HGQL_NAMESPACE + SCALAR_STRING;
+    public static final String HGQL_INT = HGQL_NAMESPACE + SCALAR_INT;
+    public static final String HGQL_BOOLEAN = HGQL_NAMESPACE + SCALAR_BOOLEAN;
+    public static final String HGQL_FLOAT = HGQL_NAMESPACE + SCALAR_FLOAT;
+    public static final String HGQL_DECIMAL = HGQL_NAMESPACE + SCALAR_DECIMAL;
+    public static final String HGQL_LONG = HGQL_NAMESPACE + SCALAR_LONG;
+    public static final String HGQL_SHORT = HGQL_NAMESPACE + SCALAR_SHORT;
+    public static final String HGQL_DATETIME = HGQL_NAMESPACE + SCALAR_DATETIME;
+    public static final String HGQL_ID = HGQL_NAMESPACE + SCALAR_ID;
+
     public static final String HGQL_LIST_TYPE = HGQL_NAMESPACE + "ListType";
     public static final String HGQL_NON_NULL_TYPE = HGQL_NAMESPACE + "NonNullType";
     public static final String HGQL_QUERY_TYPE = HGQL_NAMESPACE + "QueryType";
@@ -53,15 +67,15 @@ public class HGQLVocabulary {
     public static final String HGQL_IMPLEMENTS = HGQL_NAMESPACE + "implements";
 
     public static final Map<String, String> SCALAR_TYPES = Collections.unmodifiableMap(new HashMap<String, String>() {{
-        put("String", HGQL_STRING);
-        put("Int", HGQL_INT);
-        put("Boolean", HGQL_BOOLEAN);
-        put("Float", HGQL_FLOAT);
-        put("DateTime", HGQL_DATETIME);
-        put("Decimal", HGQL_DECIMAL);
-        put("Long", HGQL_LONG);
-        put("Short", HGQL_SHORT);
-        put("ID", HGQL_ID);
+        put(SCALAR_STRING, HGQL_STRING);
+        put(SCALAR_INT, HGQL_INT);
+        put(SCALAR_BOOLEAN, HGQL_BOOLEAN);
+        put(SCALAR_FLOAT, HGQL_FLOAT);
+        put(SCALAR_DATETIME, HGQL_DATETIME);
+        put(SCALAR_DECIMAL, HGQL_DECIMAL);
+        put(SCALAR_LONG, HGQL_LONG);
+        put(SCALAR_SHORT, HGQL_SHORT);
+        put(SCALAR_ID, HGQL_ID);
     }});
 
     public static final Map<String, GraphQLOutputType> SCALAR_TYPES_TO_GRAPHQL_OUTPUT =
