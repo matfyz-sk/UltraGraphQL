@@ -10,13 +10,14 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Provides an API for the schema mapping configuration
  */
 public class MappingConfig {
 
-    private Model mapping;
+    private final Model mapping;
     Property a;
 
     /**
@@ -40,6 +41,19 @@ public class MappingConfig {
     }
 
     /**
+     * Returns all mappings to an HGQL object in the schema
+     *
+     * @return Set of RDFNodes representing object mappings
+     */
+    Set<String> getFunctionalMapping() {
+        List<RDFNode> resFunctionalProperty = this.getSubjectsOfObjectProperty(a, HGQLVocabulary.HGQLS_FUNCTIONAL_PROPERTY);
+        List<RDFNode> resFunctionalDataProperty = this.getSubjectsOfObjectProperty(a, HGQLVocabulary.HGQLS_FUNCTIONAL_DATA_PROPERTY);
+        List<RDFNode> resFunctionalObjectProperty = this.getSubjectsOfObjectProperty(a, HGQLVocabulary.HGQLS_FUNCTIONAL_OBJECT_PROPERTY);
+
+        return Stream.of(resFunctionalProperty, resFunctionalObjectProperty, resFunctionalDataProperty).flatMap(res -> res.stream().map(node -> node.asResource().getURI())).collect(Collectors.toSet());
+    }
+
+    /**
      * Returns all mappings to an HGQL field in the schema
      *
      * @return Set of RDFNodes representing field mappings
@@ -56,18 +70,6 @@ public class MappingConfig {
      */
     Set<Property> getOutputTypeMapping() {
         List<RDFNode> res = this.getSubjectsOfObjectProperty(a, HGQLVocabulary.HGQLS_FIELD_OUTPUTTYPE);
-        return res.stream()
-                .map(this::getPropertyFromRDFNode)
-                .collect(Collectors.toSet());
-    }
-
-    /**
-     * Returns all mappings to the use of a field in the HGQL schema
-     *
-     * @return Set of Properties representing mappings to the use of a field
-     */
-    Set<Property> getUseMapping() {
-        List<RDFNode> res = this.getSubjectsOfObjectProperty(a, HGQLVocabulary.HGQLS_USE);
         return res.stream()
                 .map(this::getPropertyFromRDFNode)
                 .collect(Collectors.toSet());

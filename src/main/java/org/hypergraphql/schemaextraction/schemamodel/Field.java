@@ -15,7 +15,7 @@ public class Field {
     private String id;
     private PrefixService prefixService;
     private Union outputType;
-    private Boolean isList = false;   // default
+    private Boolean isList = true;   // default
     private Boolean isNonNull = false;   // default
     private Boolean isClone = false;   // indicates if this object is a clone
     private Field baseObject = null;

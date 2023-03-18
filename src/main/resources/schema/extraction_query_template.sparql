@@ -48,7 +48,7 @@ WHERE {
               WHERE {
                    ?s ?p ?o.
                    FILTER (STRSTARTS(str(?s), "http://www.w3.org/2002/07/owl") || STRSTARTS(str(?s), "?graphontology") ).
-                   FILTER ( ?p = schema:domainIncludes || ?p = schema:rangeIncludes || ?p = rdfs:subClassOf || ?p = xsd:use ).
+                   FILTER ( ?p = schema:domainIncludes || ?p = schema:rangeIncludes || ?p = rdfs:subClassOf ).
               }}
         }
     }
@@ -69,7 +69,7 @@ WHERE {
                    ?s ?p ?o.
                    FILTER (STRSTARTS(str(?s), "http://www.w3.org/2002/07/owl") || STRSTARTS(str(?s), "?graphontology") ).
                    FILTER ( ?p = rdf:type ).
-                   FILTER ( ?o = rdf:Property || ?o = owl:DatatypeProperty || ?o = owl:ObjectProperty ).
+                   FILTER ( ?o = rdf:Property || ?o = owl:DatatypeProperty || ?o = owl:ObjectProperty || ?o = owl:FunctionalProperty || ?o = owl:FunctionalObjectProperty || ?o = owl:FunctionalDataProperty ).
               }}
         }
     }

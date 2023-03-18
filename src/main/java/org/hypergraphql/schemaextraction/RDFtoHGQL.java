@@ -253,25 +253,25 @@ public class RDFtoHGQL {
                     }
                     fieldObj.addServiceDirective(serviceId);
 
-                    Set<Property> useTypeMappings = mapConfig.getUseMapping();
 
-                    for (Property useTypeMapping : useTypeMappings) {
-                        NodeIterator useTypes = schema.listObjectsOfProperty(field.asResource(), useTypeMapping);
+                    Property a = schema.getProperty(HGQLVocabulary.RDF_TYPE);
+                    Set<String> functionalMapping = mapConfig.getFunctionalMapping();
 
-                        while (useTypes.hasNext()) {
-                            Literal literal = useTypes.next().asLiteral();
+                    /* Define if the property is unique (non-list) */
+                    NodeIterator useTypes = schema.listObjectsOfProperty(field.asResource(), a);
+                    while (useTypes.hasNext()) {
+                        Resource resource = useTypes.next().asResource();
 
-                            if (literal == null) {
-                                continue;
-                            }
-
-                            if (HGQL_REQUIRED.equals(literal.getString())) {
-                                fieldObj.setNonNull(true);
-                            }
+                        if (resource == null) {
+                            continue;
                         }
 
+                        if (functionalMapping.contains(resource.getURI())) {
+                            fieldObj.setList(false);
+                        }
                     }
 
+                    /* Define the output of the property */
                     for (Property outputTypeMapping : outputTypeMappings) {   //iterate over all outputType mappings
                         NodeIterator outputTypes = schema.listObjectsOfProperty(field.asResource(), outputTypeMapping);   //ToDo: Handling of empty result
                         while (outputTypes.hasNext()) {
@@ -280,11 +280,6 @@ public class RDFtoHGQL {
                                 continue;
                             }
                             String resourceUri = resource.getURI();
-
-                            if (RDF_LIST.equals(resourceUri)) {
-                                fieldObj.setList(true);
-                                continue;
-                            }
 
                             if (XML_STRING.equals(resourceUri)) {
                                 fieldObj.addOutputType(getScalarObjType(schema, HGQL_SCHEMA_STRING));

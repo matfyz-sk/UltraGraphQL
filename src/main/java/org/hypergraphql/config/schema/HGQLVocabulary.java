@@ -98,8 +98,9 @@ public class HGQLVocabulary {
 
     // Additions for Automatic Schema Extraction
     public static final String RDF_PREFIX = "http://www.w3.org/1999/02/22-rdf-syntax-ns#";
+    public static final String OWL_PREFIX = "http://www.w3.org/2002/07/owl#";
     public static final String RDF_TYPE = RDF_PREFIX + "type";
-    public static final String RDF_LIST = RDF_PREFIX + "List";
+    public static final String OWL_FUNCTIONAL_PROPERTY = OWL_PREFIX + "FunctionalProperty";
 
     public static final String HGQL_SCHEMA_STRING = HGQL_SCHEMA_NAMESPACE + "String";
     public static final String HGQL_SCHEMA_BOOLEAN = HGQL_SCHEMA_NAMESPACE + "Boolean";
@@ -132,7 +133,9 @@ public class HGQLVocabulary {
     public static final String HGQLS_IMPLEMENTS_MUTUALLY = HGQLS_MAPPING + "implementsMutually";
     public static final String HGQLS_SHARED_OUTPUTTYPE = HGQLS_MAPPING + "sharedOutputType";
     public static final String HGQLS_SAME_AS = HGQLS_MAPPING + "sameAs";
-    public static final String HGQLS_USE = HGQLS_MAPPING + "use";
+    public static final String HGQLS_FUNCTIONAL_PROPERTY = HGQLS_MAPPING + "FunctionalProperty";
+    public static final String HGQLS_FUNCTIONAL_DATA_PROPERTY  = HGQLS_MAPPING + "FunctionalDataProperty";
+    public static final String HGQLS_FUNCTIONAL_OBJECT_PROPERTY  = HGQLS_MAPPING + "FunctionalObjectProperty";
 
     public static final String HGQL_DIRECTIVE_SCHEMA = "schema";
     public static final String HGQL_DIRECTIVE_PARAMETER_IMPLIED_BY = "impliedBy";

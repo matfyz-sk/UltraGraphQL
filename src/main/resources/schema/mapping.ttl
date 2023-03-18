@@ -37,5 +37,7 @@ owl:sameAs a hgqls:sameAs .
 owl:equivalentProperty a hgqls:sameAs .
 owl:equivalentClass a hgqls:sameAs .
 
-# use - define if the argument is required
-xsd:use a hgqls:use .
+# functionalProperty - define if the value is unique
+owl:FunctionalProperty a hgqls:FunctionalProperty .
+owl:FunctionalDataProperty a hgqls:FunctionalDataProperty .
+owl:FunctionalObjectProperty a hgqls:FunctionalObjectProperty .
