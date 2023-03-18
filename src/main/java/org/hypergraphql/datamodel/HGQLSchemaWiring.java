@@ -25,6 +25,7 @@ import static graphql.schema.GraphQLInterfaceType.newInterface;
 import static graphql.schema.GraphQLObjectType.newObject;
 import static graphql.schema.GraphQLUnionType.newUnionType;
 import static org.hypergraphql.config.schema.HGQLVocabulary.*;
+import static org.hypergraphql.schemaextraction.ExtendedScalars.GraphQLDateTime;
 
 /**
  * The HGQLSchemaWiring class initiates the generation of the HGQLSchema object form the provided UGQLS.
@@ -264,8 +265,11 @@ public class HGQLSchemaWiring {
                 GraphQLString,
                 GraphQLInt,
                 GraphQLBoolean,
-                GraphQLFloat
-                //TODO add dateTime
+                GraphQLFloat,
+                GraphQLBigDecimal,
+                GraphQLLong,
+                GraphQLShort,
+                GraphQLDateTime
         );
     }
 

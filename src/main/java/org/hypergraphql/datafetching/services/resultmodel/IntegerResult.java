@@ -8,8 +8,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * StringResult represents Literal results of a queried field.
- * The StringResult object is the leaf object of the result tree.
+ * IntegerResult represents Literal results of a queried field.
+ * The IntegerResult object is the leaf object of the result tree.
  */
 public class IntegerResult extends Result<Object> {
 
@@ -19,7 +19,7 @@ public class IntegerResult extends Result<Object> {
     Set<Integer> values = new HashSet<>();   // contains the literal values (results) of this field
 
     /**
-     * Initalize ObjectResult with nodeId and name, both are mandatory for all StringResults
+     * Initalize ObjectResult with nodeId and name, both are mandatory for all IntegerResults
      *
      * @param nodeId Id of the query field also used as SPARQL variable
      * @param name   Name of the field
@@ -63,7 +63,7 @@ public class IntegerResult extends Result<Object> {
     }
 
     /**
-     * Adds a Boolean value to the result list of this object.
+     * Adds an Integer value to the result list of this object.
      * This method is not restricted by the isList attribute. Values are always added but during the generation of the
      * JSON representation an error message is added and the field output type is changed to list to return all queried results.
      *

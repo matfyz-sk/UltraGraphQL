@@ -8,8 +8,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * StringResult represents Literal results of a queried field.
- * The StringResult object is the leaf object of the result tree.
+ * BooleanResult represents Literal results of a queried field.
+ * The BooleanResult object is the leaf object of the result tree.
  */
 public class BooleanResult extends Result<Object> {
 
@@ -19,7 +19,7 @@ public class BooleanResult extends Result<Object> {
     Set<Boolean> values = new HashSet<>();   // contains the literal values (results) of this field
 
     /**
-     * Initalize ObjectResult with nodeId and name, both are mandatory for all StringResults
+     * Initalize ObjectResult with nodeId and name, both are mandatory for all BooleanResults
      *
      * @param nodeId Id of the query field also used as SPARQL variable
      * @param name   Name of the field

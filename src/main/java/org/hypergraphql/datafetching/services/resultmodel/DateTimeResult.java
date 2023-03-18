@@ -1,6 +1,5 @@
 package org.hypergraphql.datafetching.services.resultmodel;
 
-import org.apache.jena.datatypes.RDFDatatype;
 import org.hypergraphql.query.converters.SPARQLServiceConverter;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -18,7 +17,7 @@ public class DateTimeResult extends Result<Object> {
     private final static Logger LOGGER = LoggerFactory.getLogger(DateTimeResult.class);
 
 
-    Set<RDFDatatype> values = new HashSet<>();   // contains the literal values (results) of this field
+    Set<DateTime> values = new HashSet<>();   // contains the literal values (results) of this field
 
     /**
      * Initalize ObjectResult with nodeId and name, both are mandatory for all StringResults
@@ -65,13 +64,13 @@ public class DateTimeResult extends Result<Object> {
     }
 
     /**
-     * Adds a Boolean value to the result list of this object.
+     * Adds a DateTime value to the result list of this object.
      * This method is not restricted by the isList attribute. Values are always added but during the generation of the
      * JSON representation an error message is added and the field output type is changed to list to return all queried results.
      *
      * @param value
      */
-    public void addDateTime(RDFDatatype value) {
+    public void addDateTime(DateTime value) {
         this.values.add(value);
     }
 
@@ -142,7 +141,7 @@ public class DateTimeResult extends Result<Object> {
      *
      * @return Literal values of this stored object
      */
-    Set<RDFDatatype> getValues() {
+    Set<DateTime> getValues() {
         return values;
     }
 

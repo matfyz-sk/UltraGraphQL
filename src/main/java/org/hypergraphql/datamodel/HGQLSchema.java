@@ -125,16 +125,31 @@ public class HGQLSchema {
         rdfSchema.insertObjectTriple(schemaUri, RDF_TYPE, HGQL_SCHEMA);
         rdfSchema.insertObjectTriple(schemaNamespace + "query", RDF_TYPE, HGQL_QUERY_TYPE);
         rdfSchema.insertStringLiteralTriple(schemaNamespace + "query", HGQL_HAS_NAME, "Query");
+
         rdfSchema.insertObjectTriple(HGQL_STRING, RDF_TYPE, HGQL_SCALAR_TYPE);
         rdfSchema.insertStringLiteralTriple(HGQL_STRING, HGQL_HAS_NAME, "String");
+
         rdfSchema.insertObjectTriple(HGQL_INT, RDF_TYPE, HGQL_SCALAR_TYPE);
         rdfSchema.insertStringLiteralTriple(HGQL_INT, HGQL_HAS_NAME, "Int");
+
         rdfSchema.insertObjectTriple(HGQL_BOOLEAN, RDF_TYPE, HGQL_SCALAR_TYPE);
         rdfSchema.insertStringLiteralTriple(HGQL_BOOLEAN, HGQL_HAS_NAME, "Boolean");
+
         rdfSchema.insertObjectTriple(HGQL_FLOAT, RDF_TYPE, HGQL_SCALAR_TYPE);
         rdfSchema.insertStringLiteralTriple(HGQL_FLOAT, HGQL_HAS_NAME, "Float");
+
         rdfSchema.insertObjectTriple(HGQL_DATETIME, RDF_TYPE, HGQL_SCALAR_TYPE);
         rdfSchema.insertStringLiteralTriple(HGQL_DATETIME, HGQL_HAS_NAME, "DateTime");
+
+        rdfSchema.insertObjectTriple(HGQL_DECIMAL, RDF_TYPE, HGQL_SCALAR_TYPE);
+        rdfSchema.insertStringLiteralTriple(HGQL_DECIMAL, HGQL_HAS_NAME, "Decimal");
+
+        rdfSchema.insertObjectTriple(HGQL_LONG, RDF_TYPE, HGQL_SCALAR_TYPE);
+        rdfSchema.insertStringLiteralTriple(HGQL_LONG, HGQL_HAS_NAME, "Long");
+
+        rdfSchema.insertObjectTriple(HGQL_SHORT, RDF_TYPE, HGQL_SCALAR_TYPE);
+        rdfSchema.insertStringLiteralTriple(HGQL_SHORT, HGQL_HAS_NAME, "Short");
+
         rdfSchema.insertObjectTriple(HGQL_ID, RDF_TYPE, HGQL_SCALAR_TYPE);
         rdfSchema.insertStringLiteralTriple(HGQL_ID, HGQL_HAS_NAME, "ID");
 

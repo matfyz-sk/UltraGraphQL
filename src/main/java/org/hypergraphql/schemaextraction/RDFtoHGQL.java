@@ -283,6 +283,7 @@ public class RDFtoHGQL {
 
                             if (RDF_LIST.equals(resourceUri)) {
                                 fieldObj.setList(true);
+                                continue;
                             }
 
                             if (XML_STRING.equals(resourceUri)) {
@@ -295,6 +296,12 @@ public class RDFtoHGQL {
                                 fieldObj.addOutputType(getScalarObjType(schema, HGQL_SCHEMA_FLOAT));
                             } else if (XML_DATETIME.equals(resourceUri)) {
                                 fieldObj.addOutputType(getScalarObjType(schema, HGQL_SCHEMA_DATETIME));
+                            } else if (XML_DECIMAL.equals(resourceUri)) {
+                                fieldObj.addOutputType(getScalarObjType(schema, HGQL_SCHEMA_DECIMAL));
+                            } else if (XML_LONG.equals(resourceUri)) {
+                                fieldObj.addOutputType(getScalarObjType(schema, HGQL_SCHEMA_LONG));
+                            } else if (XML_SHORT.equals(resourceUri)) {
+                                fieldObj.addOutputType(getScalarObjType(schema, HGQL_SCHEMA_SHORT));
                             } else {
                                 Type outputType = this.types.get(graphqlNameSanitation(this.prefixService.getId(resource)));
                                 if (outputType != null) {

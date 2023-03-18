@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static graphql.Scalars.*;
+import static org.hypergraphql.schemaextraction.ExtendedScalars.GraphQLDateTime;
 
 public class HGQLVocabulary {
 
@@ -23,6 +24,9 @@ public class HGQLVocabulary {
     public static final String HGQL_INT = HGQL_NAMESPACE + "Int";
     public static final String HGQL_BOOLEAN = HGQL_NAMESPACE + "Boolean";
     public static final String HGQL_FLOAT = HGQL_NAMESPACE + "Float";
+    public static final String HGQL_DECIMAL = HGQL_NAMESPACE + "Decimal";
+    public static final String HGQL_LONG = HGQL_NAMESPACE + "Long";
+    public static final String HGQL_SHORT = HGQL_NAMESPACE + "Short";
     public static final String HGQL_DATETIME = HGQL_NAMESPACE + "DateTime";
     public static final String HGQL_ID = HGQL_NAMESPACE + "ID";
     public static final String HGQL_LIST_TYPE = HGQL_NAMESPACE + "ListType";
@@ -54,6 +58,9 @@ public class HGQLVocabulary {
         put("Boolean", HGQL_BOOLEAN);
         put("Float", HGQL_FLOAT);
         put("DateTime", HGQL_DATETIME);
+        put("Decimal", HGQL_DECIMAL);
+        put("Long", HGQL_LONG);
+        put("Short", HGQL_SHORT);
         put("ID", HGQL_ID);
     }});
 
@@ -63,7 +70,10 @@ public class HGQLVocabulary {
                 put(HGQL_INT, GraphQLInt);
                 put(HGQL_BOOLEAN, GraphQLBoolean);
                 put(HGQL_FLOAT, GraphQLFloat);
-                put(HGQL_DATETIME, GraphQLString); //TODO Change to DateTime
+                put(HGQL_DATETIME, GraphQLDateTime);
+                put(HGQL_DECIMAL, GraphQLBigDecimal);
+                put(HGQL_LONG, GraphQLLong);
+                put(HGQL_SHORT, GraphQLShort);
                 put(HGQL_ID, GraphQLID);
             }});
 
@@ -82,7 +92,7 @@ public class HGQLVocabulary {
     public static final String HGQL_SCHEMA_INTEGER = HGQL_SCHEMA_NAMESPACE + "Int";
     public static final String HGQL_SCHEMA_FLOAT = HGQL_SCHEMA_NAMESPACE + "Float";
     public static final String HGQL_SCHEMA_DATETIME = HGQL_SCHEMA_NAMESPACE + "DateTime";
-    public static final String HGQL_SCHEMA_DECIMAL = HGQL_SCHEMA_NAMESPACE + "BigDecimal";
+    public static final String HGQL_SCHEMA_DECIMAL = HGQL_SCHEMA_NAMESPACE + "Decimal";
     public static final String HGQL_SCHEMA_LONG = HGQL_SCHEMA_NAMESPACE + "Long";
     public static final String HGQL_SCHEMA_SHORT = HGQL_SCHEMA_NAMESPACE + "Short";
 

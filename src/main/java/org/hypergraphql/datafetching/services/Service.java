@@ -14,10 +14,13 @@ import org.hypergraphql.query.converters.SPARQLServiceConverter;
 import org.hypergraphql.query.pattern.Query;
 import org.hypergraphql.query.pattern.QueryPattern;
 import org.hypergraphql.query.pattern.SubQueriesPattern;
+import org.joda.time.DateTime;
 
+import java.math.BigDecimal;
 import java.util.*;
 
 import static org.hypergraphql.config.schema.HGQLVocabulary.*;
+import static org.hypergraphql.schemaextraction.ExtendedScalars.isDate;
 
 /**
  * Provides methods to translate SPARQL results into Result objects. The Result object than allows to generate JSON objects.
@@ -616,7 +619,21 @@ public abstract class Service {
                         res.setNodeId(currentNode.nodeId);
                     }
                     if (res instanceof DateTimeResult) {
-                        ((DateTimeResult) res).addDateTime(object.asLiteral().getDatatype());
+                        Object dateTimeObject = object.asLiteral().getValue();
+                        DateTime date = isDate(dateTimeObject) || dateTimeObject instanceof String ? new DateTime(dateTimeObject) : null;
+                        ((DateTimeResult) res).addDateTime(date);
+                        res.setNodeId(currentNode.nodeId);
+                    }
+                    if (res instanceof BigDecimalResult) {
+                        ((BigDecimalResult) res).addBigDecimal(new BigDecimal(object.asLiteral().getString()));
+                        res.setNodeId(currentNode.nodeId);
+                    }
+                    if (res instanceof LongResult) {
+                        ((LongResult) res).addLong(object.asLiteral().getLong());
+                        res.setNodeId(currentNode.nodeId);
+                    }
+                    if (res instanceof ShortResult) {
+                        ((ShortResult) res).addShort(object.asLiteral().getShort());
                         res.setNodeId(currentNode.nodeId);
                     }
                 }

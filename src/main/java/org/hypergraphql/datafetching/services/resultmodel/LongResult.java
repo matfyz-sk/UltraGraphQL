@@ -8,22 +8,23 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * FloatResult represents Literal results of a queried field.
- * The FloatResult object is the leaf object of the result tree.
+ * LongResult represents Literal results of a queried field.
+ * The LongResult object is the leaf object of the result tree.
  */
-public class FloatResult extends Result<Object> {
+public class LongResult extends Result<Object> {
 
-    private final static Logger LOGGER = LoggerFactory.getLogger(FloatResult.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(LongResult.class);
 
-    Set<Float> values = new HashSet<>();   // contains the literal values (results) of this field
+
+    Set<Long> values = new HashSet<>();   // contains the literal values (results) of this field
 
     /**
-     * Initalize ObjectResult with nodeId and name, both are mandatory for all FloatResults
+     * Initalize ObjectResult with nodeId and name, both are mandatory for all LongResults
      *
      * @param nodeId Id of the query field also used as SPARQL variable
      * @param name   Name of the field
      */
-    public FloatResult(String nodeId, String name) {
+    public LongResult(String nodeId, String name) {
         super(nodeId, name);
     }
 
@@ -34,7 +35,7 @@ public class FloatResult extends Result<Object> {
      * @param name   Name of the field
      * @param alias  Alias of the field name
      */
-    public FloatResult(String nodeId, String name, String alias) {
+    public LongResult(String nodeId, String name, String alias) {
         super(nodeId, name, alias);
     }
 
@@ -45,7 +46,7 @@ public class FloatResult extends Result<Object> {
      * @param name   Name of the field
      * @param args   Arguments of the field
      */
-    public FloatResult(String nodeId, String name, Map<String, Object> args) {
+    public LongResult(String nodeId, String name, Map<String, Object> args) {
         super(nodeId, name, args);
     }
 
@@ -57,18 +58,18 @@ public class FloatResult extends Result<Object> {
      * @param alias  Alias of the field
      * @param args   Arguments of the field
      */
-    public FloatResult(String nodeId, String name, String alias, Map<String, Object> args) {
+    public LongResult(String nodeId, String name, String alias, Map<String, Object> args) {
         super(nodeId, name, alias, args);
     }
 
     /**
-     * Adds a Float value to the result list of this object.
+     * Adds a Long value to the result list of this object.
      * This method is not restricted by the isList attribute. Values are always added but during the generation of the
      * JSON representation an error message is added and the field output type is changed to list to return all queried results.
      *
      * @param value
      */
-    public void addFloat(Float value) {
+    public void addLong(Long value) {
         this.values.add(value);
     }
 
@@ -123,11 +124,11 @@ public class FloatResult extends Result<Object> {
 
     @Override
     public void merge(Result result) {
-        if (result instanceof FloatResult) {
+        if (result instanceof LongResult) {
             if (!this.name.equals(result.name)) {
                 LOGGER.error("Tried to merge fields with different names");
             } else {
-                this.values.addAll(((FloatResult) result).values);
+                this.values.addAll(((LongResult) result).values);
             }
         } else {
             LOGGER.error("Merging string results with objet results not possible");
@@ -139,7 +140,7 @@ public class FloatResult extends Result<Object> {
      *
      * @return Literal values of this stored object
      */
-    Set<Float> getValues() {
+    Set<Long> getValues() {
         return values;
     }
 
