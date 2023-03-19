@@ -54,7 +54,7 @@ public class HGQLSchemaWiring {
     private Map<String, GraphQLArgument> defaultArguments = new HashMap<String, GraphQLArgument>() {{
         put("limit", new GraphQLArgument("limit", GraphQLInt));
         put("offset", new GraphQLArgument("offset", GraphQLInt));
-        put("lang", new GraphQLArgument("lang", GraphQLString));
+        /*put("lang", new GraphQLArgument("lang", GraphQLString));*/
         put("uris", new GraphQLArgument("uris", new GraphQLNonNull(new GraphQLList(GraphQLID))));
         put("_id", new GraphQLArgument("_id", new GraphQLList(GraphQLID)));  // ToDo: currently added for default Query support, when schema loading is complete this is not needed
         put("order", GraphQLArgument.newArgument()
@@ -648,9 +648,9 @@ public class HGQLSchemaWiring {
 
         List<GraphQLArgument> args = new ArrayList<>();
 
-        if (field.getTargetName().equals("String")) {
+        /*if (field.getTargetName().equals("String")) {
             args.add(defaultArguments.get("lang"));
-        }
+        }*/
         if (!(SCALAR_TYPES.containsKey(field.getTargetName()))) {
             if (field.isList()) {
                 args.addAll(getQueryArgs);
