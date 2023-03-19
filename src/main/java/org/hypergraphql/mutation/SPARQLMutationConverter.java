@@ -95,7 +95,7 @@ public class SPARQLMutationConverter {
 
     public String addCreatedAttributeToResult(String uriResource, Map<String, String> prefixes) {
         String predicateCreated = uriToResource(prefixes.get(COURSES_ONTOLOGY_UGQL_PREFIX) + CREATED_PROP);
-        DateTime currentDateTime = new org.joda.time.DateTime();
+        DateTime currentDateTime = new org.joda.time.DateTime().toDateTimeISO();
         return toTriple(uriResource, predicateCreated, "\"" + currentDateTime + "\"") + "\n";
     }
 

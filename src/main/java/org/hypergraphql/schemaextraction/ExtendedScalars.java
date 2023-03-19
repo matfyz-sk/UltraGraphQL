@@ -31,7 +31,7 @@ public class ExtendedScalars {
     /**
      * This represents the "DateTime" type which is a representation of org.joda.time.DateTime
      */
-    public static final GraphQLScalarType GraphQLDateTime = new GraphQLScalarType("DateTime", "Built-in org.joda.time.DateTime", new Coercing<DateTime, DateTime>() {
+    public static final GraphQLScalarType GraphQLDateTime = new GraphQLScalarType("DateTime", "Built-in simplified org.joda.time.DateTime. Returns millis and string representation in ISO format.", new Coercing<DateTime, DateTime>() {
 
 
 
