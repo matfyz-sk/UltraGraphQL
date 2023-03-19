@@ -74,6 +74,16 @@ public class DateTimeResult extends Result<Object> {
         this.values.add(value);
     }
 
+    public DateTimeObject createDateTimeObject(DateTime dateTime) {
+        DateTime dateTimeIso = dateTime.toDateTimeISO();
+
+        DateTimeObject dateTimeObject = new DateTimeObject();
+        dateTimeObject.setMillis(dateTimeIso.getMillis());
+        dateTimeObject.setRepresentation(dateTimeIso.toString());
+
+        return dateTimeObject;
+    }
+
     @Override
     public Object generateJSON() {
         List values = new ArrayList(this.values);
@@ -82,7 +92,8 @@ public class DateTimeResult extends Result<Object> {
                 if (values.isEmpty()) {
                     return null;
                 }
-                return values.get(0);
+                DateTime dateTime = ((DateTime) values.get(0));
+                return createDateTimeObject(dateTime);
             } else {
                 this.errors += "Schema Error for " + this.name + ": Only one result should exist, all queried values are returned in a list.";
             }
