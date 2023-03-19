@@ -4,7 +4,6 @@ import graphql.language.IntValue;
 import graphql.language.StringValue;
 import graphql.schema.*;
 import org.joda.time.DateTime;
-import sun.util.calendar.BaseCalendar;
 
 import java.time.DateTimeException;
 import java.time.LocalDate;
@@ -21,7 +20,7 @@ public class ExtendedScalars {
     }
 
     public static boolean isDate(Object input) {
-        return input instanceof DateTime || input instanceof Date || input instanceof BaseCalendar.Date || isLocalDate(input);
+        return input instanceof DateTime || input instanceof Date || isLocalDate(input);
     }
 
     private static boolean isLocalDate(Object input) {
