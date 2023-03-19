@@ -655,10 +655,16 @@ public class HGQLSchemaWiring {
             if (field.isList()) {
                 args.addAll(getQueryArgs);
             }
+            else{
+                args.add(defaultArguments.get("order"));
+            }
         } else {
             if (field.isList()) {
                 args.add(defaultArguments.get("limit"));
                 args.add(defaultArguments.get("offset"));
+                args.add(defaultArguments.get("order"));
+            }
+            else {
                 args.add(defaultArguments.get("order"));
             }
         }
