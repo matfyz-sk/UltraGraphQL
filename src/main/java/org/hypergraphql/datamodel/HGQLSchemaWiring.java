@@ -61,8 +61,8 @@ public class HGQLSchemaWiring {
                 .name("order")
                 .type(GraphQLEnumType.newEnum()
                         .name("Order_ENUM")
-                        .value("DESCENDING", "DESC")
-                        .value("ASCENDING", "ASC")
+                        .value("DESC", "DESC")
+                        .value("ASC", "ASC")
                         .description("Operators to define the order of the resulting list")
                         .build())
                 .build());

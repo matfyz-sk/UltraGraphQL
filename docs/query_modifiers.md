@@ -57,14 +57,14 @@ Example:
 ```
 
 ## order
-With the order field the rsult array can be ordered *DESCENDING* and *ASCENDING*.
+With the order field the rsult array can be ordered *DESC* and *ASC*.
 
 Example:
 ```graphql
 {
-  Person(order:ASCENDING){
+  Person(order:ASC){
     label
-    friends(order:DESCENDING){
+    friends(order:DESC){
       _id
     }
   }

@@ -35,8 +35,8 @@ public class SPARQLServiceConverter {
     public final static String LIMIT = "limit";
     public final static String OFFSET = "offset";
     public final static String ORDER = "order";
-    public final static String ORDER_DESC = "DESCENDING";
-    public final static String ORDER_ASC = "ASCENDING";
+    public final static String ORDER_DESC = "DESC";
+    public final static String ORDER_ASC = "ASC";
     public final static String ID = "_id";
     public final static String TYPE = "_type";
     private final static String SAMEAS = "sameas";
