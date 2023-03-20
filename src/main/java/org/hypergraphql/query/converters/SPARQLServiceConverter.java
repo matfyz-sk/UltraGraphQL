@@ -84,6 +84,19 @@ public class SPARQLServiceConverter {
     }
 
     /**
+     * Generates a SPARQL query in which the given graphID is queried with the given query (where). The query is uses a
+     * wildcard in the selection this means all variables are queried.
+     *
+     * @param where   Graph to access
+     * @param graphID Query for the graph
+     * @return
+     */
+    private String selectQueryClause(String orderByValues, String where, String graphID) {
+        return "SELECT * WHERE { " + graphClause(graphID, where) + " } " + (orderByValues != null ? orderByValues : "");
+    }
+
+
+    /**
      * Generates a SPARQL GRAPH clause in which the given graphID is queried by the given query (where).
      *
      * @param graphID Graph to access
@@ -178,10 +191,16 @@ public class SPARQLServiceConverter {
     }
 
 
-    private String orderClause(QueryPattern query) {
+    private String orderClause(QueryPattern query, List<String> orderBy) {
         String order = "";
         if (query.args != null && query.args.containsKey(ORDER)) {
             order = (String) query.args.get(ORDER);
+
+            if (orderBy != null) {
+                orderBy.add((order.equals(ORDER_DESC) ? "DESC" : "ASC") + "(" + toVar(query.nodeId) + ")");
+                return "";
+            }
+
             if (order.equals(ORDER_DESC)) {
                 return "ORDER  BY DESC(" + toVar(query.nodeId) + ")";
             } else if (order.equals(ORDER_ASC)) {
@@ -314,7 +333,7 @@ public class SPARQLServiceConverter {
         String graphID = getGraphId(queryField, serviceId);
         String nodeId = queryField.nodeId;
         String limitOffsetSTR = limitOffsetClause(queryField);
-        String orderSTR = orderClause(queryField);
+        String orderSTR = orderClause(queryField, null);
         String selectTriple = "";
         if (hasSameAsTypes(targetName)) {
             Set<String> values = getSameAsTypes(targetName);
@@ -330,7 +349,7 @@ public class SPARQLServiceConverter {
         String valueSTR = valuesClause(nodeId, uris);
         String filterSTR = filterClause(nodeId, uris);   // NOT used ?? -> same as valuesClause?
 
-        String subQuery = getSubQueries(queryField.fields, valueSTR);
+        String subQuery = getSubQueries(queryField.fields, valueSTR, null);
 
         return selectQueryClause(valueSTR + selectTriple + subQuery, graphID) + orderSTR + limitOffsetSTR;
     }
@@ -349,8 +368,9 @@ public class SPARQLServiceConverter {
         String graphID = getGraphId(queryField, serviceId);  // The Graph is defined over the HGQL Schema directive service
         String nodeId = queryField.nodeId;   // SPARQL variable
         String limitOffsetSTR = limitOffsetClause(queryField);
-        String orderSTR = orderClause(queryField);
+        String orderSTR = orderClause(queryField, null);
         String selectTriple = "";
+
         if (hasSameAsTypes(targetName)) {
             Set<String> values = getSameAsTypes(targetName);
             values.add(targetName);
@@ -363,11 +383,18 @@ public class SPARQLServiceConverter {
         } else {
             selectTriple = toTriple(toVar(nodeId), RDF_TYPE_URI, uriToResource(targetURI));
         }
+
+        List<String> orderBy = new ArrayList<>();
+        String whereClause = getSubQueries(queryField.fields, "", orderBy);
+
+        String orderByValues = null;
+        if (!orderBy.isEmpty()) {
+            orderByValues = "ORDER BY " + String.join(", ", orderBy);
+        }
+
         String rootSubquery = selectSubqueryClause(nodeId, selectTriple, orderSTR + limitOffsetSTR);
 
-        String whereClause = getSubQueries(queryField.fields, "");
-
-        return selectQueryClause(rootSubquery + whereClause, graphID);   //ToDo: The generated Query is here only evalluated in one graph. If multiple endpoints have to be queried this has to be changed.
+        return selectQueryClause(orderByValues, rootSubquery + whereClause, graphID);   //ToDo: The generated Query is here only evalluated in one graph. If multiple endpoints have to be queried this has to be changed.
     }
 
     /**
@@ -393,10 +420,10 @@ public class SPARQLServiceConverter {
         String valueSTR = valuesClause(parentId, input);   // restrict the ?parentId to the values defined in the input list
 
         StringBuilder whereClause = new StringBuilder();
-        whereClause.append(getFieldSubquery(firstField, valueSTR));   //ToDo: Review this line -> effect on query results
+        whereClause.append(getFieldSubquery(firstField, valueSTR, null));   //ToDo: Review this line -> effect on query results
 //        queries.elements().forEachRemaining(field -> whereClause.append(getFieldSubquery(field)));
         while (listIterator.hasNext()) {
-            whereClause.append(getFieldSubquery(listIterator.next(), valueSTR));
+            whereClause.append(getFieldSubquery(listIterator.next(), valueSTR, null));
         }
         return selectQueryClause(valueSTR + (whereClause.toString()), graphID);
     }
@@ -408,7 +435,7 @@ public class SPARQLServiceConverter {
      * @param field
      * @return
      */
-    private String getFieldSubquery(QueryPattern field, String rootValues) {
+    private String getFieldSubquery(QueryPattern field, String rootValues, List<String> orderBy) {
 
         String fieldName = field.name;
 
@@ -437,7 +464,7 @@ public class SPARQLServiceConverter {
         // Analyze tradeoff between more results and more or mor complex queries.
         String limitOffsetSTR = "";//field.targetType.equals("String") ? "" : limitOffsetClause(field);
         String langFilter = langFilterClause(field);   // Add language filter if defined
-        String orderSTR = orderClause(field);
+        String orderSTR = orderClause(field, orderBy);
         String valueSTR = "";
         if (field.args.containsKey(ID)) {
             List<String> urisIter = (List<String>) field.args.get(ID);
@@ -463,7 +490,7 @@ public class SPARQLServiceConverter {
             }
             langFilter = langFilterClause((QueryPattern) literal_value);
             limitOffsetSTR = limitOffsetClause((QueryPattern) literal_value);
-            orderSTR = orderClause((QueryPattern) literal_value);
+            orderSTR = orderClause((QueryPattern) literal_value, null);
         } else {
             String typeURI = (schema.getTypes().containsKey(targetName)) ? schema.getTypes().get(targetName).getId() : "";  // If the output type (targetName) is a type of the schema then typeURI is the Id of this type
             if (hasSameAsTypes(targetName)) {
@@ -479,7 +506,7 @@ public class SPARQLServiceConverter {
                 fieldPattern = fieldPattern(parentId, nodeId, fieldURI, typeURI.equals("") ? "" : uriToResource(typeURI));  // SPARQL query for only the field
             }
 
-            rest = getSubQueries(field.fields, rootValues);   // SPARQL query for the SelectionSet of the field (subfields)
+            rest = getSubQueries(field.fields, rootValues, null);   // SPARQL query for the SelectionSet of the field (subfields)
         }
 
         String selectField = "";
@@ -498,14 +525,14 @@ public class SPARQLServiceConverter {
      * @param subfields
      * @return
      */
-    private String getSubQueries(SubQueriesPattern subfields, String rootValues) {
+    private String getSubQueries(SubQueriesPattern subfields, String rootValues, List<String> orderBy) {
 
         if (subfields == null || subfields.subqueries == null || subfields.subqueries.isEmpty()) {
             return "";
         }
         StringBuilder whereClause = new StringBuilder();
         for (QueryPattern field : subfields.subqueries) {
-            whereClause.append(getFieldSubquery(field, rootValues));
+            whereClause.append(getFieldSubquery(field, rootValues, orderBy));
         }
         return whereClause.toString();
     }

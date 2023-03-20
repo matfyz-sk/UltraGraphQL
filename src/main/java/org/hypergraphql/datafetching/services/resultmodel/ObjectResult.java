@@ -5,10 +5,7 @@ import org.hypergraphql.util.BaseUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -19,8 +16,7 @@ import java.util.stream.Collectors;
 public class ObjectResult extends Result<Map<String, Object>> {
 
     private final static Logger LOGGER = LoggerFactory.getLogger(ObjectResult.class);
-    Map<String, Map<String, Result>> subfields = new HashMap<>();   // subfields for each queried entity, first string is the ID of the object second String indicates the subfield.
-
+    Map<String, Map<String, Result>> subfields = new LinkedHashMap<>();   // subfields for each queried entity, first string is the ID of the object second String indicates the subfield.
     /**
      * Initalize ObjectResult with nodeId and name, both are mandatory for all ObjectResults
      *
