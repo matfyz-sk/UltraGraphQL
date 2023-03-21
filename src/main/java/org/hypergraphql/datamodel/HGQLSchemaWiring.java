@@ -60,7 +60,7 @@ public class HGQLSchemaWiring {
         put("order", GraphQLArgument.newArgument()
                 .name("order")
                 .type(GraphQLEnumType.newEnum()
-                        .name("Order_ENUM")
+                        .name("OrderType")
                         .value("DESC", "DESC")
                         .value("ASC", "ASC")
                         .description("Operators to define the order of the resulting list")
