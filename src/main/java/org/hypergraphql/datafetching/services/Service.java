@@ -1,6 +1,7 @@
 package org.hypergraphql.datafetching.services;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import org.apache.jena.datatypes.xsd.XSDDateTime;
 import org.apache.jena.query.QuerySolution;
 import org.apache.jena.rdf.model.*;
 import org.hypergraphql.config.schema.FieldConfig;
@@ -213,7 +214,7 @@ public abstract class Service {
                 if (parentQuery.isSubQuery()) {
                     final Optional<QueryPattern> parent = ((SubQueriesPattern) parentQuery).subqueries.stream().filter(queryPattern -> queryPattern.nodeId.equals(currentNode.parentId)).findAny();
                     if (parent.isPresent()) {
-                        subRes = buildModel(results, currentNode, schema, (QueryPattern) parent.get());
+                        subRes = buildModel(results, currentNode, schema, parent.get());
                     } else {
                         //error this stat should not be reached
                     }
@@ -624,6 +625,10 @@ public abstract class Service {
                     }
                     if (res instanceof DateTimeResult) {
                         Object dateTimeObject = object.asLiteral().getValue();
+
+                        if (dateTimeObject instanceof XSDDateTime) {
+                            dateTimeObject = dateTimeObject.toString();
+                        }
                         DateTime date = isDate(dateTimeObject) || dateTimeObject instanceof String ? new DateTime(dateTimeObject) : null;
                         ((DateTimeResult) res).addDateTime(date);
                         res.setNodeId(currentNode.nodeId);

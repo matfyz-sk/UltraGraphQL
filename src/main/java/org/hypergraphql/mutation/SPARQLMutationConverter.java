@@ -2,7 +2,6 @@ package org.hypergraphql.mutation;
 
 import graphql.language.*;
 import io.micrometer.core.lang.NonNull;
-import org.apache.jena.datatypes.RDFDatatype;
 import org.hypergraphql.config.schema.FieldOfTypeConfig;
 import org.hypergraphql.config.schema.TypeConfig;
 import org.hypergraphql.datafetching.services.SPARQLEndpointService;
@@ -18,6 +17,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 import static org.hypergraphql.config.schema.HGQLVocabulary.*;
+import static org.hypergraphql.mutation.SPARQLTypeConvertor.getSchemaScalarType;
 import static org.hypergraphql.query.converters.SPARQLServiceConverter.*;
 import static org.hypergraphql.util.GlobalValues.COURSES_ONTOLOGY_UGQL_PREFIX;
 import static org.hypergraphql.util.GlobalValues.CREATED_PROP;
@@ -94,7 +94,7 @@ public class SPARQLMutationConverter {
     public String addCreatedAttributeToResult(String uriResource, Map<String, String> prefixes) {
         String predicateCreated = uriToResource(prefixes.get(COURSES_ONTOLOGY_UGQL_PREFIX) + CREATED_PROP);
         DateTime currentDateTime = new org.joda.time.DateTime().toDateTimeISO();
-        return toTriple(uriResource, predicateCreated, "\"" + currentDateTime + "\"") + "\n";
+        return toTriple(uriResource, predicateCreated, getSchemaScalarType(currentDateTime.toString(), DateTimeValue.class)) + "\n";
     }
 
     /**
@@ -263,15 +263,15 @@ public class SPARQLMutationConverter {
         } else if (value instanceof ObjectValue) {
             return translateObjectValue(root, id, field, (ObjectValue) value, action);
         } else if (value instanceof StringValue) {
-            return translateStringValue(root, id, field, (StringValue) value, action);
+            return translateStringValue(root, id, field, (StringValue) value);
         } else if (value instanceof IntValue) {
-            return translateIntValue(root, id, field, (IntValue) value, action);
+            return translateIntValue(root, id, field, (IntValue) value);
         } else if (value instanceof BooleanValue) {
-            return translateBooleanValue(root, id, field, (BooleanValue) value, action);
+            return translateBooleanValue(root, id, field, (BooleanValue) value);
         } else if (value instanceof FloatValue) {
-            return translateFloatValue(root, id, field, (FloatValue) value, action);
-        } else if (value instanceof RDFDatatype) {
-            return translateDateTimeValue(root, id, field, (RDFDatatype) value, action);
+            return translateFloatValue(root, id, field, (FloatValue) value);
+        } else if (value instanceof DateTimeValue) {
+            return translateDateTimeValue(root, id, field, (DateTimeValue) value);
         } else {
             //ToDo: Check if there are more possible values and handle them
             return "";
@@ -348,12 +348,12 @@ public class SPARQLMutationConverter {
      * @param value   String literal
      * @return RDF triple
      */
-    private String translateStringValue(TypeConfig root, String subject, String field, StringValue value, MutationAction action) {
+    private String translateStringValue(TypeConfig root, String subject, String field, StringValue value) {
         String field_id = this.schema.getFields().get(this.schema.getInputFields().get(field)).getId();
         if (subject == null) {
-            return toTriple(toVar(root.getName()), uriToResource(field_id), "\"" + value.getValue() + "\"");
+            return toTriple(toVar(root.getName()), uriToResource(field_id), getSchemaScalarType(value.getValue(), StringValue.class));
         } else {
-            return toTriple(uriToResource(subject), uriToResource(field_id), "\"" + value.getValue() + "\"");
+            return toTriple(uriToResource(subject), uriToResource(field_id), getSchemaScalarType(value.getValue(), StringValue.class));
         }
 
     }
@@ -366,12 +366,12 @@ public class SPARQLMutationConverter {
      * @param value   String literal
      * @return RDF triple
      */
-    private String translateBooleanValue(TypeConfig root, String subject, String field, BooleanValue value, MutationAction action) {
+    private String translateBooleanValue(TypeConfig root, String subject, String field, BooleanValue value) {
         String field_id = this.schema.getFields().get(this.schema.getInputFields().get(field)).getId();
         if (subject == null) {
-            return toTriple(toVar(root.getName()), uriToResource(field_id), "\"" + value.isValue() + "\"");
+            return toTriple(toVar(root.getName()), uriToResource(field_id), getSchemaScalarType(Boolean.toString(value.isValue()), BooleanValue.class));
         } else {
-            return toTriple(uriToResource(subject), uriToResource(field_id), "\"" + value.isValue() + "\"");
+            return toTriple(uriToResource(subject), uriToResource(field_id), getSchemaScalarType(Boolean.toString(value.isValue()), BooleanValue.class));
         }
 
     }
@@ -384,12 +384,12 @@ public class SPARQLMutationConverter {
      * @param value   String literal
      * @return RDF triple
      */
-    private String translateIntValue(TypeConfig root, String subject, String field, IntValue value, MutationAction action) {
+    private String translateIntValue(TypeConfig root, String subject, String field, IntValue value) {
         String field_id = this.schema.getFields().get(this.schema.getInputFields().get(field)).getId();
         if (subject == null) {
-            return toTriple(toVar(root.getName()), uriToResource(field_id), "\"" + value.getValue() + "\"");
+            return toTriple(toVar(root.getName()), uriToResource(field_id), getSchemaScalarType(value.getValue().toString(), IntValue.class));
         } else {
-            return toTriple(uriToResource(subject), uriToResource(field_id), "\"" + value.getValue() + "\"");
+            return toTriple(uriToResource(subject), uriToResource(field_id), getSchemaScalarType(value.getValue().toString(), IntValue.class));
         }
 
     }
@@ -402,12 +402,12 @@ public class SPARQLMutationConverter {
      * @param value   String literal
      * @return RDF triple
      */
-    private String translateFloatValue(TypeConfig root, String subject, String field, FloatValue value, MutationAction action) {
+    private String translateFloatValue(TypeConfig root, String subject, String field, FloatValue value) {
         String field_id = this.schema.getFields().get(this.schema.getInputFields().get(field)).getId();
         if (subject == null) {
-            return toTriple(toVar(root.getName()), uriToResource(field_id), "\"" + value.getValue() + "\"");
+            return toTriple(toVar(root.getName()), uriToResource(field_id), getSchemaScalarType(value.getValue().toString(), FloatValue.class));
         } else {
-            return toTriple(uriToResource(subject), uriToResource(field_id), "\"" + value.getValue() + "\"");
+            return toTriple(uriToResource(subject), uriToResource(field_id), getSchemaScalarType(value.getValue().toString(), DateTimeValue.class));
         }
 
     }
@@ -421,12 +421,12 @@ public class SPARQLMutationConverter {
      * @return RDF triple
      */
     //TODO change the representation
-    private String translateDateTimeValue(TypeConfig root, String subject, String field, RDFDatatype value, MutationAction action) {
+    private String translateDateTimeValue(TypeConfig root, String subject, String field, DateTimeValue value) {
         String field_id = this.schema.getFields().get(this.schema.getInputFields().get(field)).getId();
         if (subject == null) {
-            return toTriple(toVar(root.getName()), uriToResource(field_id), "\"" + value.toString() + "\"");
+            return toTriple(toVar(root.getName()), uriToResource(field_id), getSchemaScalarType(value.toString(), DateTimeValue.class));
         } else {
-            return toTriple(uriToResource(subject), uriToResource(field_id), "\"" + value.toString() + "\"");
+            return toTriple(uriToResource(subject), uriToResource(field_id), getSchemaScalarType(value.toString(), DateTimeValue.class));
         }
 
     }

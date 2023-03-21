@@ -33,8 +33,6 @@ public class ExtendedScalars {
     public static final GraphQLScalarType GraphQLDateTime = new GraphQLScalarType("DateTime", "Built-in simplified org.joda.time.DateTime. Returns millis and string representation in ISO format.", new Coercing<DateTime, DateTime>() {
 
 
-
-
         private DateTime convertImpl(Object input) {
             if (isDate(input)) {
                 try {
