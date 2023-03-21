@@ -389,7 +389,7 @@ public class SPARQLServiceConverter {
 
         String orderByValues = null;
         if (!orderBy.isEmpty()) {
-            orderByValues = "ORDER BY " + String.join(", ", orderBy);
+            orderByValues = "ORDER BY " + String.join(" ", orderBy);
         }
 
         String rootSubquery = selectSubqueryClause(nodeId, selectTriple, orderSTR + limitOffsetSTR);
