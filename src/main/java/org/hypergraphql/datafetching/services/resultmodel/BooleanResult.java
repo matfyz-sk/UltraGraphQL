@@ -16,10 +16,10 @@ public class BooleanResult extends Result<Object> {
     private final static Logger LOGGER = LoggerFactory.getLogger(BooleanResult.class);
 
 
-    Set<Boolean> values = new HashSet<>();   // contains the literal values (results) of this field
+    Set<Boolean> values = new LinkedHashSet<>();   // contains the literal values (results) of this field
 
     /**
-     * Initalize ObjectResult with nodeId and name, both are mandatory for all BooleanResults
+     * Initalize BooleanResult with nodeId and name, both are mandatory for all BooleanResults
      *
      * @param nodeId Id of the query field also used as SPARQL variable
      * @param name   Name of the field

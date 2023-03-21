@@ -15,11 +15,10 @@ public class IntegerResult extends Result<Object> {
 
     private final static Logger LOGGER = LoggerFactory.getLogger(IntegerResult.class);
 
-
-    Set<Integer> values = new HashSet<>();   // contains the literal values (results) of this field
+    Set<Integer> values = new LinkedHashSet<>();   // contains the literal values (results) of this field
 
     /**
-     * Initalize ObjectResult with nodeId and name, both are mandatory for all IntegerResults
+     * Initalize IntegerResult with nodeId and name, both are mandatory for all IntegerResults
      *
      * @param nodeId Id of the query field also used as SPARQL variable
      * @param name   Name of the field

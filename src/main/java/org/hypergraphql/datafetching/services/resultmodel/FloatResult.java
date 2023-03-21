@@ -15,10 +15,10 @@ public class FloatResult extends Result<Object> {
 
     private final static Logger LOGGER = LoggerFactory.getLogger(FloatResult.class);
 
-    Set<Float> values = new HashSet<>();   // contains the literal values (results) of this field
+    Set<Float> values = new LinkedHashSet<>();   // contains the literal values (results) of this field
 
     /**
-     * Initalize ObjectResult with nodeId and name, both are mandatory for all FloatResults
+     * Initalize FloatResult with nodeId and name, both are mandatory for all FloatResults
      *
      * @param nodeId Id of the query field also used as SPARQL variable
      * @param name   Name of the field

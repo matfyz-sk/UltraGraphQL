@@ -15,11 +15,10 @@ public class LongResult extends Result<Object> {
 
     private final static Logger LOGGER = LoggerFactory.getLogger(LongResult.class);
 
-
-    Set<Long> values = new HashSet<>();   // contains the literal values (results) of this field
+    Set<Long> values = new LinkedHashSet<>();   // contains the literal values (results) of this field
 
     /**
-     * Initalize ObjectResult with nodeId and name, both are mandatory for all LongResults
+     * Initalize LongResult with nodeId and name, both are mandatory for all LongResults
      *
      * @param nodeId Id of the query field also used as SPARQL variable
      * @param name   Name of the field

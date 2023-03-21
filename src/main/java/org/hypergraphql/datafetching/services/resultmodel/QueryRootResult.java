@@ -1,6 +1,7 @@
 package org.hypergraphql.datafetching.services.resultmodel;
 
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 
@@ -10,7 +11,7 @@ import java.util.Map;
  */
 public class QueryRootResult extends Result<Map<String, Object>> {
 
-    Map<String, Result> root_result;   // As key the nodeId (SPARQL variable is used to allow multiple queries with different selection sets without merging them)
+    Map<String, Result> root_result = new LinkedHashMap<>();   // As key the nodeId (SPARQL variable is used to allow multiple queries with different selection sets without merging them)
 
     /**
      * Initialize Result object with a id and name
@@ -20,7 +21,6 @@ public class QueryRootResult extends Result<Map<String, Object>> {
      */
     public QueryRootResult(String nodeId, String name) {
         super(nodeId, name);
-        root_result = new HashMap<>();
     }
 
     /**

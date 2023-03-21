@@ -17,10 +17,10 @@ public class BigDecimalResult extends Result<Object> {
     private final static Logger LOGGER = LoggerFactory.getLogger(BigDecimalResult.class);
 
 
-    Set<BigDecimal> values = new HashSet<>();   // contains the literal values (results) of this field
+    Set<BigDecimal> values = new LinkedHashSet<>();   // contains the literal values (results) of this field
 
     /**
-     * Initalize ObjectResult with nodeId and name, both are mandatory for all BigDecimalResult
+     * Initalize BigDecimalResult with nodeId and name, both are mandatory for all BigDecimalResult
      *
      * @param nodeId Id of the query field also used as SPARQL variable
      * @param name   Name of the field

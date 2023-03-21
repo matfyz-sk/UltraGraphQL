@@ -9,18 +9,18 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * StringResult represents Literal results of a queried field.
- * The StringResult object is the leaf object of the result tree.
+ * DateTimeResult represents Literal results of a queried field.
+ * The DateTimeResult object is the leaf object of the result tree.
  */
 public class DateTimeResult extends Result<Object> {
 
     private final static Logger LOGGER = LoggerFactory.getLogger(DateTimeResult.class);
 
 
-    Set<DateTime> values = new HashSet<>();   // contains the literal values (results) of this field
+    Set<DateTime> values = new LinkedHashSet<>();   // contains the literal values (results) of this field
 
     /**
-     * Initalize ObjectResult with nodeId and name, both are mandatory for all StringResults
+     * Initalize DateTimeResult with nodeId and name, both are mandatory for all StringResults
      *
      * @param nodeId Id of the query field also used as SPARQL variable
      * @param name   Name of the field
