@@ -7,6 +7,8 @@ import org.hypergraphql.config.schema.TypeConfig;
 import org.hypergraphql.datafetching.services.SPARQLEndpointService;
 import org.hypergraphql.datafetching.services.Service;
 import org.hypergraphql.datamodel.HGQLSchema;
+import org.hypergraphql.mutation.values.DateTimeValue;
+import org.hypergraphql.mutation.values.DecimalValue;
 import org.hypergraphql.util.UIDUtils;
 import org.joda.time.DateTime;
 
@@ -17,7 +19,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 import static org.hypergraphql.config.schema.HGQLVocabulary.*;
-import static org.hypergraphql.mutation.SPARQLTypeConvertor.getSchemaScalarType;
+import static org.hypergraphql.mutation.SPARQLTypeConverter.getSchemaScalarType;
 import static org.hypergraphql.query.converters.SPARQLServiceConverter.*;
 import static org.hypergraphql.util.GlobalValues.COURSES_ONTOLOGY_UGQL_PREFIX;
 import static org.hypergraphql.util.GlobalValues.CREATED_PROP;
@@ -264,6 +266,8 @@ public class SPARQLMutationConverter {
             return translateObjectValue(root, id, field, (ObjectValue) value, action);
         } else if (value instanceof StringValue) {
             return translateStringValue(root, id, field, (StringValue) value);
+        } else if (value instanceof DecimalValue) {
+            return translateDecimalValue(root, id, field, (DecimalValue) value);
         } else if (value instanceof IntValue) {
             return translateIntValue(root, id, field, (IntValue) value);
         } else if (value instanceof BooleanValue) {
@@ -384,6 +388,24 @@ public class SPARQLMutationConverter {
      * @param value   String literal
      * @return RDF triple
      */
+    private String translateDecimalValue(TypeConfig root, String subject, String field, DecimalValue value) {
+        String field_id = this.schema.getFields().get(this.schema.getInputFields().get(field)).getId();
+        if (subject == null) {
+            return toTriple(toVar(root.getName()), uriToResource(field_id), getSchemaScalarType(value.getValue().toString(), DecimalValue.class));
+        } else {
+            return toTriple(uriToResource(subject), uriToResource(field_id), getSchemaScalarType(value.getValue().toString(), DecimalValue.class));
+        }
+
+    }
+
+    /**
+     * Creates a RDF triple linking a Literal to the given object with the given field/predicate
+     *
+     * @param subject object IRI
+     * @param field   predicate IRI
+     * @param value   String literal
+     * @return RDF triple
+     */
     private String translateIntValue(TypeConfig root, String subject, String field, IntValue value) {
         String field_id = this.schema.getFields().get(this.schema.getInputFields().get(field)).getId();
         if (subject == null) {
@@ -407,7 +429,7 @@ public class SPARQLMutationConverter {
         if (subject == null) {
             return toTriple(toVar(root.getName()), uriToResource(field_id), getSchemaScalarType(value.getValue().toString(), FloatValue.class));
         } else {
-            return toTriple(uriToResource(subject), uriToResource(field_id), getSchemaScalarType(value.getValue().toString(), DateTimeValue.class));
+            return toTriple(uriToResource(subject), uriToResource(field_id), getSchemaScalarType(value.getValue().toString(), FloatValue.class));
         }
 
     }

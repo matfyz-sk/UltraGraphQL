@@ -1,14 +1,19 @@
 package org.hypergraphql.mutation;
 
-import graphql.language.*;
+import graphql.language.BooleanValue;
+import graphql.language.FloatValue;
+import graphql.language.IntValue;
+import graphql.language.StringValue;
 import org.apache.jena.vocabulary.XSD;
+import org.hypergraphql.mutation.values.DateTimeValue;
+import org.hypergraphql.mutation.values.DecimalValue;
 
-public final class SPARQLTypeConvertor {
+public final class SPARQLTypeConverter {
 
     private static final String XSD_PREFIX = XSD.NS;
     private static final String TYPE_PREFIX = "^^";
 
-    private SPARQLTypeConvertor() {
+    private SPARQLTypeConverter() {
 
     }
 
@@ -23,6 +28,8 @@ public final class SPARQLTypeConvertor {
             return formatToSchema("float", value);
         } else if (type == DateTimeValue.class) {
             return formatToSchema("dateTime", value);
+        } else if (type == DecimalValue.class) {
+            return formatToSchema("decimal", value);
         }
         return value;
     }

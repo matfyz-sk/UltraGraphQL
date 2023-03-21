@@ -1,4 +1,4 @@
-package org.hypergraphql.mutation;
+package org.hypergraphql.mutation.values;
 
 import graphql.Internal;
 import graphql.PublicApi;
