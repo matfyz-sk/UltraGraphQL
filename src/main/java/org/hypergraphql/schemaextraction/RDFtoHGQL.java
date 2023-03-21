@@ -268,6 +268,24 @@ public class RDFtoHGQL {
 
                         if (functionalMapping.contains(resource.getURI())) {
                             fieldObj.setList(false);
+                            break;
+                        }
+                    }
+
+                    /* Define if the property is required or optional */
+                    Set<Property> requiredMapping = mapConfig.getRequiredMapping();
+                    for (Property requiredProperty : requiredMapping) {
+                        NodeIterator requiredType = schema.listObjectsOfProperty(field.asResource(), requiredProperty);
+
+                        while (requiredType.hasNext()) {
+                            Literal literal = requiredType.next().asLiteral();
+                            if (literal == null) {
+                                continue;
+                            }
+                            if (isInteger(literal.getString()) && literal.getInt() > 0) {
+                                fieldObj.setNonNull(true);
+                                break;
+                            }
                         }
                     }
 
@@ -335,6 +353,15 @@ public class RDFtoHGQL {
         } else {
             // ToDo: Handle this case
         }
+    }
+
+    private boolean isInteger(String possibleNumber) {
+        try {
+            double d = Integer.parseInt(possibleNumber);
+        } catch (NumberFormatException e) {
+            return false;
+        }
+        return true;
     }
 
     /**

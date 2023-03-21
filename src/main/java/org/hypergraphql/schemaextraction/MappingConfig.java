@@ -54,6 +54,19 @@ public class MappingConfig {
     }
 
     /**
+     * Returns all mappings to an HGQL object in the schema
+     *
+     * @return Set of RDFNodes representing object mappings
+     */
+    Set<Property> getRequiredMapping() {
+        List<RDFNode> res = this.getSubjectsOfObjectProperty(a, HGQLVocabulary.HGQLS_MIN_CARDINALITY);
+
+        return res.stream()
+                .map(this::getPropertyFromRDFNode)
+                .collect(Collectors.toSet());
+    }
+
+    /**
      * Returns all mappings to an HGQL field in the schema
      *
      * @return Set of RDFNodes representing field mappings

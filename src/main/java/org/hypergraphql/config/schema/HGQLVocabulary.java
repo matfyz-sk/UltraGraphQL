@@ -136,16 +136,13 @@ public class HGQLVocabulary {
     public static final String HGQLS_FUNCTIONAL_PROPERTY = HGQLS_MAPPING + "FunctionalProperty";
     public static final String HGQLS_FUNCTIONAL_DATA_PROPERTY  = HGQLS_MAPPING + "FunctionalDataProperty";
     public static final String HGQLS_FUNCTIONAL_OBJECT_PROPERTY  = HGQLS_MAPPING + "FunctionalObjectProperty";
+    public static final String HGQLS_MIN_CARDINALITY = HGQLS_MAPPING + "minCardinality";
 
     public static final String HGQL_DIRECTIVE_SCHEMA = "schema";
     public static final String HGQL_DIRECTIVE_PARAMETER_IMPLIED_BY = "impliedBy";
     public static final String HGQL_DIRECTIVE_PARAMETER_SAMEAS = "sameAs";
     public static final String HGQL_DIRECTIVE_SERVICE = "service";
     public static final String HGQL_DIRECTIVE_SERVICE_PARAMETER_ID = "id";
-
-    // use
-    public static final String HGQL_OPTIONAL = "optional";
-    public static final String HGQL_REQUIRED = "required";
 
     // class
     public static final String HGQL_QUERY_TEMPLATE_CLASS = "class";

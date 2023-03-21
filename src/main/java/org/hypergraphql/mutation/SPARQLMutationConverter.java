@@ -32,8 +32,6 @@ public class SPARQLMutationConverter {
     private static final String GENERIC_GRAPH = "test";
     private static final Integer FIRST_INDEX_ATOMIC_INTEGER = 0;
 
-    public enum MUTATION_ACTION {INSERT, UPDATE, DELETE}
-
     public SPARQLMutationConverter(HGQLSchema schema, Map<String, String> prefixes) {
         this.schema = schema;
         this.prefixes = prefixes;
@@ -48,7 +46,7 @@ public class SPARQLMutationConverter {
      * @return SPARQL action
      */
     public SPARQLMutationValue translateMutation(Field mutation, Service service) {
-        MUTATION_ACTION action = decideAction(mutation.getName());
+        MutationAction action = decideAction(mutation.getName());
 
         if (action == null) {
             return null;
@@ -88,7 +86,7 @@ public class SPARQLMutationConverter {
         result += addCreatedAttributeToResult(resourceId, getPrefixes());
         result += args.stream()
                 .filter(argument -> !argument.getName().equals(ID))
-                .map(argument -> translateArgument(rootObject, id, argument, MUTATION_ACTION.INSERT))
+                .map(argument -> translateArgument(rootObject, id, argument, MutationAction.INSERT))
                 .collect(Collectors.joining("\n"));
         return new SPARQLMutationValue(addSPARQLInsertWrapper(result, getGraphName(getMutationService())), new StringValue(id));
     }
@@ -120,7 +118,7 @@ public class SPARQLMutationConverter {
 
             updateResult += args.stream()
                     .filter(argument -> !argument.getName().equals(ID))
-                    .map(argument -> translateArgument(rootObject, id.get(), argument, MUTATION_ACTION.UPDATE))
+                    .map(argument -> translateArgument(rootObject, id.get(), argument, MutationAction.UPDATE))
                     .collect(Collectors.joining("\n"));
 
             List<String> argsToDelete = args.stream().map(Argument::getName).filter(name -> !name.equals(ID)).collect(Collectors.toList());
@@ -160,7 +158,7 @@ public class SPARQLMutationConverter {
         if (hasID && hasOtherFields) {
             String result = args.stream()
                     .filter(argument -> !argument.getName().equals(ID))
-                    .map(argument -> translateArgument(rootObject, optionalID.get(), argument, MUTATION_ACTION.DELETE))
+                    .map(argument -> translateArgument(rootObject, optionalID.get(), argument, MutationAction.DELETE))
                     .collect(Collectors.joining("\n"));
             return new SPARQLMutationValue(addSPARQLDeleteWrapper(result, null, getGraphName(getMutationService())), new StringValue(optionalID.get()));
 
@@ -189,7 +187,7 @@ public class SPARQLMutationConverter {
             String where = toTriple(toVar(var_root), rdf_type, uriToResource(rootObject.getId())) + "\n";
             where += args.stream()
                     .filter(argument -> !argument.getName().equals(ID))
-                    .map(argument -> translateArgument(rootObject, null, argument, MUTATION_ACTION.DELETE))
+                    .map(argument -> translateArgument(rootObject, null, argument, MutationAction.DELETE))
                     .collect(Collectors.joining("\n"));
             where += "\n" + delete_all_with_id_optional;
 
@@ -246,7 +244,7 @@ public class SPARQLMutationConverter {
      * @param arg  Argument to be translated
      * @return triples representing the relations between the given id and the values given in the argument.
      */
-    private String translateArgument(TypeConfig root, String id, Argument arg, MUTATION_ACTION action) {
+    private String translateArgument(TypeConfig root, String id, Argument arg, MutationAction action) {
         return translateValue(root, id, arg.getName(), arg.getValue(), action);
     }
 
@@ -259,7 +257,7 @@ public class SPARQLMutationConverter {
      * @param value value associated with the given id via the given field
      * @return triples representing the relations between the given parameters
      */
-    private String translateValue(TypeConfig root, String id, String field, Value value, MUTATION_ACTION action) {
+    private String translateValue(TypeConfig root, String id, String field, Value value, MutationAction action) {
         if (value instanceof ArrayValue) {
             return translateArrayValue(root, id, field, (ArrayValue) value, action);
         } else if (value instanceof ObjectValue) {
@@ -290,7 +288,7 @@ public class SPARQLMutationConverter {
      * @param value array of values associated with the given id via given field
      * @return triples representing the relations between the given parameters
      */
-    private String translateArrayValue(TypeConfig root, String id, String field, ArrayValue value, MUTATION_ACTION action) {
+    private String translateArrayValue(TypeConfig root, String id, String field, ArrayValue value, MutationAction action) {
         return value.getValues().stream()
                 .map(val -> translateValue(root, id, field, val, action))
                 .collect(Collectors.joining("\n"));
@@ -307,7 +305,7 @@ public class SPARQLMutationConverter {
      * @param value ObjectValue linking the given id to another object
      * @return triples representing the relations between the given id and the object given in value as the value it self.
      */
-    private String translateObjectValue(TypeConfig root, String id, String field, ObjectValue value, MUTATION_ACTION action) {
+    private String translateObjectValue(TypeConfig root, String id, String field, ObjectValue value, MutationAction action) {
         String field_id = this.schema.getFields().get(this.schema.getInputFields().get(field)).getId();
         List<ObjectField> valueFields = value.getObjectFields();
         if (this.schema.getinputFieldsOutput().get(field).equals(HGQL_SCALAR_LITERAL_GQL_NAME)) {
@@ -332,7 +330,7 @@ public class SPARQLMutationConverter {
         } else {
             results += toTriple(uriToResource(id), uriToResource(field_id), uriToResource(sub_id)) + "\n";
         }
-        if (action == MUTATION_ACTION.INSERT || action == MUTATION_ACTION.UPDATE) {
+        if (action == MutationAction.INSERT || action == MutationAction.UPDATE) {
             results += toTriple(uriToResource(sub_id), rdf_type, uriToResource(subObject.getId())) + "\n";
         }
         results += valueFields.stream()
@@ -350,7 +348,7 @@ public class SPARQLMutationConverter {
      * @param value   String literal
      * @return RDF triple
      */
-    private String translateStringValue(TypeConfig root, String subject, String field, StringValue value, MUTATION_ACTION action) {
+    private String translateStringValue(TypeConfig root, String subject, String field, StringValue value, MutationAction action) {
         String field_id = this.schema.getFields().get(this.schema.getInputFields().get(field)).getId();
         if (subject == null) {
             return toTriple(toVar(root.getName()), uriToResource(field_id), "\"" + value.getValue() + "\"");
@@ -368,7 +366,7 @@ public class SPARQLMutationConverter {
      * @param value   String literal
      * @return RDF triple
      */
-    private String translateBooleanValue(TypeConfig root, String subject, String field, BooleanValue value, MUTATION_ACTION action) {
+    private String translateBooleanValue(TypeConfig root, String subject, String field, BooleanValue value, MutationAction action) {
         String field_id = this.schema.getFields().get(this.schema.getInputFields().get(field)).getId();
         if (subject == null) {
             return toTriple(toVar(root.getName()), uriToResource(field_id), "\"" + value.isValue() + "\"");
@@ -386,7 +384,7 @@ public class SPARQLMutationConverter {
      * @param value   String literal
      * @return RDF triple
      */
-    private String translateIntValue(TypeConfig root, String subject, String field, IntValue value, MUTATION_ACTION action) {
+    private String translateIntValue(TypeConfig root, String subject, String field, IntValue value, MutationAction action) {
         String field_id = this.schema.getFields().get(this.schema.getInputFields().get(field)).getId();
         if (subject == null) {
             return toTriple(toVar(root.getName()), uriToResource(field_id), "\"" + value.getValue() + "\"");
@@ -404,7 +402,7 @@ public class SPARQLMutationConverter {
      * @param value   String literal
      * @return RDF triple
      */
-    private String translateFloatValue(TypeConfig root, String subject, String field, FloatValue value, MUTATION_ACTION action) {
+    private String translateFloatValue(TypeConfig root, String subject, String field, FloatValue value, MutationAction action) {
         String field_id = this.schema.getFields().get(this.schema.getInputFields().get(field)).getId();
         if (subject == null) {
             return toTriple(toVar(root.getName()), uriToResource(field_id), "\"" + value.getValue() + "\"");
@@ -423,7 +421,7 @@ public class SPARQLMutationConverter {
      * @return RDF triple
      */
     //TODO change the representation
-    private String translateDateTimeValue(TypeConfig root, String subject, String field, RDFDatatype value, MUTATION_ACTION action) {
+    private String translateDateTimeValue(TypeConfig root, String subject, String field, RDFDatatype value, MutationAction action) {
         String field_id = this.schema.getFields().get(this.schema.getInputFields().get(field)).getId();
         if (subject == null) {
             return toTriple(toVar(root.getName()), uriToResource(field_id), "\"" + value.toString() + "\"");
@@ -439,13 +437,13 @@ public class SPARQLMutationConverter {
      * @param mutationField mutation field with an action prefix
      * @return Action the mutation should perform
      */
-    private MUTATION_ACTION decideAction(String mutationField) {
+    private MutationAction decideAction(String mutationField) {
         if (mutationField.startsWith(HGQL_MUTATION_INSERT_PREFIX)) {
-            return MUTATION_ACTION.INSERT;
+            return MutationAction.INSERT;
         } else if (mutationField.startsWith(HGQL_MUTATION_UPDATE_PREFIX)) {
-            return MUTATION_ACTION.UPDATE;
+            return MutationAction.UPDATE;
         } else if (mutationField.startsWith(HGQL_MUTATION_DELETE_PREFIX)) {
-            return MUTATION_ACTION.DELETE;
+            return MutationAction.DELETE;
         } else {
             // unknown mutation action
             return null;

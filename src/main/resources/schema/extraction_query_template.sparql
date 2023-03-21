@@ -26,8 +26,8 @@ WHERE {
                                                 SELECT ?s
                                                      WHERE {
                                      ?a ?n ?s.
-                                     FILTER (STRSTARTS(str(?a), "http://www.w3.org/2002/07/owl") || STRSTARTS(str(?a), "?graphontology") ).
-                                     FILTER ( ?n = schema:domainIncludes || ?n = schema:rangeIncludes).}
+                                     FILTER ( STRSTARTS(str(?a), "http://www.w3.org/2002/07/owl") || STRSTARTS(str(?a), "?graphontology") ).
+                                     FILTER ( ?n = schema:domainIncludes || ?n = schema:rangeIncludes ).}
                                      }
               }}
         }
@@ -48,7 +48,7 @@ WHERE {
               WHERE {
                    ?s ?p ?o.
                    FILTER (STRSTARTS(str(?s), "http://www.w3.org/2002/07/owl") || STRSTARTS(str(?s), "?graphontology") ).
-                   FILTER ( ?p = schema:domainIncludes || ?p = schema:rangeIncludes || ?p = rdfs:subClassOf ).
+                   FILTER ( ?p = schema:domainIncludes || ?p = schema:rangeIncludes || ?p = rdfs:subClassOf || ?p = owl:minCardinality ).
               }}
         }
     }
@@ -67,7 +67,7 @@ WHERE {
              SELECT DISTINCT ?s ?p ?o
               WHERE {
                    ?s ?p ?o.
-                   FILTER (STRSTARTS(str(?s), "http://www.w3.org/2002/07/owl") || STRSTARTS(str(?s), "?graphontology") ).
+                   FILTER ( STRSTARTS(str(?s), "http://www.w3.org/2002/07/owl") || STRSTARTS(str(?s), "?graphontology") ).
                    FILTER ( ?p = rdf:type ).
                    FILTER ( ?o = rdf:Property || ?o = owl:DatatypeProperty || ?o = owl:ObjectProperty || ?o = owl:FunctionalProperty || ?o = owl:FunctionalObjectProperty || ?o = owl:FunctionalDataProperty ).
               }}

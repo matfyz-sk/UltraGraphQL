@@ -41,3 +41,7 @@ owl:equivalentClass a hgqls:sameAs .
 owl:FunctionalProperty a hgqls:FunctionalProperty .
 owl:FunctionalDataProperty a hgqls:FunctionalDataProperty .
 owl:FunctionalObjectProperty a hgqls:FunctionalObjectProperty .
+
+
+# required - define if the value is required or optional
+owl:minCardinality a hgqls:minCardinality .
