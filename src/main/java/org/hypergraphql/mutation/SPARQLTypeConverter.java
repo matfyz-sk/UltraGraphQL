@@ -26,11 +26,9 @@ public final class SPARQLTypeConverter {
             return formatToSchema("boolean", value);
         } else if (type == DateTimeValue.class) {
             return formatToSchema("dateTime", value);
-        } else if (type == DecimalValue.class || type == FloatValue.class) {
+        } else if (type == DecimalValue.class || type == FloatValue.class) { /* Float is also formatted as decimal because GraphQL consider Decimals also as Floats, but we want it have as Decimals. */
             return formatToSchema("decimal", value);
-        }/*else if (type == FloatValue.class) {
-            return formatToSchema("float", value);
-        }*/
+        }
         return value;
     }
 
