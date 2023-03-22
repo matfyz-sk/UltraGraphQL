@@ -24,13 +24,13 @@ public final class SPARQLTypeConverter {
             return formatToSchema("integer", value);
         } else if (type == BooleanValue.class) {
             return formatToSchema("boolean", value);
-        } else if (type == FloatValue.class) {
-            return formatToSchema("float", value);
         } else if (type == DateTimeValue.class) {
             return formatToSchema("dateTime", value);
-        } else if (type == DecimalValue.class) {
+        } else if (type == DecimalValue.class || type == FloatValue.class) {
             return formatToSchema("decimal", value);
-        }
+        }/*else if (type == FloatValue.class) {
+            return formatToSchema("float", value);
+        }*/
         return value;
     }
 
