@@ -12,6 +12,8 @@ import org.hypergraphql.datafetching.services.resultmodel.ObjectResult;
 import org.hypergraphql.datafetching.services.resultmodel.Result;
 import org.hypergraphql.datamodel.HGQLSchema;
 import org.hypergraphql.exception.HGQLConfigurationException;
+import org.hypergraphql.mutation.values.DateTimeValue;
+import org.hypergraphql.mutation.values.DecimalValue;
 import org.hypergraphql.query.converters.SPARQLServiceConverter;
 import org.hypergraphql.query.pattern.Query;
 import org.hypergraphql.query.pattern.QueryPattern;
@@ -54,11 +56,11 @@ public class ExecutionTreeNode {
 
     private Service service; // getService configuration
     private Query query; // GraphQL in a basic Json format
-    private String executionId; // unique identifier of this execution node
-    private Map<String, ExecutionForest> childrenNodes; // succeeding executions - Forest contains the ExecutionTreeNodes of fields that have a different service
-    private String rootType;
-    private Map<String, String> ldContext;
-    private HGQLSchema hgqlSchema;
+    private final String executionId; // unique identifier of this execution node
+    private final Map<String, ExecutionForest> childrenNodes; // succeeding executions - Forest contains the ExecutionTreeNodes of fields that have a different service
+    private final String rootType;
+    private final Map<String, String> ldContext;
+    private final HGQLSchema hgqlSchema;
 
     // constant names of the fields int the JSON query representation
 
@@ -539,13 +541,9 @@ public class ExecutionTreeNode {
                     .filter(entry -> {
                         if (entry.getKey() instanceof ManifoldService && this.service instanceof ManifoldService) {
                             //entry and service are a ManifoldService check if both are on the same level (operate on the same knowledge level)
-                            if (((ManifoldService) entry.getKey()).getLevel().equals(((ManifoldService) this.service).getLevel())) {
-                                // same level
-                                return true;
-                            } else {
-                                // different level
-                                return false;
-                            }
+                            // same level
+                            // different level
+                            return ((ManifoldService) entry.getKey()).getLevel().equals(((ManifoldService) this.service).getLevel());
                         } else {
                             // one of the services is not a ManifoldService
                             return true;
@@ -596,9 +594,22 @@ public class ExecutionTreeNode {
                 case "ArrayValue": {
                     List<Node> nodes = val.getChildren();
 //                    ArrayNode arrayNode = mapper.createArrayNode();
-                    List<String> arrayNode = new ArrayList<>();
+                    List<Object> arrayNode = new ArrayList<>();
                     for (Node node : nodes) {
-                        String value = ((StringValue) node).getValue();
+                        Object value;
+                        if (node instanceof StringValue) {
+                            value = ((StringValue) node).getValue();
+                        } else if (node instanceof BooleanValue) {
+                            value = ((BooleanValue) node).isValue();
+                        } else if (node instanceof IntValue) {
+                            value = ((IntValue) node).getValue();
+                        } else if (node instanceof DecimalValue || node instanceof FloatValue) {
+                            value = ((DecimalValue) node).getValue();
+                        } else if (node instanceof DateTimeValue) {
+                            value = ((DateTimeValue) node).getValue().toDateTimeISO();
+                        } else {
+                            value = ((StringValue) node).getValue(); //fallback
+                        }
                         arrayNode.add(value);
                     }
                     argNode.put(arg.getName(), arrayNode);

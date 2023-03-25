@@ -26,6 +26,8 @@ import static graphql.schema.GraphQLObjectType.newObject;
 import static graphql.schema.GraphQLUnionType.newUnionType;
 import static org.hypergraphql.config.schema.HGQLVocabulary.*;
 import static org.hypergraphql.schemaextraction.ExtendedScalars.GraphQLDateTime;
+import static org.hypergraphql.util.GlobalValues.UGQL_ORDER_ARGUMENT;
+import static org.hypergraphql.util.GlobalValues.UGQL_EQUALS_ARGUMENT;
 
 /**
  * The HGQLSchemaWiring class initiates the generation of the HGQLSchema object form the provided UGQLS.
@@ -39,8 +41,8 @@ public class HGQLSchemaWiring {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(HGQLSchemaWiring.class);
 
-    private HGQLSchema hgqlSchema;
-    private GraphQLSchema schema;
+    private final HGQLSchema hgqlSchema;
+    private final GraphQLSchema schema;
 
     public GraphQLSchema getSchema() {
 
@@ -51,14 +53,14 @@ public class HGQLSchemaWiring {
         return hgqlSchema;
     }
 
-    private Map<String, GraphQLArgument> defaultArguments = new HashMap<String, GraphQLArgument>() {{
+    private final Map<String, GraphQLArgument> defaultArguments = new HashMap<String, GraphQLArgument>() {{
         put("limit", new GraphQLArgument("limit", GraphQLInt));
         put("offset", new GraphQLArgument("offset", GraphQLInt));
         /*put("lang", new GraphQLArgument("lang", GraphQLString));*/
         put("uris", new GraphQLArgument("uris", new GraphQLNonNull(new GraphQLList(GraphQLID))));
         put("_id", new GraphQLArgument("_id", new GraphQLList(GraphQLID)));  // ToDo: currently added for default Query support, when schema loading is complete this is not needed
-        put("order", GraphQLArgument.newArgument()
-                .name("order")
+        put(UGQL_ORDER_ARGUMENT, GraphQLArgument.newArgument()
+                .name(UGQL_ORDER_ARGUMENT)
                 .type(GraphQLEnumType.newEnum()
                         .name("OrderType")
                         .value("DESC", "DESC")
@@ -68,12 +70,24 @@ public class HGQLSchemaWiring {
                 .build());
     }};
 
-    private List<GraphQLArgument> getQueryArgs = new ArrayList<GraphQLArgument>() {{
+    private final List<GraphQLArgument> getQueryArgs = new ArrayList<GraphQLArgument>() {{
         add(defaultArguments.get("limit"));
         add(defaultArguments.get("offset"));
-        add(defaultArguments.get("_id")); //ToDo: Maybe a list
-        add(defaultArguments.get("order"));
+        //add(defaultArguments.get("_id")); //ToDo: Maybe a list
     }};
+
+    private GraphQLArgument getValuesArgumentBasedOnType(FieldOfTypeConfig field) {
+        return new GraphQLArgument(UGQL_EQUALS_ARGUMENT, getGraphQLInputType(field));
+    }
+
+    private GraphQLInputType getGraphQLInputType(FieldOfTypeConfig fieldOfTypeConfig) {
+        GraphQLScalarType graphQLScalarType = getGraphQLScalarType(fieldOfTypeConfig.getGraphqlOutputType());
+
+        if (graphQLScalarType == null) {
+            return null;
+        }
+        return GraphQLList.list(graphQLScalarType);
+    }
 
     /**
      * Generates an HGQLSchema for the given schema and based on this schema a GraphQLSchema is generated with query
@@ -654,19 +668,17 @@ public class HGQLSchemaWiring {
         /*if (field.getTargetName().equals("String")) {
             args.add(defaultArguments.get("lang"));
         }*/
+
+        args.add(defaultArguments.get(UGQL_ORDER_ARGUMENT));
         if (!(SCALAR_TYPES.containsKey(field.getTargetName()))) {
             if (field.isList()) {
                 args.addAll(getQueryArgs);
-            } else {
-                args.add(defaultArguments.get("order"));
             }
         } else {
+            args.add(getValuesArgumentBasedOnType(field));
             if (field.isList()) {
                 args.add(defaultArguments.get("limit"));
                 args.add(defaultArguments.get("offset"));
-                args.add(defaultArguments.get("order"));
-            } else {
-                args.add(defaultArguments.get("order"));
             }
         }
         String description = "";
@@ -706,6 +718,7 @@ public class HGQLSchemaWiring {
         List<GraphQLArgument> args = new ArrayList<>();  // Arguments of the QueryField
 
         if (this.hgqlSchema.getQueryFields().get(field.getName()).type().equals(HGQL_QUERY_GET_FIELD)) {
+            args.add(defaultArguments.get(UGQL_ORDER_ARGUMENT));
             args.addAll(getQueryArgs);
             //ToDo: ADD individual Query Arguments: This is the place where the query arguments of an Field are defined
         }

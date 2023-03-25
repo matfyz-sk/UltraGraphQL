@@ -1,6 +1,7 @@
 package org.hypergraphql.datafetching.services;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import org.apache.jena.datatypes.DatatypeFormatException;
 import org.apache.jena.datatypes.xsd.XSDDateTime;
 import org.apache.jena.query.QuerySolution;
 import org.apache.jena.rdf.model.*;
@@ -612,7 +613,14 @@ public abstract class Service {
                         res.setNodeId(currentNode.nodeId);
                     }
                     if (res instanceof BooleanResult) {
-                        ((BooleanResult) res).addBoolean(object.asLiteral().getBoolean());
+                        boolean value;
+                        try {
+                            value = object.asLiteral().getBoolean();
+                        } catch (DatatypeFormatException e) {
+                            int val = object.asLiteral().getInt();
+                            value = val != 0;
+                        }
+                        ((BooleanResult) res).addBoolean(value);
                         res.setNodeId(currentNode.nodeId);
                     }
                     if (res instanceof IntegerResult) {
