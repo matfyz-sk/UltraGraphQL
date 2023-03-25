@@ -18,6 +18,11 @@ public final class SPARQLTypeConverter {
     }
 
     public static String getSchemaScalarType(String value, Class<?> type) {
+        return "\"" + value + "\"";
+    }
+
+    /* This is a proper way how to put triple into database, however Virtuoso has probably some kind of issue making it impossible to use types, therefore just return everything as a string. */
+    public static String getSchemaScalarTypeProper(String value, Class<?> type) {
         if (type == StringValue.class) {
             return formatToSchema("string", value);
         } else if (type == IntValue.class) {
