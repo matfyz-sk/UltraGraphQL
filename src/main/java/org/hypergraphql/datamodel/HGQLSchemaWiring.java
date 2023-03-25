@@ -26,8 +26,8 @@ import static graphql.schema.GraphQLObjectType.newObject;
 import static graphql.schema.GraphQLUnionType.newUnionType;
 import static org.hypergraphql.config.schema.HGQLVocabulary.*;
 import static org.hypergraphql.schemaextraction.ExtendedScalars.GraphQLDateTime;
-import static org.hypergraphql.util.GlobalValues.UGQL_ORDER_ARGUMENT;
 import static org.hypergraphql.util.GlobalValues.UGQL_EQUALS_ARGUMENT;
+import static org.hypergraphql.util.GlobalValues.UGQL_ORDER_ARGUMENT;
 
 /**
  * The HGQLSchemaWiring class initiates the generation of the HGQLSchema object form the provided UGQLS.
@@ -240,7 +240,6 @@ public class HGQLSchemaWiring {
             if (mutationAction == null || MutationAction.INSERT == mutationAction) {
                 return GraphQLNonNull.nonNull(graphQLInputType);
             }
-            return graphQLInputType;
         }
         return graphQLInputType;
     }
@@ -334,6 +333,7 @@ public class HGQLSchemaWiring {
                         String name_plus_type = name + HGQL_MUTATION_INPUT_FIELD_INFIX + type.getName();
                         this.hgqlSchema.addInputField(name_plus_type, fieldOfTypeConfig.getName());
                         this.hgqlSchema.addinputFieldsOutput(name_plus_type, type.getName());
+
                         res.add(newInputObjectField()
                                 .name(name_plus_type)
                                 .description(description)
@@ -405,6 +405,27 @@ public class HGQLSchemaWiring {
                 .build();
     }
 
+    private boolean isNonNullType(FieldOfTypeConfig fieldOfTypeConfig) {
+        return fieldOfTypeConfig != null && fieldOfTypeConfig.getGraphqlOutputType() instanceof GraphQLNonNull;
+    }
+
+
+    private boolean isListType(FieldOfTypeConfig fieldOfTypeConfig) {
+        return fieldOfTypeConfig != null && fieldOfTypeConfig.getGraphqlOutputType() instanceof GraphQLList;
+    }
+
+    private GraphQLInputType getInputTypeForObject(FieldOfTypeConfig fieldOfTypeConfig) {
+        GraphQLInputType graphQLInputType = GraphQLID;
+
+        if (isNonNullType(fieldOfTypeConfig)) {
+            graphQLInputType = GraphQLNonNull.nonNull(graphQLInputType);
+        }
+        if (isListType(fieldOfTypeConfig)) {
+            graphQLInputType = GraphQLList.list(graphQLInputType);
+        }
+        return graphQLInputType;
+    }
+
     private GraphQLFieldDefinition registerGraphQLMutationField(TypeConfig mutationField, MutationAction action) {
 
         String name = "";
@@ -434,7 +455,8 @@ public class HGQLSchemaWiring {
                 if (outputType.isObject()) {
                     args.add(GraphQLArgument.newArgument()
                             .name(field.getName())
-                            .type(GraphQLList.list(GraphQLTypeReference.typeRef(HGQL_MUTATION_INPUT_PREFIX + outputType.getName())))
+                            .type(getInputTypeForObject(field)) //In case of mutations, you must firstly create all other required fields/objects before passing this one, therefore this one should be always ID, and not creating a new one
+                            //.type(GraphQLList.list(GraphQLTypeReference.typeRef(HGQL_MUTATION_INPUT_PREFIX + outputType.getName())))
                             .description(description)
                             .build());
                 } else {
@@ -444,7 +466,7 @@ public class HGQLSchemaWiring {
                             TypeConfig type = this.hgqlSchema.getTypes().get(obj);
                             args.add(GraphQLArgument.newArgument()
                                     .name(field.getName() + HGQL_MUTATION_INPUT_FIELD_INFIX + type.getName())
-                                    .type(GraphQLList.list(GraphQLTypeReference.typeRef(HGQL_MUTATION_INPUT_PREFIX + type.getName())))
+                                    .type(getInputTypeForObject(field))
                                     .description(description)
                                     .build());
                         }
