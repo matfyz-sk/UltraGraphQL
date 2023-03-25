@@ -81,7 +81,7 @@ public class SPARQLServiceConverter {
      * @return
      */
     private String selectQueryClause(String where, String graphID) {
-        return "SELECT * WHERE { " + graphClause(graphID, where, null) + " } ";
+        return "SELECT * WHERE { " + graphClause(graphID, where, null, null) + " } "; //TODO check here
     }
 
     /**
@@ -92,8 +92,8 @@ public class SPARQLServiceConverter {
      * @param graphID Query for the graph
      * @return
      */
-    private String selectQueryClause(String orderByValues, String filterByValues, String where, String graphID) {
-        return "SELECT * WHERE { " + graphClause(graphID, where, filterByValues) + " } " + (orderByValues != null ? orderByValues : "");
+    private String selectQueryClause(String orderByValues, String filterByValues, String filterById, String where, String graphID) {
+        return "SELECT * WHERE { " + graphClause(graphID, where, filterByValues, filterById) + " } " + (orderByValues != null ? orderByValues : "");
     }
 
 
@@ -104,11 +104,11 @@ public class SPARQLServiceConverter {
      * @param where   Query for the graph
      * @return SPARQL GRAPH clause
      */
-    private String graphClause(String graphID, String where, String filterByValues) {
+    private String graphClause(String graphID, String where, String filterByValues, String filterById) {
         if (StringUtils.isEmpty(graphID)) {
             return where;
         } else {
-            return "GRAPH <" + graphID + "> { " + where + (filterByValues != null ? filterByValues : "") + " } ";
+            return "GRAPH <" + graphID + "> { " + (filterById != null ? filterById : "") + where + (filterByValues != null ? filterByValues : "") + " } ";
         }
     }
 
@@ -121,6 +121,11 @@ public class SPARQLServiceConverter {
      * @return Corresponding VALUES clause
      */
     private String valuesClause(String id, Set<String> input) {
+
+        if (id == null || input == null || input.isEmpty()) {
+            return null;
+        }
+
         String var = toVar(id);
         Set<String> uris = new HashSet<>();
         input.forEach(uri -> uris.add(uriToResource(uri)));
@@ -213,14 +218,17 @@ public class SPARQLServiceConverter {
 
     private String filterClause(QueryPattern query) {
         List<Object> objects = (List<Object>) query.args.get(UGQL_EQUALS_ARGUMENT);
+        return filterLogic(objects, query.nodeId);
+    }
 
+    private String filterLogic(List<Object> objects, String nodeId) {
         if (objects == null || objects.isEmpty()) {
             return null;
         }
         if (objects.size() == 1) {
-            return toVar(query.nodeId) + " = " + getObjectAsString(objects.get(0));
+            return toVar(nodeId) + " = " + getObjectAsString(objects.get(0));
         }
-        return toVar(query.nodeId) + " IN (" + objects.stream().map(this::getObjectAsString).collect(Collectors.joining(", ")) + ")";
+        return toVar(nodeId) + " IN (" + objects.stream().map(this::getObjectAsString).collect(Collectors.joining(", ")) + ")";
     }
 
     private String getObjectAsString(Object object) {
@@ -312,12 +320,6 @@ public class SPARQLServiceConverter {
         boolean root = (!query.isSubQuery() && queryFields.containsKey(((QueryPattern) query).name));
 
         if (root) {
-            Map<String, Object> args = ((QueryPattern) query).args;
-            /*if (args != null) {
-                if (args.containsKey(ID)) {
-                    return getSelectRoot_GET_BY_ID((QueryPattern) query, serviceId);
-                }
-            }*/
             return getSelectRoot_GET((QueryPattern) query, serviceId);
         } else {
             return getSelectNonRoot((SubQueriesPattern) query, input, rootType, serviceId);
@@ -364,14 +366,21 @@ public class SPARQLServiceConverter {
             orderByValues = "ORDER BY " + String.join(" ", orderBy);
         }
 
-        String filterByValues = null;
-        if (!filter.isEmpty()) {
-            filterByValues = "FILTER(" + String.join(" ", filter) + ")";
+        String filterById = null;
+        Map<String, Object> args = queryField.args;
+        if (args.containsKey(ID)) {
+            filterById = valuesClause(nodeId, new HashSet<>((List<String>) args.get(ID)));
         }
 
+        String filterByValues = null;
+        if (!filter.isEmpty()) {
+            filterByValues = "FILTER(" + String.join(" && ", filter) + ")";
+        }
         String rootSubquery = selectSubqueryClause(nodeId, selectTriple, orderSTR + limitOffsetSTR);
 
-        return selectQueryClause(orderByValues, filterByValues, rootSubquery + whereClause, graphID);   //ToDo: The generated Query is here only evalluated in one graph. If multiple endpoints have to be queried this has to be changed.
+        String limitOffsetSTRRoot = limitOffsetClause(queryField); //TODO add limit and offset from ID query
+
+        return selectQueryClause(orderByValues, filterByValues, filterById, rootSubquery + whereClause, graphID);   //ToDo: The generated Query is here only evalluated in one graph. If multiple endpoints have to be queried this has to be changed.
     }
 
     /**

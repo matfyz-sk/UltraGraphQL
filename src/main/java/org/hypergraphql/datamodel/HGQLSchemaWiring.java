@@ -73,7 +73,7 @@ public class HGQLSchemaWiring {
     private final List<GraphQLArgument> getQueryArgs = new ArrayList<GraphQLArgument>() {{
         add(defaultArguments.get("limit"));
         add(defaultArguments.get("offset"));
-        //add(defaultArguments.get("_id")); //ToDo: Maybe a list
+        add(defaultArguments.get("_id"));
     }};
 
     private GraphQLArgument getValuesArgumentBasedOnType(FieldOfTypeConfig field) {
