@@ -224,14 +224,16 @@ public class SPARQLServiceConverter {
     }
 
     private String getObjectAsString(Object object) {
-        if (object instanceof String) {
+        return "\"" + object + "\"";
+
+        /* This is a proper way how to put triple into database, however Virtuoso has probably some kind of issue making it impossible to use types, therefore just return everything as a string. */
+        /*if (object instanceof String) {
             return "\"" + object + "\"";
         }
 
         if(object instanceof Boolean) {
             return String.valueOf(object);
-        }
-        return object.toString();
+        }*/
     }
 
     /**
