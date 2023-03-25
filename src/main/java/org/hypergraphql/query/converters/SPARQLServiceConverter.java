@@ -369,7 +369,9 @@ public class SPARQLServiceConverter {
         String filterById = null;
         Map<String, Object> args = queryField.args;
         if (args.containsKey(ID)) {
-            filterById = valuesClause(nodeId, new HashSet<>((List<String>) args.get(ID)));
+            Object argumentObject = args.get(ID);
+            Set<String> arguments = new HashSet<>(argumentObject instanceof String ? Collections.singletonList((String) args.get(ID)) : (List<String>) args.get(ID));
+            filterById = valuesClause(nodeId, arguments);
         }
 
         String filterByValues = null;
