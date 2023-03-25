@@ -85,7 +85,12 @@ public class SPARQLMutationConverter {
 
         String resourceId = uriToResource(id);
         String result = toTriple(resourceId, rdf_type, uriToResource(rootObject.getId())) + "\n";
-        result += addCreatedAttributeToResult(resourceId, getPrefixes());
+
+        /* createdAt should be added only in case it is a new entity. In case the id is from parameter then it is an existing ID. */
+        if (!idFromParameter.isPresent()) {
+            result += addCreatedAttributeToResult(resourceId, getPrefixes());
+        }
+
         result += args.stream()
                 .filter(argument -> !argument.getName().equals(ID))
                 .map(argument -> translateArgument(rootObject, id, argument, MutationAction.INSERT))
