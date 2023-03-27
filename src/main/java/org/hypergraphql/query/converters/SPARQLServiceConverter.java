@@ -341,7 +341,7 @@ public class SPARQLServiceConverter {
         String nodeId = queryField.nodeId;   // SPARQL variable
         String limitOffsetSTR = limitOffsetClause(queryField);
         String orderSTR = orderClause(queryField, null);
-        String selectTriple = "";
+        String selectTriple;
 
         if (hasSameAsTypes(targetName)) {
             Set<String> values = getSameAsTypes(targetName);
@@ -360,29 +360,35 @@ public class SPARQLServiceConverter {
         List<String> filter = new ArrayList<>();
 
         String whereClause = getSubQueries(queryField.fields, "", orderBy, filter);
-
-        String orderByValues = null;
-        if (!orderBy.isEmpty()) {
-            orderByValues = "ORDER BY " + String.join(" ", orderBy);
-        }
-
-        String filterById = null;
-        Map<String, Object> args = queryField.args;
-        if (args.containsKey(ID)) {
-            Object argumentObject = args.get(ID);
-            Set<String> arguments = new HashSet<>(argumentObject instanceof String ? Collections.singletonList((String) args.get(ID)) : (List<String>) args.get(ID));
-            filterById = valuesClause(nodeId, arguments);
-        }
-
-        String filterByValues = null;
-        if (!filter.isEmpty()) {
-            filterByValues = "FILTER(" + String.join(" && ", filter) + ")";
-        }
         String rootSubquery = selectSubqueryClause(nodeId, selectTriple, orderSTR + limitOffsetSTR);
 
         String limitOffsetSTRRoot = limitOffsetClause(queryField); //TODO add limit and offset from ID query
 
-        return selectQueryClause(orderByValues, filterByValues, filterById, rootSubquery + whereClause, graphID);   //ToDo: The generated Query is here only evalluated in one graph. If multiple endpoints have to be queried this has to be changed.
+        return selectQueryClause(getOrderBy(orderBy), getFilterByValues(filter), getFilterById(queryField), rootSubquery + whereClause, graphID);   //ToDo: The generated Query is here only evalluated in one graph. If multiple endpoints have to be queried this has to be changed.
+    }
+
+    private String getOrderBy(List<String> orderBy) {
+        if (!orderBy.isEmpty()) {
+            return "ORDER BY " + String.join(" ", orderBy);
+        }
+        return null;
+    }
+
+    private String getFilterByValues(List<String> filter) {
+        if (!filter.isEmpty()) {
+            return "FILTER(" + String.join(" && ", filter) + ")";
+        }
+        return null;
+    }
+
+    private String getFilterById(QueryPattern queryField) {
+        Map<String, Object> args = queryField.args;
+        if (args.containsKey(ID)) {
+            Object argumentObject = args.get(ID);
+            Set<String> arguments = new HashSet<>(argumentObject instanceof String ? Collections.singletonList((String) args.get(ID)) : (List<String>) args.get(ID));
+            return valuesClause(queryField.nodeId, arguments);
+        }
+        return null;
     }
 
     /**
@@ -407,15 +413,27 @@ public class SPARQLServiceConverter {
         String parentId = firstField.parentId;
         String valueSTR = valuesClause(parentId, input);   // restrict the ?parentId to the values defined in the input list
 
-        StringBuilder whereClause = new StringBuilder();
-        whereClause.append(getFieldSubquery(firstField, valueSTR, null, null));   //ToDo: Review this line -> effect on query results //TODO ADD FILTER HERE
-//        queries.elements().forEachRemaining(field -> whereClause.append(getFieldSubquery(field)));
-        while (listIterator.hasNext()) {
-            whereClause.append(getFieldSubquery(listIterator.next(), valueSTR, null, null));
-        }
-        return selectQueryClause(valueSTR + (whereClause), graphID);
-    }
+        List<String> orderBy = new ArrayList<>();
+        List<String> filter = new ArrayList<>();
 
+        StringBuilder whereClause = new StringBuilder();
+        whereClause.append(getFieldSubquery(firstField, valueSTR, orderBy, filter));   //ToDo: Review this line -> effect on query results //TODO ADD FILTER HERE
+        //queries.elements().forEachRemaining(field -> whereClause.append(getFieldSubquery(field)));
+
+        //TODO check if it should be as List
+        List<String> filterById = new ArrayList<>();
+
+        while (listIterator.hasNext()) {
+            QueryPattern queryPattern = listIterator.next();
+            filterById.add(getFilterById(queryPattern));
+            whereClause.append(getFieldSubquery(queryPattern, valueSTR, orderBy, filter));
+        }
+
+        String orderByValues = getOrderBy(orderBy);
+        String filterByValues = getFilterByValues(filter);
+
+        return selectQueryClause(orderByValues, filterByValues, null, valueSTR + (whereClause), graphID);
+    }
 
     /**
      * Generates a SPARQL query for the given field and also for the subfields of the field.
@@ -551,41 +569,33 @@ public class SPARQLServiceConverter {
     private boolean hasSameAsTypes(String targetName) {
         if (schema.getTypes().containsKey(targetName)) {
             return !schema.getTypes().get(targetName).getSameAs().isEmpty();
-
-        } else {
-            // Given targetName is NOT a type of the schema
-            return false;
         }
+        // Given targetName is NOT a type of the schema
+        return false;
     }
 
     private Set<String> getSameAsTypes(String targetName) {
         if (schema.getTypes().containsKey(targetName)) {
             return schema.getTypes().get(targetName).getSameAs();
-
-        } else {
-            // Given targetName is NOT a type of the schema
-            return null;
         }
+        // Given targetName is NOT a type of the schema
+        return null;
     }
 
     private boolean hasSameAsFields(String targetName) {
         if (schema.getFields().containsKey(targetName)) {
             return !schema.getFields().get(targetName).getSameAs().isEmpty();
-
-        } else {
-            // Given targetName is NOT a type of the schema
-            return false;
         }
+        // Given targetName is NOT a type of the schema
+        return false;
     }
 
     private Set<String> getSameAsFields(String targetName) {
         if (schema.getFields().containsKey(targetName)) {
             return schema.getFields().get(targetName).getSameAs();
-
-        } else {
-            // Given targetName is NOT a type of the schema
-            return null;
         }
+        // Given targetName is NOT a type of the schema
+        return null;
     }
 
     /**
