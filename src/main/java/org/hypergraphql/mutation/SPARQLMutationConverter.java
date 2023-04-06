@@ -119,10 +119,11 @@ public class SPARQLMutationConverter {
                 .map(argument -> ((StringValue) argument.getValue()).getValue())
                 .findFirst();
 
-        if (id.isPresent() && args.stream().anyMatch(argument -> !argument.getName().equals(ID))) {
+        if (id.isPresent()) {
             String id_uri = uriToResource(id.get());
-            String updateResult = toTriple(id_uri, rdf_type, uriToResource(rootObject.getId())) + "\n";
 
+            String classType = toTriple(id_uri, rdf_type, uriToResource(rootObject.getId())) + "\n";
+            String updateResult = classType;
             updateResult += args.stream()
                     .filter(argument -> !argument.getName().equals(ID))
                     .map(argument -> translateArgument(rootObject, id.get(), argument, MutationAction.UPDATE))
@@ -137,9 +138,9 @@ public class SPARQLMutationConverter {
                     .collect(Collectors.joining("\n"));
 
             i.set(FIRST_INDEX_ATOMIC_INTEGER); //reset Atomic Integer to the beginning
-            String where = listOfFieldsToUpdate.stream().map(fieldOfTypeConfig -> optionalClause(toTriple(id_uri, uriToResource(fieldOfTypeConfig.getId()), toVar("o_" + i.getAndIncrement()))))
+            String whereOptional = listOfFieldsToUpdate.stream().map(fieldOfTypeConfig -> optionalClause(toTriple(id_uri, uriToResource(fieldOfTypeConfig.getId()), toVar("o_" + i.getAndIncrement()))))
                     .collect(Collectors.joining("\n"));
-            return new SPARQLMutationValue(addSPARQLUpdateWrapper(deleteResult, updateResult, where, getGraphName(getMutationService())), new StringValue(id.get()));
+            return new SPARQLMutationValue(addSPARQLUpdateWrapper(deleteResult, updateResult, classType + whereOptional, getGraphName(getMutationService())), new StringValue(id.get()));
         }
         return null;
     }
