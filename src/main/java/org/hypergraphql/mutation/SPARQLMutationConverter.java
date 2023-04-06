@@ -122,9 +122,7 @@ public class SPARQLMutationConverter {
         if (id.isPresent()) {
             String id_uri = uriToResource(id.get());
 
-            String classType = toTriple(id_uri, rdf_type, uriToResource(rootObject.getId())) + "\n";
-            String updateResult = classType;
-            updateResult += args.stream()
+            String updateResult = args.stream()
                     .filter(argument -> !argument.getName().equals(ID))
                     .map(argument -> translateArgument(rootObject, id.get(), argument, MutationAction.UPDATE))
                     .collect(Collectors.joining("\n"));
@@ -132,10 +130,11 @@ public class SPARQLMutationConverter {
             List<String> argsToDelete = args.stream().map(Argument::getName).filter(name -> !name.equals(ID)).collect(Collectors.toList());
 
             AtomicInteger i = new AtomicInteger(FIRST_INDEX_ATOMIC_INTEGER);
-
             List<FieldOfTypeConfig> listOfFieldsToUpdate = rootObject.getFields().values().stream().filter(fieldOfTypeConfig -> !fieldOfTypeConfig.getId().equals(RDF_TYPE) && argsToDelete.contains(fieldOfTypeConfig.getName())).collect(Collectors.toList());
             String deleteResult = listOfFieldsToUpdate.stream().map(fieldOfTypeConfig -> toTriple(id_uri, uriToResource(fieldOfTypeConfig.getId()), toVar("o_" + i.getAndIncrement())))
                     .collect(Collectors.joining("\n"));
+
+            String classType = toTriple(id_uri, rdf_type, uriToResource(rootObject.getId())) + "\n";
 
             i.set(FIRST_INDEX_ATOMIC_INTEGER); //reset Atomic Integer to the beginning
             String whereOptional = listOfFieldsToUpdate.stream().map(fieldOfTypeConfig -> optionalClause(toTriple(id_uri, uriToResource(fieldOfTypeConfig.getId()), toVar("o_" + i.getAndIncrement()))))
