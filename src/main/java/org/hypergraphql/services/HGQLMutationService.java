@@ -49,22 +49,27 @@ public class HGQLMutationService {
         for (Selection selection : selections) {
             final Service service = this.hgqlSchema.getServiceList().get(this.config.getMutationService());
             SPARQLMutationValue mutation = this.converter.translateMutation((Field) selection, service);
-            LOGGER.info(mutation.getTranslatedMutation());
-            if (service instanceof LocalModelSPARQLService) {
-                ((LocalModelSPARQLService) service).executeUpdate(mutation.getTranslatedMutation());
-            } else if (service instanceof SPARQLEndpointService) {
-                ((SPARQLEndpointService) service).executeUpdate(mutation.getTranslatedMutation());
+
+            if (mutation != null) {
+                LOGGER.info(mutation.getTranslatedMutation());
+                if (service instanceof LocalModelSPARQLService) {
+                    ((LocalModelSPARQLService) service).executeUpdate(mutation.getTranslatedMutation());
+                } else if (service instanceof SPARQLEndpointService) {
+                    ((SPARQLEndpointService) service).executeUpdate(mutation.getTranslatedMutation());
+                }
+                //ToDo: Add a new response category "mutation" that informs about the status of the query (or in error segment)
+                sparql_translation.addAll(Arrays.asList(mutation.getTranslatedMutation().split("\n")));
+                mutation_fields.add(Field.newField()
+                        .name(this.hgqlSchema.getMutationFields().get(((Field) selection).getName()))
+                        .alias(((Field) selection).getAlias())
+                        .comments(selection.getComments())
+                        .arguments(Arrays.asList(new Argument("_id", mutation.getId())))
+                        .directives(((Field) selection).getDirectives())
+                        .selectionSet(((Field) selection).getSelectionSet())
+                        .build());
+            } else {
+                LOGGER.info("Arguments missing to perform query");
             }
-            //ToDo: Add a new response category "mutation" that informs about the status of the query (or in error segment)
-            sparql_translation.addAll(Arrays.asList(mutation.getTranslatedMutation().split("\n")));
-            mutation_fields.add(Field.newField()
-                    .name(this.hgqlSchema.getMutationFields().get(((Field) selection).getName()))
-                    .alias(((Field) selection).getAlias())
-                    .comments(selection.getComments())
-                    .arguments(Arrays.asList(new Argument("_id", mutation.getId())))
-                    .directives(((Field) selection).getDirectives())
-                    .selectionSet(((Field) selection).getSelectionSet())
-                    .build());
         }
 
         Document mutation_selectionSets = Document.newDocument()

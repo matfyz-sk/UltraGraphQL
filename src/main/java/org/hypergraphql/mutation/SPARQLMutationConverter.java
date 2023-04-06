@@ -119,7 +119,7 @@ public class SPARQLMutationConverter {
                 .map(argument -> ((StringValue) argument.getValue()).getValue())
                 .findFirst();
 
-        if (id.isPresent()) {
+        if (id.isPresent() && args.stream().anyMatch(argument -> !argument.getName().equals(ID))) {
             String id_uri = uriToResource(id.get());
             String updateResult = toTriple(id_uri, rdf_type, uriToResource(rootObject.getId())) + "\n";
 
