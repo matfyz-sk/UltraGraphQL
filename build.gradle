@@ -40,7 +40,7 @@ ext {
 }
 dependencies {
 
-    implementation 'com.graphql-java:graphql-java:2020-02-29T01-57-30-987fd78'
+    implementation 'com.graphql-java:graphql-java:2020-10-21T10-06-46-49bbbeb'
 
     implementation "org.apache.jena:jena-arq:$jenaVersion"
     implementation "org.apache.jena:jena:$jenaVersion"
