@@ -2,11 +2,12 @@ buildscript {
     repositories {
         mavenLocal()
         mavenCentral()
+        gradlePluginPortal()
         jcenter()
     }
 
     dependencies {
-        classpath 'com.github.jengelman.gradle.plugins:shadow:6.1.0'
+        classpath 'com.github.johnrengelman:shadow:8.1.1'
     }
 }
 
@@ -17,8 +18,8 @@ apply plugin: 'com.github.johnrengelman.shadow'
 group = 'org.hypergraphql'
 version = '1.1.9'
 
-sourceCompatibility = 1.8
-targetCompatibility = 1.8
+sourceCompatibility = 17
+targetCompatibility = 17
 
 
 
@@ -85,12 +86,12 @@ test {
     }
 }
 
-task execute(type:JavaExec) {
+tasks.register('execute', JavaExec) {
     systemProperty('hgql_version', project.version)
-    main = 'org.hypergraphql.Application'
+    mainClass = 'org.hypergraphql.Application'
     classpath = sourceSets.main.runtimeClasspath
 
-    if(project.hasProperty('a')){
+    if (project.hasProperty('a')) {
         args(a.split(',' as Closure))
     }
 }
@@ -104,8 +105,6 @@ sourceSets {
 }
 import com.github.jengelman.gradle.plugins.shadow.transformers.XmlAppendingTransformer
 import com.github.jengelman.gradle.plugins.shadow.transformers.AppendingTransformer
-import com.github.jengelman.gradle.plugins.shadow.transformers.ServiceFileTransformer
-
 
 shadowJar {
     // merge SPI descriptors
@@ -131,7 +130,7 @@ shadowJar {
     zip64 = true
 
     exclude  'LICENSE', 'LICENSE/**', 'license', 'license/**'
-    classifier = 'exe'
+    archiveClassifier = 'exe'
 
     manifest {
         attributes 'Class-Path': 'org.apache.cxf.transport.http'
