@@ -16,7 +16,7 @@ apply plugin: 'maven-publish'
 apply plugin: 'com.github.johnrengelman.shadow'
 
 group = 'org.hypergraphql'
-version = '1.1.9'
+version = '1.2.0'
 
 sourceCompatibility = 17
 targetCompatibility = 17
