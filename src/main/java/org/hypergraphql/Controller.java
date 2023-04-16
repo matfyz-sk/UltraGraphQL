@@ -4,6 +4,10 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import graphql.GraphQLError;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.HeaderParam;
+import jakarta.ws.rs.POST;
+import jakarta.ws.rs.Path;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.binding.BindingFactoryManager;
 import org.apache.cxf.jaxrs.JAXRSBindingFactory;
@@ -19,10 +23,6 @@ import spark.Response;
 import spark.Service;
 import spark.template.velocity.VelocityTemplateEngine;
 
-import javax.ws.rs.GET;
-import javax.ws.rs.HeaderParam;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -286,7 +286,7 @@ public class Controller {
      */
     @POST
     @Path("graphql")
-    public javax.ws.rs.core.Response query(@HeaderParam("accept") String acceptType, @HeaderParam("content-type") String contentType, String req) {
+    public jakarta.ws.rs.core.Response query(@HeaderParam("accept") String acceptType, @HeaderParam("content-type") String contentType, String req) {
 
         HGQLRequestService service = new HGQLRequestService(config);
 
@@ -318,7 +318,7 @@ public class Controller {
             } catch (JsonProcessingException e) {
                 e.printStackTrace();
             }
-            return javax.ws.rs.core.Response
+            return jakarta.ws.rs.core.Response
                     .status(status)
                     .header("Access-Control-Allow-Headers", StringUtils.join(headersList, ","))
                     .header("Access-Control-Allow-Credentials", "true")
@@ -327,7 +327,7 @@ public class Controller {
                     .build();
         } else {
             if (result.containsKey("data")) {
-                return javax.ws.rs.core.Response
+                return jakarta.ws.rs.core.Response
                         .status(status)
                         .header("Access-Control-Allow-Headers", StringUtils.join(headersList, ","))
                         .header("Access-Control-Allow-Credentials", "true")
@@ -341,7 +341,7 @@ public class Controller {
                 } catch (JsonProcessingException e) {
                     e.printStackTrace();
                 }
-                return javax.ws.rs.core.Response
+                return jakarta.ws.rs.core.Response
                         .serverError()
                         .header("Access-Control-Allow-Headers", StringUtils.join(headersList, ","))
                         .header("Access-Control-Allow-Credentials", "true")
@@ -361,7 +361,7 @@ public class Controller {
      */
     @GET
     @Path("graphql")
-    public javax.ws.rs.core.Response introspectionQuery(@HeaderParam("accept") String acceptType, String req) {
+    public jakarta.ws.rs.core.Response introspectionQuery(@HeaderParam("accept") String acceptType, String req) {
         boolean isRdfContentType =
                 (MIME_MAP.containsKey(acceptType)
                         && GRAPHQL_COMPATIBLE_TYPE.containsKey(acceptType)
@@ -371,7 +371,7 @@ public class Controller {
         String type = isRdfContentType ? acceptType : DEFAULT_ACCEPT_TYPE;
 
         final String rdfSchemaOutput = config.getHgqlSchema().getRdfSchemaOutput(mime);
-        return javax.ws.rs.core.Response
+        return jakarta.ws.rs.core.Response
                 .ok()
                 .header("Access-Control-Allow-Headers", StringUtils.join(headersList, ","))
                 .header("Access-Control-Allow-Credentials", "true")
@@ -387,13 +387,13 @@ public class Controller {
      */
     @GET
     @Path("graphiql")
-    public javax.ws.rs.core.Response graphiql() {
+    public jakarta.ws.rs.core.Response graphiql() {
         Map<String, String> model = new HashMap<>();
 
         model.put("template", String.valueOf(config.getGraphqlConfig().graphQLPath()));
 
         final String graphiql_render = new VelocityTemplateEngine().render(new ModelAndView(model, "graphiql.vtl"));
-        return javax.ws.rs.core.Response
+        return jakarta.ws.rs.core.Response
                 .ok()
                 .header("Access-Control-Allow-Headers", StringUtils.join(headersList, ","))
                 .header("Access-Control-Allow-Credentials", "true")

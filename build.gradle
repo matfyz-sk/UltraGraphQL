@@ -55,7 +55,7 @@ dependencies {
     implementation 'com.sparkjava:spark-core:2.9.4'
     implementation 'com.sparkjava:spark-template-velocity:2.7.1'
 
-    implementation "javax.ws.rs:javax.ws.rs-api:2.0"
+    implementation 'jakarta.ws.rs:jakarta.ws.rs-api:3.1.0'
     cxfArtifacts.each { artifact ->
         implementation "org.apache.cxf:$artifact:$cxfVersion"
     }
