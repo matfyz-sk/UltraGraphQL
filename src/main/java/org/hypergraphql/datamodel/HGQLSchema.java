@@ -8,7 +8,7 @@ import graphql.schema.GraphQLTypeReference;
 import graphql.schema.idl.TypeDefinitionRegistry;
 import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.rdf.model.RDFNode;
-import org.hypergraphql.authentication.AuthenticationResolver;
+import org.hypergraphql.authentication.AuthorizationResolver;
 import org.hypergraphql.config.schema.*;
 import org.hypergraphql.datafetching.ExecutionTreeNode;
 import org.hypergraphql.datafetching.services.ManifoldService;
@@ -27,7 +27,7 @@ public class HGQLSchema {
 
     private final static Logger LOGGER = LoggerFactory.getLogger(HGQLSchema.class);
 
-    private final AuthenticationResolver authenticationResolver;
+    private final AuthorizationResolver authenticationResolver;
 
     private String schemaUri;
     private String schemaNamespace;
@@ -116,7 +116,7 @@ public class HGQLSchema {
     public HGQLSchema(TypeDefinitionRegistry registry, String schemaName, Map<String, Service> services, String modelJson)
             throws HGQLConfigurationException {
 
-        this.authenticationResolver = new AuthenticationResolver(modelJson);
+        this.authenticationResolver = new AuthorizationResolver(modelJson);
 
         this.serviceList = services;
         schemaUri = HGQL_SCHEMA_NAMESPACE + schemaName;

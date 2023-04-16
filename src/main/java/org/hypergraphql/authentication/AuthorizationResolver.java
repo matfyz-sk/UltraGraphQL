@@ -9,11 +9,11 @@ import java.math.BigDecimal;
 import java.util.*;
 import java.util.function.Function;
 
-public class AuthenticationResolver {
+public class AuthorizationResolver {
 
     private final HashMap<String, Model> classes = new HashMap<>();
 
-    public AuthenticationResolver(String modelJson) {
+    public AuthorizationResolver(String modelJson) {
 
         File jsonFile = new File(modelJson);
         ObjectMapper objectMapper = new ObjectMapper();
@@ -56,13 +56,24 @@ public class AuthenticationResolver {
         return classModel;
     }
 
+    /**
+     * Inherit show (get) operation rules in case the modification operation does not have the rules.
+     * In case the rules are not defined then there are no restrictions, therefore rather use the get operation restrictions.
+     */
+    private Policy inheritShowOperationRules(Policy policy, Policy showPolicy) {
+        if (policy == null) {
+            return showPolicy;
+        }
+        return policy;
+    }
+
     private Policies createPoliciesForClassModel(JsonNode classJsonNode) {
         Policies policies = new Policies();
 
         Policy showPolicy = createPolicy(classJsonNode.get("show"));
-        Policy createPolicy = createPolicy(classJsonNode.get("create"));
-        Policy changePolicy = createPolicy(classJsonNode.get("change"));
-        Policy deletePolicy = createPolicy(classJsonNode.get("delete"));
+        Policy createPolicy = inheritShowOperationRules(createPolicy(classJsonNode.get("create")), showPolicy);
+        Policy changePolicy = inheritShowOperationRules(createPolicy(classJsonNode.get("change")), showPolicy);
+        Policy deletePolicy = inheritShowOperationRules(createPolicy(classJsonNode.get("delete")), showPolicy);
 
         JsonNode courseInstanceJsonNode = classJsonNode.get("courseInstance");
         if (courseInstanceJsonNode != null) {
