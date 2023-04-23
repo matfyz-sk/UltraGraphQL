@@ -1,4 +1,4 @@
-package org.hypergraphql.authentication;
+package org.hypergraphql.auth;
 
 public class Prop {
 

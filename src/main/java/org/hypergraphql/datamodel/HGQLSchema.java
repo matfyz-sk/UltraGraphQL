@@ -8,7 +8,7 @@ import graphql.schema.GraphQLTypeReference;
 import graphql.schema.idl.TypeDefinitionRegistry;
 import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.rdf.model.RDFNode;
-import org.hypergraphql.authentication.AuthorizationResolver;
+import org.hypergraphql.auth.AuthorizationResolver;
 import org.hypergraphql.config.schema.*;
 import org.hypergraphql.datafetching.ExecutionTreeNode;
 import org.hypergraphql.datafetching.services.ManifoldService;

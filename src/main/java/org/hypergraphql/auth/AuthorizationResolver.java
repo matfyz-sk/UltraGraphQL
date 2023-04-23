@@ -1,4 +1,4 @@
-package org.hypergraphql.authentication;
+package org.hypergraphql.auth;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
