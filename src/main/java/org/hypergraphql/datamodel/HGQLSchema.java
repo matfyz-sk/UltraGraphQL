@@ -127,31 +127,31 @@ public class HGQLSchema {
         rdfSchema.insertStringLiteralTriple(schemaNamespace + "query", HGQL_HAS_NAME, "Query");
 
         rdfSchema.insertObjectTriple(HGQL_STRING, RDF_TYPE, HGQL_SCALAR_TYPE);
-        rdfSchema.insertStringLiteralTriple(HGQL_STRING, HGQL_HAS_NAME, "String");
+        rdfSchema.insertStringLiteralTriple(HGQL_STRING, HGQL_HAS_NAME, SCALAR_STRING);
 
         rdfSchema.insertObjectTriple(HGQL_INT, RDF_TYPE, HGQL_SCALAR_TYPE);
-        rdfSchema.insertStringLiteralTriple(HGQL_INT, HGQL_HAS_NAME, "Int");
+        rdfSchema.insertStringLiteralTriple(HGQL_INT, HGQL_HAS_NAME, SCALAR_INT);
 
         rdfSchema.insertObjectTriple(HGQL_BOOLEAN, RDF_TYPE, HGQL_SCALAR_TYPE);
-        rdfSchema.insertStringLiteralTriple(HGQL_BOOLEAN, HGQL_HAS_NAME, "Boolean");
+        rdfSchema.insertStringLiteralTriple(HGQL_BOOLEAN, HGQL_HAS_NAME, SCALAR_BOOLEAN);
 
         rdfSchema.insertObjectTriple(HGQL_FLOAT, RDF_TYPE, HGQL_SCALAR_TYPE);
-        rdfSchema.insertStringLiteralTriple(HGQL_FLOAT, HGQL_HAS_NAME, "Float");
+        rdfSchema.insertStringLiteralTriple(HGQL_FLOAT, HGQL_HAS_NAME, SCALAR_FLOAT);
 
         rdfSchema.insertObjectTriple(HGQL_DATETIME, RDF_TYPE, HGQL_SCALAR_TYPE);
-        rdfSchema.insertStringLiteralTriple(HGQL_DATETIME, HGQL_HAS_NAME, "DateTime");
+        rdfSchema.insertStringLiteralTriple(HGQL_DATETIME, HGQL_HAS_NAME, SCALAR_DATETIME);
 
         rdfSchema.insertObjectTriple(HGQL_DECIMAL, RDF_TYPE, HGQL_SCALAR_TYPE);
-        rdfSchema.insertStringLiteralTriple(HGQL_DECIMAL, HGQL_HAS_NAME, "Decimal");
+        rdfSchema.insertStringLiteralTriple(HGQL_DECIMAL, HGQL_HAS_NAME, SCALAR_DECIMAL);
 
         rdfSchema.insertObjectTriple(HGQL_LONG, RDF_TYPE, HGQL_SCALAR_TYPE);
-        rdfSchema.insertStringLiteralTriple(HGQL_LONG, HGQL_HAS_NAME, "Long");
+        rdfSchema.insertStringLiteralTriple(HGQL_LONG, HGQL_HAS_NAME, SCALAR_LONG);
 
         rdfSchema.insertObjectTriple(HGQL_SHORT, RDF_TYPE, HGQL_SCALAR_TYPE);
-        rdfSchema.insertStringLiteralTriple(HGQL_SHORT, HGQL_HAS_NAME, "Short");
+        rdfSchema.insertStringLiteralTriple(HGQL_SHORT, HGQL_HAS_NAME, SCALAR_SHORT);
 
         rdfSchema.insertObjectTriple(HGQL_ID, RDF_TYPE, HGQL_SCALAR_TYPE);
-        rdfSchema.insertStringLiteralTriple(HGQL_ID, HGQL_HAS_NAME, "ID");
+        rdfSchema.insertStringLiteralTriple(HGQL_ID, HGQL_HAS_NAME, SCALAR_ID);
 
         Map<String, TypeDefinition> types = registry.types();   // Contains all types that are specified in the Schema
 
