@@ -17,6 +17,7 @@ public class ObjectResult extends Result<Map<String, Object>> {
 
     private final static Logger LOGGER = LoggerFactory.getLogger(ObjectResult.class);
     Map<String, Map<String, Result>> subfields = new LinkedHashMap<>();   // subfields for each queried entity, first string is the ID of the object second String indicates the subfield.
+
     /**
      * Initalize ObjectResult with nodeId and name, both are mandatory for all ObjectResults
      *
@@ -178,7 +179,8 @@ public class ObjectResult extends Result<Map<String, Object>> {
 
                         String name = values.alias == null ? BaseUtils.createObjectKeyWithoutKnownPrefixes(key) : values.alias;
                         if (values instanceof ObjectResult) {
-                            object.put(name, ((ObjectResult) values).generateJSON().get(name));
+                            Map<String, Object> objectResult = ((ObjectResult) values).generateJSON();
+                            object.put(name, objectResult != null ? objectResult.get(name) : null);
                         } else {
                             object.put(name, values.generateJSON());
                         }
