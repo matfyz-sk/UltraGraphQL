@@ -18,6 +18,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static graphql.Scalars.*;
+import static graphql.scalars.ExtendedScalars.*;
 import static graphql.schema.GraphQLFieldDefinition.newFieldDefinition;
 import static graphql.schema.GraphQLInputObjectField.newInputObjectField;
 import static graphql.schema.GraphQLInputObjectType.newInputObject;
@@ -54,11 +55,11 @@ public class HGQLSchemaWiring {
     }
 
     private final Map<String, GraphQLArgument> defaultArguments = new HashMap<String, GraphQLArgument>() {{
-        put("limit", new GraphQLArgument("limit", GraphQLInt));
-        put("offset", new GraphQLArgument("offset", GraphQLInt));
+        put("limit", GraphQLArgument.newArgument().name("limit").type(GraphQLInt).build());
+        put("offset", GraphQLArgument.newArgument().name("offset").type(GraphQLInt).build());
         /*put("lang", new GraphQLArgument("lang", GraphQLString));*/
-        put("uris", new GraphQLArgument("uris", new GraphQLNonNull(new GraphQLList(GraphQLID))));
-        put("_id", new GraphQLArgument("_id", new GraphQLList(GraphQLID)));  // ToDo: currently added for default Query support, when schema loading is complete this is not needed
+        put("uris", GraphQLArgument.newArgument().name("uris").type(new GraphQLNonNull(new GraphQLList(GraphQLID))).build());
+        put("_id", GraphQLArgument.newArgument().name("_id").type(new GraphQLList(GraphQLID)).build());  // ToDo: currently added for default Query support, when schema loading is complete this is not needed
         put(UGQL_ORDER_ARGUMENT, GraphQLArgument.newArgument()
                 .name(UGQL_ORDER_ARGUMENT)
                 .type(GraphQLEnumType.newEnum()
@@ -77,7 +78,7 @@ public class HGQLSchemaWiring {
     }};
 
     private GraphQLArgument getValuesArgumentBasedOnType(FieldOfTypeConfig field) {
-        return new GraphQLArgument(UGQL_EQUALS_ARGUMENT, getGraphQLInputType(field));
+        return GraphQLArgument.newArgument().name(UGQL_EQUALS_ARGUMENT).type(getGraphQLInputType(field)).build();
     }
 
     private GraphQLInputType getGraphQLInputType(FieldOfTypeConfig fieldOfTypeConfig) {
@@ -264,7 +265,14 @@ public class HGQLSchemaWiring {
     }
 
     private boolean checkGraphQLOutputScalarType(GraphQLOutputType graphQLOutputType, GraphQLScalarType scalarType) {
-        return graphQLOutputType.equals(scalarType) || graphQLOutputType.equals(GraphQLList.list(scalarType)) || graphQLOutputType.equals(GraphQLNonNull.nonNull(scalarType));
+        if (graphQLOutputType.equals(scalarType) || graphQLOutputType.equals(GraphQLList.list(scalarType)) || graphQLOutputType.equals(GraphQLNonNull.nonNull(scalarType))) {
+            return true;
+        }
+        String graphQLOutputTypeString = graphQLOutputType.toString();
+        if (graphQLOutputTypeString == null) {
+            return false;
+        }
+        return graphQLOutputTypeString.equals(scalarType.getName()) || graphQLOutputTypeString.equals(GraphQLList.list(scalarType).toString()) || graphQLOutputTypeString.equals(GraphQLNonNull.nonNull(scalarType).toString());
     }
 
     private GraphQLScalarType getGraphQLScalarType(GraphQLOutputType graphQLOutputType) {

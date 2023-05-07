@@ -170,7 +170,7 @@ public class HGQLSchema {
 
         children.forEach(node -> {   // iterate through context
             FieldDefinition field = ((FieldDefinition) node);
-            String iri = ((StringValue) field.getDirective("href").getArgument("iri").getValue()).getValue();
+            String iri = ((StringValue) field.getDirectivesByName().get("href").get(0).getArgument("iri").getValue()).getValue();
             contextMap.put(field.getName(), iri);
         });
 

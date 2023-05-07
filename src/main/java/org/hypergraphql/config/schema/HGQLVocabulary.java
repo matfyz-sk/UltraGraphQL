@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static graphql.Scalars.*;
+import static graphql.scalars.ExtendedScalars.*;
 import static org.hypergraphql.schemaextraction.ExtendedScalars.GraphQLDateTime;
 
 public class HGQLVocabulary {

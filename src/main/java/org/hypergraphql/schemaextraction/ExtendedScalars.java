@@ -30,8 +30,7 @@ public class ExtendedScalars {
     /**
      * This represents the "DateTime" type which is a representation of org.joda.time.DateTime
      */
-    public static final GraphQLScalarType GraphQLDateTime = new GraphQLScalarType("DateTime", "Built-in simplified org.joda.time.DateTime. Returns millis and string representation in ISO format.", new Coercing<DateTime, DateTime>() {
-
+    public static final GraphQLScalarType GraphQLDateTime = GraphQLScalarType.newScalar().name("DateTime").description("Built-in simplified org.joda.time.DateTime. Returns millis and string representation in ISO format.").coercing(new Coercing<DateTime, DateTime>() {
 
         private DateTime convertImpl(Object input) {
             if (isDate(input)) {
@@ -84,7 +83,5 @@ public class ExtendedScalars {
                     "Expected AST type 'IntValue', 'StringValue','Date', 'BaseCalendar.Date', but was '" + typeName(input) + "'."
             );
         }
-    });
-
-
+    }).build();
 }

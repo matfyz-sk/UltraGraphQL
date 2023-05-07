@@ -10,6 +10,7 @@ import graphql.validation.Validator;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * QueryValidator is set up with an GraphQL schema and provides methods to check if a query is valid in the context of
@@ -59,7 +60,7 @@ public class QueryValidator {
             return result;
         }
 
-        validationErrors.addAll(validator.validateDocument(schema, document));
+        validationErrors.addAll(validator.validateDocument(schema, document, Locale.ENGLISH));
         if (validationErrors.size() > 0) {
             result.valid = false;
 
