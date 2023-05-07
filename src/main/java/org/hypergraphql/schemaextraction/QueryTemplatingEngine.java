@@ -1,6 +1,7 @@
 package org.hypergraphql.schemaextraction;
 
 import org.apache.jena.query.ParameterizedSparqlString;
+import org.apache.jena.rdf.model.RDFNode;
 import org.hypergraphql.config.schema.HGQLVocabulary;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,7 +17,7 @@ import java.util.stream.Collectors;
 public class QueryTemplatingEngine {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(QueryTemplatingEngine.class);
-    private final MappingConfig mapping;
+
     ParameterizedSparqlString template_query;
     private String query_service_template;
     private String one_class;
@@ -44,7 +45,6 @@ public class QueryTemplatingEngine {
      * @param mapping        mapping configuration
      */
     public QueryTemplatingEngine(String template_query, MappingConfig mapping) {
-        this.mapping = mapping;
         this.template_query = new ParameterizedSparqlString(template_query);
 
         one_node = new HashMap<>();
@@ -54,7 +54,7 @@ public class QueryTemplatingEngine {
             one_node.put(HGQLVocabulary.HGQL_QUERY_TEMPLATE_CLASS, mapping.getTypeMapping().iterator().next().toString());
             all_nodes.put(HGQLVocabulary.HGQL_QUERY_TEMPLATE_CLASSES,
                     mapping.getTypeMapping().stream()
-                            .map(t -> t.toString())
+                            .map(RDFNode::toString)
                             .collect(Collectors.toSet()));
         }
 
@@ -63,7 +63,7 @@ public class QueryTemplatingEngine {
             one_node.put(HGQLVocabulary.HGQL_QUERY_TEMPLATE_PROPERTY, mapping.getFieldsMapping().iterator().next().toString());
             all_nodes.put(HGQLVocabulary.HGQL_QUERY_TEMPLATE_PROPERTIES,
                     mapping.getFieldsMapping().stream()
-                            .map(t -> t.toString())
+                            .map(RDFNode::toString)
                             .collect(Collectors.toSet()));
         }
 
@@ -72,7 +72,7 @@ public class QueryTemplatingEngine {
             one_node.put(HGQLVocabulary.HGQL_QUERY_TEMPLATE_DOMAIN, mapping.getFieldAffiliationMapping().iterator().next().toString());
             all_nodes.put(HGQLVocabulary.HGQL_QUERY_TEMPLATE_DOMAINS,
                     mapping.getFieldAffiliationMapping().stream()
-                            .map(t -> t.toString())
+                            .map(Object::toString)
                             .collect(Collectors.toSet()));
         }
 
@@ -81,7 +81,7 @@ public class QueryTemplatingEngine {
             one_node.put(HGQLVocabulary.HGQL_QUERY_TEMPLATE_RANGE, mapping.getOutputTypeMapping().iterator().next().toString());
             all_nodes.put(HGQLVocabulary.HGQL_QUERY_TEMPLATE_RANGES,
                     mapping.getOutputTypeMapping().stream()
-                            .map(t -> t.toString())
+                            .map(Object::toString)
                             .collect(Collectors.toSet()));
         }
 
@@ -90,7 +90,7 @@ public class QueryTemplatingEngine {
             one_node.put(HGQLVocabulary.HGQL_QUERY_TEMPLATE_SUBCLASSOF, mapping.getImplementsMapping().iterator().next().toString());
             all_nodes.put(HGQLVocabulary.HGQL_QUERY_TEMPLATE_SUBCLASSESOF,
                     mapping.getImplementsMapping().stream()
-                            .map(t -> t.toString())
+                            .map(Object::toString)
                             .collect(Collectors.toSet()));
         }
 
@@ -99,7 +99,7 @@ public class QueryTemplatingEngine {
             one_node.put(HGQLVocabulary.HGQL_QUERY_TEMPLATE_SUBPROPERTYOF, mapping.getImpliedFieldMapping().iterator().next().toString());
             all_nodes.put(HGQLVocabulary.HGQL_QUERY_TEMPLATE_SUBPROPERTIESOF,
                     mapping.getImpliedFieldMapping().stream()
-                            .map(t -> t.toString())
+                            .map(Object::toString)
                             .collect(Collectors.toSet()));
         }
 
@@ -108,7 +108,7 @@ public class QueryTemplatingEngine {
             one_node.put(HGQLVocabulary.HGQL_QUERY_TEMPLATE_EQUIVALENTCLASS, mapping.getEquivalentTypeMapping().iterator().next().toString());
             all_nodes.put(HGQLVocabulary.HGQL_QUERY_TEMPLATE_EQUIVALENTCLASSES,
                     mapping.getEquivalentTypeMapping().stream()
-                            .map(t -> t.toString())
+                            .map(Object::toString)
                             .collect(Collectors.toSet()));
         }
 
@@ -117,7 +117,7 @@ public class QueryTemplatingEngine {
             one_node.put(HGQLVocabulary.HGQL_QUERY_TEMPLATE_EQUIVALENTPROPERTY, mapping.getEquivalentFieldMapping().iterator().next().toString());
             all_nodes.put(HGQLVocabulary.HGQL_QUERY_TEMPLATE_EQUIVALENTPROPERTIES,
                     mapping.getEquivalentFieldMapping().stream()
-                            .map(t -> t.toString())
+                            .map(Object::toString)
                             .collect(Collectors.toSet()));
         }
 
@@ -126,7 +126,7 @@ public class QueryTemplatingEngine {
             one_node.put(HGQLVocabulary.HGQL_QUERY_TEMPLATE_SAMEAS, mapping.getSameAsMapping().iterator().next().toString());
             all_nodes.put(HGQLVocabulary.HGQL_QUERY_TEMPLATE_SAMEASES,
                     mapping.getSameAsMapping().stream()
-                            .map(t -> t.toString())
+                            .map(Object::toString)
                             .collect(Collectors.toSet()));
         }
 

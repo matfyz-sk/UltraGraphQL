@@ -186,7 +186,7 @@ public class HGQLSchema {
             }
         });
         Set<String> unionNames = unions.keySet();
-        typeNames.removeIf(s -> unionNames.contains(s));// remove the union so that it is not inserted into rdfSchema as objectType
+        typeNames.removeIf(unionNames::contains);// remove the union so that it is not inserted into rdfSchema as objectType
         for (String unionName : unionNames) {
             String unionUri = schemaNamespace + unionName;
             UnionTypeDefinition union = unions.get(unionName);

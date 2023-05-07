@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 /**
  * This class represents a type in a HGQL Schema.
  * Normally the fields of a type are not manually added because in the building process the fields are fetched from the
- * defined interfaces. But the the fields are stores in a set which means that a double inserted field has only ones stored.
+ * defined interfaces. But the fields are stores in a set which means that a double inserted field has only ones stored.
  * The build method returns this type in the SDL syntax.
  */
 public class Type {

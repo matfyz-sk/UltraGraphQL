@@ -54,16 +54,12 @@ public class SPARQLMutationConverter {
             return null;
         }
 
-        switch (action) {
-            case INSERT:
-                return translateInsertMutation(mutation, service);
-            case UPDATE:
-                return translateUpdateMutation(mutation);
-            case DELETE:
-                return translateDeleteMutation(mutation);
-            default:
-                return null;
-        }
+        return switch (action) {
+            case INSERT -> translateInsertMutation(mutation, service);
+            case UPDATE -> translateUpdateMutation(mutation);
+            case DELETE -> translateDeleteMutation(mutation);
+            default -> null;
+        };
     }
 
     /**
@@ -127,10 +123,10 @@ public class SPARQLMutationConverter {
                     .map(argument -> translateArgument(rootObject, id.get(), argument, MutationAction.UPDATE))
                     .collect(Collectors.joining("\n"));
 
-            List<String> argsToDelete = args.stream().map(Argument::getName).filter(name -> !name.equals(ID)).collect(Collectors.toList());
+            List<String> argsToDelete = args.stream().map(Argument::getName).filter(name -> !name.equals(ID)).toList();
 
             AtomicInteger i = new AtomicInteger(FIRST_INDEX_ATOMIC_INTEGER);
-            List<FieldOfTypeConfig> listOfFieldsToUpdate = rootObject.getFields().values().stream().filter(fieldOfTypeConfig -> !fieldOfTypeConfig.getId().equals(RDF_TYPE) && argsToDelete.contains(fieldOfTypeConfig.getName())).collect(Collectors.toList());
+            List<FieldOfTypeConfig> listOfFieldsToUpdate = rootObject.getFields().values().stream().filter(fieldOfTypeConfig -> !fieldOfTypeConfig.getId().equals(RDF_TYPE) && argsToDelete.contains(fieldOfTypeConfig.getName())).toList();
             String deleteResult = listOfFieldsToUpdate.stream().map(fieldOfTypeConfig -> toTriple(id_uri, uriToResource(fieldOfTypeConfig.getId()), toVar("o_" + i.getAndIncrement())))
                     .collect(Collectors.joining("\n"));
 
@@ -174,7 +170,7 @@ public class SPARQLMutationConverter {
             String id_uri = uriToResource(optionalID.get());
             AtomicInteger i = new AtomicInteger(FIRST_INDEX_ATOMIC_INTEGER);
 
-            List<FieldOfTypeConfig> fieldOfTypeConfigs = rootObject.getFields().values().stream().filter(fieldOfTypeConfig -> !fieldOfTypeConfig.getId().equals(RDF_TYPE)).collect(Collectors.toList());
+            List<FieldOfTypeConfig> fieldOfTypeConfigs = rootObject.getFields().values().stream().filter(fieldOfTypeConfig -> !fieldOfTypeConfig.getId().equals(RDF_TYPE)).toList();
             String delete_field_type = toTriple(id_uri, rdf_type, uriToResource(rootObject.getId())) + "\n";
 
             String delete_all_type_fields = fieldOfTypeConfigs.stream().map(fieldOfTypeConfig -> toTriple(id_uri, uriToResource(fieldOfTypeConfig.getId()), toVar("o_" + i.getAndIncrement()))).collect(Collectors.joining("\n"));

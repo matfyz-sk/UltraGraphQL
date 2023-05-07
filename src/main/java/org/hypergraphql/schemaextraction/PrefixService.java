@@ -128,9 +128,7 @@ public class PrefixService {
                 return resJson.keys().next();   // return the first, it is most likely the most common
             }
 
-        } catch (IOException e) {
-            return "";
-        } catch (JSONException e) {
+        } catch (IOException | JSONException e) {
             return "";
         }
         return "";

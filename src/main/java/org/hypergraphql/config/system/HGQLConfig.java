@@ -204,7 +204,7 @@ public class HGQLConfig {
      * Getter method for the attribute mutationService. Represents the service id of the service on which all mutation
      * actions are executed.
      *
-     * @return service id of the of the mutation service
+     * @return service id of the mutation service
      */
     public String getMutationService() {
         return mutationService;
