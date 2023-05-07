@@ -90,11 +90,6 @@ public class ExtractionController {
      * @throws HGQLConfigurationException Thrown if the HGQL schema can not be converted from string to InputStreamReader
      */
     public Reader getHGQLSchemaReader() throws HGQLConfigurationException {
-        try {
-            return new InputStreamReader(IOUtils.toInputStream(this.mapper.buildSDL(), "UTF-8"));
-        } catch (IOException e) {
-            LOGGER.error("Could not convert HGQL schema from String to InputStreamReader");
-            throw new HGQLConfigurationException("Error extracting the schema", e);
-        }
+        return new InputStreamReader(IOUtils.toInputStream(this.mapper.buildSDL(), "UTF-8"));
     }
 }

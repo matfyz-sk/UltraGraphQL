@@ -30,7 +30,7 @@ repositories {
 }
 
 ext {
-    jenaVersion = '3.17.0'
+    jenaVersion = '4.2.0'
     cxfVersion = "3.5.5"
     cxfArtifacts = [
             'cxf-rt-frontend-jaxrs',
