@@ -20,8 +20,8 @@ import java.util.concurrent.atomic.AtomicReference;
  */
 public class LocalSPARQLExecution extends SPARQLEndpointExecution {
 
-    private Dataset model;   //ToDo: This attribute is irrelevant since it can be accessed over the SPARQLEndpointService attribute
-    private String serviceId;
+    private final Dataset model;   //ToDo: This attribute is irrelevant since it can be accessed over the SPARQLEndpointService attribute
+    private final String serviceId;
 
 
     /**

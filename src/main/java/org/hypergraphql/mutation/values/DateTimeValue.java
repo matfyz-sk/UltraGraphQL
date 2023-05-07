@@ -73,7 +73,7 @@ public class DateTimeValue extends AbstractNode<DateTimeValue> implements Scalar
 
         DateTimeValue that = (DateTimeValue) o;
 
-        return !(!Objects.equals(value, that.value));
+        return Objects.equals(value, that.value);
 
     }
 

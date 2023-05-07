@@ -11,10 +11,10 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 public class Field {
-    private Resource uri;
-    private String id;
-    private PrefixService prefixService;
-    private Union outputType;
+    private final Resource uri;
+    private final String id;
+    private final PrefixService prefixService;
+    private final Union outputType;
     private Boolean isList = true;   // default
     private Boolean isNonNull = false;   // default
     private Boolean isClone = false;   // indicates if this object is a clone

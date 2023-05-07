@@ -14,10 +14,10 @@ import java.util.Map;
 
 public class FetchParams {
 
-    private Resource subjectResource;
-    private String predicateURI;
-    private ModelContainer client;
-    private String targetURI;
+    private final Resource subjectResource;
+    private final String predicateURI;
+    private final ModelContainer client;
+    private final String targetURI;
 
     public FetchParams(DataFetchingEnvironment environment, HGQLSchema hgqlSchema)
             throws HGQLConfigurationException {

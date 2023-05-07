@@ -135,8 +135,8 @@ public class HGQLVocabulary {
     public static final String HGQLS_SHARED_OUTPUTTYPE = HGQLS_MAPPING + "sharedOutputType";
     public static final String HGQLS_SAME_AS = HGQLS_MAPPING + "sameAs";
     public static final String HGQLS_FUNCTIONAL_PROPERTY = HGQLS_MAPPING + "FunctionalProperty";
-    public static final String HGQLS_FUNCTIONAL_DATA_PROPERTY  = HGQLS_MAPPING + "FunctionalDataProperty";
-    public static final String HGQLS_FUNCTIONAL_OBJECT_PROPERTY  = HGQLS_MAPPING + "FunctionalObjectProperty";
+    public static final String HGQLS_FUNCTIONAL_DATA_PROPERTY = HGQLS_MAPPING + "FunctionalDataProperty";
+    public static final String HGQLS_FUNCTIONAL_OBJECT_PROPERTY = HGQLS_MAPPING + "FunctionalObjectProperty";
     public static final String HGQLS_MIN_CARDINALITY = HGQLS_MAPPING + "minCardinality";
 
     public static final String HGQL_DIRECTIVE_SCHEMA = "schema";

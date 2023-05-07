@@ -75,7 +75,7 @@ public class DateTimeResult extends Result<Object> {
     }
 
     public DateTimeObject createDateTimeObject(DateTime dateTime) {
-        if(dateTime == null){
+        if (dateTime == null) {
             return null;
         }
 

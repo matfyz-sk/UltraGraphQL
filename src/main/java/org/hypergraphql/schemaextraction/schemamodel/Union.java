@@ -10,8 +10,8 @@ import static org.hypergraphql.config.schema.HGQLVocabulary.HGQL_SCALAR_LITERAL_
 
 public class Union extends Interface {   // ToDo: Rename Union to sharedFieldsInterface
 
-    private String name;
-    private Set<Type> types;
+    private final String name;
+    private final Set<Type> types;
 
     public Union(String name) {
         super(name);

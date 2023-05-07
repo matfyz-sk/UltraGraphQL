@@ -18,8 +18,8 @@ import java.util.concurrent.atomic.AtomicReference;
 public class ExecutionForest {
 
     private final static Logger LOGGER = LoggerFactory.getLogger(ExecutionForest.class);
-    private boolean isRoot;
-    private HashSet<ExecutionTreeNode> forest;
+    private final boolean isRoot;
+    private final HashSet<ExecutionTreeNode> forest;
 
     public ExecutionForest() {
         this.forest = new HashSet<>();

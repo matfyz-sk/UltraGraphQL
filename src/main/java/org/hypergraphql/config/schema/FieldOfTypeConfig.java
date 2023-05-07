@@ -29,12 +29,12 @@ public class FieldOfTypeConfig {
         return name;
     }
 
-    private String id;   // IRI that is associated with this field
-    private String name;   // name of the IRI in this schema
-    private Service service;   // type of service the field is queryed with e.g. ManifoldService, SPARQLEndpointService, etc.
-    private GraphQLOutputType graphqlOutputType;
-    private boolean isList;
-    private String targetName;
+    private final String id;   // IRI that is associated with this field
+    private final String name;   // name of the IRI in this schema
+    private final Service service;   // type of service the field is queryed with e.g. ManifoldService, SPARQLEndpointService, etc.
+    private final GraphQLOutputType graphqlOutputType;
+    private final boolean isList;
+    private final String targetName;
 
     public FieldOfTypeConfig(String name, String id, Service service, GraphQLOutputType graphqlOutputType, Boolean isList, String targetName) {
 

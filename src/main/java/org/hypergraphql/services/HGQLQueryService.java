@@ -26,9 +26,9 @@ import java.util.Map;
 public class HGQLQueryService {
 
     private final static Logger LOGGER = LoggerFactory.getLogger(HGQLQueryService.class);
-    private GraphQL graphql;
-    private GraphQLSchema schema;   // only used for IntrospectionQuery
-    private HGQLSchema hgqlSchema;
+    private final GraphQL graphql;
+    private final GraphQLSchema schema;   // only used for IntrospectionQuery
+    private final HGQLSchema hgqlSchema;
 
 
     public HGQLQueryService(HGQLConfig config) {

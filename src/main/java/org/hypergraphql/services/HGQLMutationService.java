@@ -27,8 +27,8 @@ public class HGQLMutationService {
     private final GraphQLSchema schema;
     private final SPARQLMutationConverter converter;
     private final HGQLQueryService query_handler;
-    private GraphQL graphql;
-    private HGQLConfig config;
+    private final GraphQL graphql;
+    private final HGQLConfig config;
 
     public HGQLMutationService(HGQLConfig config) {
         this.config = config;
@@ -66,7 +66,7 @@ public class HGQLMutationService {
                     .name(this.hgqlSchema.getMutationFields().get(((Field) selection).getName()))
                     .alias(((Field) selection).getAlias())
                     .comments(selection.getComments())
-                    .arguments(Arrays.asList(new Argument("_id", mutation.getId())))
+                    .arguments(List.of(new Argument("_id", mutation.getId())))
                     .directives(((Field) selection).getDirectives())
                     .selectionSet(((Field) selection).getSelectionSet())
                     .build());

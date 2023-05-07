@@ -9,7 +9,7 @@ public class TypeConfig {
         OBJECT, UNION, INTERFACE
     }
 
-    private TYPE type;
+    private final TYPE type;
 
     private Map<String, TypeConfig> unionMembers; // contains either the members of a union
     private Set<String> implementedBy;
@@ -36,7 +36,7 @@ public class TypeConfig {
 
     private String id;
 
-    private String name;
+    private final String name;
 
     public Map<String, FieldOfTypeConfig> getFields() {
         if (isUnion()) {

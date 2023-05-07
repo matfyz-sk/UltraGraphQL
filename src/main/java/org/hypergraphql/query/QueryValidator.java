@@ -18,10 +18,10 @@ import java.util.Locale;
  */
 public class QueryValidator {
 
-    private GraphQLSchema schema;
-    private List<ValidationError> validationErrors;
-    private Validator validator;
-    private Parser parser;
+    private final GraphQLSchema schema;
+    private final List<ValidationError> validationErrors;
+    private final Validator validator;
+    private final Parser parser;
 
     public QueryValidator(GraphQLSchema schema) {
 

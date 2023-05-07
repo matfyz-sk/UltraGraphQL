@@ -21,7 +21,7 @@ import java.util.List;
 public class ApplicationConfigurationService {
 
     private S3Service s3Service;
-    private HGQLConfigService hgqlConfigService = new HGQLConfigService();
+    private final HGQLConfigService hgqlConfigService = new HGQLConfigService();
 
     private final static Logger LOGGER = LoggerFactory.getLogger(ApplicationConfigurationService.class);
 

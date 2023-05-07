@@ -5,7 +5,7 @@ import org.hypergraphql.datafetching.services.Service;
 public class QueryFieldConfig {
 
     private Service service;
-    private String type;
+    private final String type;
 
     public QueryFieldConfig(Service service, String type) {
 

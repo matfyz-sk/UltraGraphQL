@@ -17,15 +17,15 @@ public class HGQLConfig {
 
     //config file attributes
     private String name;   // Name of the HGQL endpoint
-    private String schemaFile;
-    private GraphqlConfig graphqlConfig;
-    private List<ServiceConfig> serviceConfigs;
-    private Boolean extraction;
-    private String mappingFile;
-    private String queryFile;
-    private Boolean mutations;
-    private String mutationService;
-    private Map<String, String> prefixes;
+    private final String schemaFile;
+    private final GraphqlConfig graphqlConfig;
+    private final List<ServiceConfig> serviceConfigs;
+    private final Boolean extraction;
+    private final String mappingFile;
+    private final String queryFile;
+    private final Boolean mutations;
+    private final String mutationService;
+    private final Map<String, String> prefixes;
     private String modelJson;
 
     //Additional attributes

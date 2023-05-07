@@ -17,19 +17,19 @@ import java.util.stream.Collectors;
  * The build method returns this type in the SDL syntax.
  */
 public class Type {
-    private Resource uri;
-    private String id;
-    private PrefixService prefixService;
-    private Set<Field> fields = new HashSet<>();
+    private final Resource uri;
+    private final String id;
+    private final PrefixService prefixService;
+    private final Set<Field> fields = new HashSet<>();
 
     public Set<Directive> getDirectives() {
         return directives;
     }
 
-    private Set<Directive> directives = new HashSet<>();
-    private Set<Interface> interfaces = new HashSet<>();
-    private Set<Type> equivalentTypes = new HashSet<>();
-    private Set<Type> sameAs = new HashSet<>();
+    private final Set<Directive> directives = new HashSet<>();
+    private final Set<Interface> interfaces = new HashSet<>();
+    private final Set<Type> equivalentTypes = new HashSet<>();
+    private final Set<Type> sameAs = new HashSet<>();
     private String base_interface_id = "";
     private Interface base_interface = null;
 

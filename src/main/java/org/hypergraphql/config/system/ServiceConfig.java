@@ -5,15 +5,15 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class ServiceConfig {
 
-    private String id;
-    private String type;
+    private final String id;
+    private final String type;
     private String url;
-    private String graph;
-    private String user;
-    private String password;
+    private final String graph;
+    private final String user;
+    private final String password;
     private String filepath;
-    private String filetype;
-    private boolean exclude_from_extraction;
+    private final String filetype;
+    private final boolean exclude_from_extraction;
 
     @JsonCreator
     public ServiceConfig(@JsonProperty("id") String id,

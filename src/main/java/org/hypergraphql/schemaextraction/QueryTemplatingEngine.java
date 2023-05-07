@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 public class QueryTemplatingEngine {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(QueryTemplatingEngine.class);
-    private MappingConfig mapping;
+    private final MappingConfig mapping;
     ParameterizedSparqlString template_query;
     private String query_service_template;
     private String one_class;
@@ -29,8 +29,8 @@ public class QueryTemplatingEngine {
     private String one_equivalentProperty;
     private String one_sameAs;
 
-    private HashMap<String, String> one_node;
-    private HashMap<String, Set<String>> all_nodes;
+    private final HashMap<String, String> one_node;
+    private final HashMap<String, Set<String>> all_nodes;
 
     private static final String GRAPH = "graph";
     private static final String GRAPH_ONTOLOGY = "graphontology";
@@ -190,7 +190,7 @@ public class QueryTemplatingEngine {
             currQ = res.toString();
             res = new ParameterizedSparqlString(currQ.replaceAll("(\\?" + FROM + ")+\\b", ""));
         }
-        LOGGER.debug("Generated Extraction Query: {}", res.toString());
+        LOGGER.debug("Generated Extraction Query: {}", res);
         return res.toString();
     }
 }

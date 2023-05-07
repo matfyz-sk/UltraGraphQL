@@ -12,8 +12,8 @@ import java.util.Set;
  */
 public class SPARQLExecutionResult {
 
-    private Map<String, Set<String>> resultSet;   // containing the IRIs for the queries one level deeper
-    private Result result;   // containing the query results
+    private final Map<String, Set<String>> resultSet;   // containing the IRIs for the queries one level deeper
+    private final Result result;   // containing the query results
 //   private Model model;
 
     /**

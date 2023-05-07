@@ -178,12 +178,12 @@ public class ManifoldService extends Service {
      */
     private class CallableService implements Callable<TreeExecutionResult> {
 
-        private Service service;
-        private Query query;
-        private Set<String> input;
-        private Set<String> strings;
-        private String rootType;
-        private HGQLSchema schema;
+        private final Service service;
+        private final Query query;
+        private final Set<String> input;
+        private final Set<String> strings;
+        private final String rootType;
+        private final HGQLSchema schema;
 
 
         public CallableService(Service service, Query query, Set<String> input, Set<String> strings, String rootType, HGQLSchema schema) {

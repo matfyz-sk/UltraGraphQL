@@ -113,12 +113,9 @@ public class PrefixService {
         HttpGet request = null;
         try {
             uri = builder.build();
-            String url = URLDecoder.decode(uri.toString(), StandardCharsets.UTF_8.name());
+            String url = URLDecoder.decode(uri.toString(), StandardCharsets.UTF_8);
             request = new HttpGet(url);
         } catch (URISyntaxException e) {
-            return "";
-        } catch (UnsupportedEncodingException e) {
-            //e.printStackTrace();
             return "";
         }
         try (CloseableHttpResponse response = httpClient.execute(request)) {

@@ -29,14 +29,14 @@ public class HGQLSchema {
 
     private final AuthorizationResolver authenticationResolver;
 
-    private String schemaUri;
-    private String schemaNamespace;
+    private final String schemaUri;
+    private final String schemaNamespace;
 
     public Map<String, Service> getServiceList() {
         return serviceList;
     }
 
-    private Map<String, Service> serviceList;
+    private final Map<String, Service> serviceList;
 
     public Map<String, TypeConfig> getTypes() {
         return types;
@@ -59,7 +59,7 @@ public class HGQLSchema {
     private Map<String, QueryFieldConfig> queryFields;
 
     // lookup table to resolve the type name from a given mutation field name
-    private Map<String, String> mutationFields = new HashMap<>();
+    private final Map<String, String> mutationFields = new HashMap<>();
 
     public void addMutationField(String nameMutation, String nameType) {
         mutationFields.put(nameMutation, nameType);
@@ -70,7 +70,7 @@ public class HGQLSchema {
     }
 
     // lookup table to resolve the object name from a given input name
-    private Map<String, String> inputObjects = new HashMap<>();
+    private final Map<String, String> inputObjects = new HashMap<>();
 
     public void addInputObject(String nameInput, String nameObject) {
         inputObjects.put(nameInput, nameObject);
@@ -81,7 +81,7 @@ public class HGQLSchema {
     }
 
     // lookup table to resolve the field/argument name from a given input name
-    private Map<String, String> inputFields = new HashMap<>();
+    private final Map<String, String> inputFields = new HashMap<>();
 
     public void addInputField(String nameInput, String nameField) {
         inputFields.put(nameInput, nameField);
@@ -92,7 +92,7 @@ public class HGQLSchema {
     }
 
     // lookup table to resolve the field/argument name from a given input name
-    private Map<String, String> inputFieldsOutput = new HashMap<>();
+    private final Map<String, String> inputFieldsOutput = new HashMap<>();
 
     public void addinputFieldsOutput(String nameInput, String nameOutputType) {
         inputFieldsOutput.put(nameInput, nameOutputType);
@@ -102,7 +102,7 @@ public class HGQLSchema {
         return inputFieldsOutput;
     }
 
-    private ModelContainer rdfSchema = new ModelContainer(ModelFactory.createDefaultModel());
+    private final ModelContainer rdfSchema = new ModelContainer(ModelFactory.createDefaultModel());
 
     /**
      * Builds up an RDF graph that represents the HGQL Schema and based on that graph for any type, field and queryfield
@@ -194,8 +194,7 @@ public class HGQLSchema {
             rdfSchema.insertStringLiteralTriple(unionUri, HGQL_HAS_NAME, unionName);
             List<Type> memberTypes = union.getMemberTypes();
             memberTypes.forEach(type -> {
-                if (type instanceof TypeName) {
-                    TypeName typeName = (TypeName) type;
+                if (type instanceof TypeName typeName) {
                     String typeUri = schemaNamespace + typeName.getName();
                     rdfSchema.insertObjectTriple(unionUri, HGQL_HAS_UNION_MEMBER, typeUri);
                 }

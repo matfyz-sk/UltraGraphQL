@@ -11,9 +11,9 @@ import java.util.stream.Collectors;
 
 public class Interface {
     private Resource uri;
-    private String id;
+    private final String id;
     private PrefixService prefixService;
-    private Set<Field> fields = new HashSet<>();
+    private final Set<Field> fields = new HashSet<>();
     private final String interfacePostfix = "_Interface";
 
     public Interface(Resource uri, PrefixService prefixService) {

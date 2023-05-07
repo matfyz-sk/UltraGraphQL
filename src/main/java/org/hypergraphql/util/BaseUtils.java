@@ -2,7 +2,7 @@ package org.hypergraphql.util;
 
 public class BaseUtils {
 
-    private BaseUtils(){
+    private BaseUtils() {
 
     }
 

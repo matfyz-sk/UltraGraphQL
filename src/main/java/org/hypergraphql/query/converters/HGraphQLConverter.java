@@ -13,7 +13,7 @@ import java.util.Set;
 import static org.hypergraphql.config.schema.HGQLVocabulary.HGQL_QUERY_GET_FIELD;
 
 public class HGraphQLConverter {
-    private HGQLSchema schema;
+    private final HGQLSchema schema;
 
     public HGraphQLConverter(HGQLSchema schema) {
 
@@ -63,7 +63,7 @@ public class HGraphQLConverter {
             return "";
         }
         if (langArg.containsKey(SPARQLServiceConverter.LANG)) {
-            return "(lang:\"" + (String) langArg.get(SPARQLServiceConverter.LANG) + "\")";
+            return "(lang:\"" + langArg.get(SPARQLServiceConverter.LANG) + "\")";
         }
         return "";
     }

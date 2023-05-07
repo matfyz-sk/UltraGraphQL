@@ -18,17 +18,17 @@ import static org.hypergraphql.config.schema.HGQLVocabulary.*;
  * buildSDL() call. To seperate different schemata use different service ids.
  */
 public class RDFtoHGQL {
-    private MappingConfig mapConfig;
-    private Map<String, Type> types = new HashMap<>();
-    private Map<String, Field> fields = new HashMap<>();
-    private Map<String, Directive> directives = new HashMap<>();
-    private Map<String, Interface> interfaces = new HashMap<>();
-    private Map<String, Inputtype> inputtypes = new HashMap<>();
-    private Map<String, String> context = new HashMap<>();   // (hgql_id, uri)
-    private PrefixService prefixService;
-    private Model model = ModelFactory.createDefaultModel();
+    private final MappingConfig mapConfig;
+    private final Map<String, Type> types = new HashMap<>();
+    private final Map<String, Field> fields = new HashMap<>();
+    private final Map<String, Directive> directives = new HashMap<>();
+    private final Map<String, Interface> interfaces = new HashMap<>();
+    private final Map<String, Inputtype> inputtypes = new HashMap<>();
+    private final Map<String, String> context = new HashMap<>();   // (hgql_id, uri)
+    private final PrefixService prefixService;
+    private final Model model = ModelFactory.createDefaultModel();
 
-    private HashMap<String, Type> scalarObjTypes = new HashMap<>();
+    private final HashMap<String, Type> scalarObjTypes = new HashMap<>();
 
     public RDFtoHGQL(MappingConfig mappingConf) {
         this(mappingConf, null);

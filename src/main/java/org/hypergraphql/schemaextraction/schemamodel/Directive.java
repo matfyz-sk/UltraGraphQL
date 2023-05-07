@@ -5,8 +5,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class Directive {
-    private String name;
-    private Map<String, Parameter> parameter = new HashMap<>();
+    private final String name;
+    private final Map<String, Parameter> parameter = new HashMap<>();
     // Boolean values of GraphQL
     private final String TRUE = "true";
     private final String FALSE = "false";
@@ -140,8 +140,8 @@ public class Directive {
      * Represents a parameter that only has one value. Allowed value types are String, int, boolean (must be given in String)
      */
     class DirectiveParameter extends Parameter {
-        private String name;
-        private String value;
+        private final String name;
+        private final String value;
 
         public DirectiveParameter(String name, String value) {
             this.name = name;
@@ -174,8 +174,8 @@ public class Directive {
      * Represents a parameter with a List as value.
      */
     class DirectiveParameterList extends Parameter {
-        private String name;
-        private Set<String> values;
+        private final String name;
+        private final Set<String> values;
 
         public DirectiveParameterList(String name) {
             this.name = name;

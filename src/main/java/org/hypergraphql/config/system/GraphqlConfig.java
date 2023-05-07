@@ -8,10 +8,10 @@ import java.util.concurrent.ThreadLocalRandom;
 
 public class GraphqlConfig {
 
-    private Integer port;
-    private String graphqlPath;
-    private String graphiqlPath;
-    private String serverFramework;
+    private final Integer port;
+    private final String graphqlPath;
+    private final String graphiqlPath;
+    private final String serverFramework;
 
     @JsonCreator
     public GraphqlConfig(@JsonProperty("port") Integer port,

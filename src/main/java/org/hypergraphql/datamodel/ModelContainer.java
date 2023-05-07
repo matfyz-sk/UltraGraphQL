@@ -277,7 +277,7 @@ public class ModelContainer {
             builder.addWhere("?object", "rdf:type", targetURI);
         }
         Query query = builder.build();
-        LOGGER.debug("SPARQL query aganst the result pool: \n {}", query.toString());
+        LOGGER.debug("SPARQL query aganst the result pool: \n {}", query);
         QueryExecution qexec = QueryExecutionFactory.create(query, this.model);
         ResultSet results = qexec.execSelect();
         while (results.hasNext()) {
@@ -312,7 +312,7 @@ public class ModelContainer {
         }
         builder.addWhere(subject, getPropertyFromUri(predicateURI), OBJECT);
         Query query = builder.build();
-        LOGGER.debug("SPARQL query against the result pool: \n {}", query.toString());
+        LOGGER.debug("SPARQL query against the result pool: \n {}", query);
         QueryExecution qexec = QueryExecutionFactory.create(query, this.model);
         ResultSet results = qexec.execSelect();
         while (results.hasNext()) {
