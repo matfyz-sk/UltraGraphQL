@@ -127,11 +127,12 @@ public class ObjectResult extends Result<Map<String, Object>> {
                 } else {
                     final Map<String, Object> value = new HashMap<>();
                     this.subfields.entrySet().iterator().next().getValue().forEach((s, result) -> {
+                        String name = result.alias == null ? BaseUtils.createObjectKeyWithoutKnownPrefixes(s) : result.alias;
                         if (result instanceof ObjectResult) {
                             Map<String, Object> generatedJsonMap = ((ObjectResult) result).generateJSON();
-                            value.put(s, generatedJsonMap != null ? generatedJsonMap.get(s) : null);
+                            value.put(name, generatedJsonMap != null ? generatedJsonMap.get(s) : null);
                         } else {
-                            value.put(s, result.generateJSON());
+                            value.put(name, result.generateJSON());
                         }
                         this.errors += result.errors;
                     });
