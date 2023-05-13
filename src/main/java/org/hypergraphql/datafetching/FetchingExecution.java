@@ -11,15 +11,15 @@ import java.util.concurrent.Callable;
  */
 public class FetchingExecution implements Callable<Result> {
 
-    private Set<String> inputValues;
-    private ExecutionTreeNode node;
+    private final Set<String> inputValues;
+    private final ExecutionTreeNode node;
 
     public FetchingExecution(Set<String> inputValues, ExecutionTreeNode node) {
 
         this.inputValues = inputValues;
         this.node = node;
     }
-    
+
     @Override
     public Result call() {
         return node.generateTreeModel(inputValues);

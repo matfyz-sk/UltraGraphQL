@@ -4,14 +4,15 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import java.util.Objects;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class GraphqlConfig {
 
-    private Integer port;
-    private String graphqlPath;
-    private String graphiqlPath;
-    private String serverFramework;
+    private final Integer port;
+    private final String graphqlPath;
+    private final String graphiqlPath;
+    private final String serverFramework;
 
     @JsonCreator
     public GraphqlConfig(@JsonProperty("port") Integer port,
@@ -19,11 +20,7 @@ public class GraphqlConfig {
                          @JsonProperty("graphiql") String graphiqlPath,
                          @JsonProperty("framework") String serverFramework
     ) {
-        if(port == null) {
-            this.port = generateRandomPort();
-        } else {
-            this.port = port;
-        }
+        this.port = Objects.requireNonNullElseGet(port, this::generateRandomPort);
         this.graphqlPath = graphqlPath;
         this.graphiqlPath = graphiqlPath;
         this.serverFramework = serverFramework;
@@ -48,7 +45,7 @@ public class GraphqlConfig {
         return ThreadLocalRandom.current().nextInt(min, max);
     }
 
-    public String serverFramwork(){
-        return  serverFramework;
+    public String serverFramwork() {
+        return serverFramework;
     }
 }

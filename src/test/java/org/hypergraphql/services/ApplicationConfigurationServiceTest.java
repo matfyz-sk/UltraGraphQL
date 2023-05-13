@@ -35,8 +35,8 @@ class ApplicationConfigurationServiceTest {
         final String[] filenames = tempDirectory.list((directory, filename) -> filename.endsWith(".json"));
         Arrays.asList(filenames).forEach(filename -> {
             final File file = new File(tempDirectory, filename);
-                expectedConfigs.add(service.getConfigurationsFromFile(file.getAbsolutePath()).get(0));
-            });
+            expectedConfigs.add(service.getConfigurationsFromFile(file.getAbsolutePath()).get(0));
+        });
 
         final List<String> expected = readConfigs(expectedConfigs);
         final List<String> actual = readConfigs(configurations);

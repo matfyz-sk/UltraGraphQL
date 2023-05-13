@@ -1,6 +1,7 @@
 package org.hypergraphql.datafetching.services.resultmodel;
 
 import org.hypergraphql.query.converters.SPARQLServiceConverter;
+import org.hypergraphql.util.BaseUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,22 +16,24 @@ import java.util.stream.Collectors;
 public class ObjectResult extends Result<Map<String, Object>> {
 
     private final static Logger LOGGER = LoggerFactory.getLogger(ObjectResult.class);
-    Map<String, Map<String, Result>> subfields = new HashMap<>();   // subfields for each queried entity, first string is the ID of the object second String indicates the subfield.
+    Map<String, Map<String, Result>> subfields = new LinkedHashMap<>();   // subfields for each queried entity, first string is the ID of the object second String indicates the subfield.
 
     /**
      * Initalize ObjectResult with nodeId and name, both are mandatory for all ObjectResults
+     *
      * @param nodeId Id of the query field also used as SPARQL variable
-     * @param name Name of the queried field
+     * @param name   Name of the queried field
      */
     public ObjectResult(String nodeId, String name) {
         super(nodeId, name);
     }
 
     /**
-     *  Additionally to the name the field also has a alias defined.
+     * Additionally to the name the field also has a alias defined.
+     *
      * @param nodeId Id of the query field also used as SPARQL variable
-     * @param name Name of the field
-     * @param alias Alias of the field name
+     * @param name   Name of the field
+     * @param alias  Alias of the field name
      */
     public ObjectResult(String nodeId, String name, String alias) {
         super(nodeId, name, alias);
@@ -38,9 +41,10 @@ public class ObjectResult extends Result<Map<String, Object>> {
 
     /**
      * Additionally arguments are defined for the field
+     *
      * @param nodeId Id of the query field also used as SPARQL variable
-     * @param name Name of the field
-     * @param args Arguments of the field
+     * @param name   Name of the field
+     * @param args   Arguments of the field
      */
     public ObjectResult(String nodeId, String name, Map<String, Object> args) {
         super(nodeId, name, args);
@@ -48,10 +52,11 @@ public class ObjectResult extends Result<Map<String, Object>> {
 
     /**
      * Additionally the field has an alias and arguments
+     *
      * @param nodeId Id of the query field also used as SPARQL variable
-     * @param name Name of the field
-     * @param alias Alias of the field
-     * @param args Arguments of the field
+     * @param name   Name of the field
+     * @param alias  Alias of the field
+     * @param args   Arguments of the field
      */
     public ObjectResult(String nodeId, String name, String alias, Map<String, Object> args) {
         super(nodeId, name, alias, args);
@@ -59,13 +64,14 @@ public class ObjectResult extends Result<Map<String, Object>> {
 
     /**
      * Returns the queried subfields contained in this object for the given iri
+     *
      * @param iri IRI, the identifier of the object results
      * @return Returns the subfiedls and corresponding results for the given iri that are contained in this object
      */
-    public Map<String, Result> getSubfiedldsOfObject(String iri){
-        if(this.subfields.containsKey(iri)){
+    public Map<String, Result> getSubfiedldsOfObject(String iri) {
+        if (this.subfields.containsKey(iri)) {
             return this.subfields.get(iri);
-        }else{
+        } else {
             return null;
         }
     }
@@ -73,12 +79,13 @@ public class ObjectResult extends Result<Map<String, Object>> {
     /**
      * Adds a empty object entity to the object.
      * If this object already contains this entity nothing is done.
+     *
      * @param iri Id of the added object
      */
-    public void addObject(String iri){
-        if(this.subfields.containsKey(iri)){
+    public void addObject(String iri) {
+        if (this.subfields.containsKey(iri)) {
             // Already in the list -> do nothing
-        }else{
+        } else {
             this.subfields.put(iri, new HashMap<>());
         }
     }
@@ -88,54 +95,57 @@ public class ObjectResult extends Result<Map<String, Object>> {
      * The given subfields are the results for the given iri.
      * If the given subfields or parts of the subfields already exist in this object, than the results are merged together.
      * Otherwise the subfields are are simply added.
-     * @param iri IRI that identifies the given subfields
+     *
+     * @param iri       IRI that identifies the given subfields
      * @param subfields Subfield results for the given IRI
      */
-    public void addObject(String iri, Map<String, Result> subfields){
-        if(this.subfields.containsKey(iri)){
+    public void addObject(String iri, Map<String, Result> subfields) {
+        if (this.subfields.containsKey(iri)) {
             final Map<String, Result> obj = this.subfields.get(iri);
-            for(Map.Entry<String, Result> entry : subfields.entrySet()){
-                if(obj.containsKey(entry.getKey())){
+            for (Map.Entry<String, Result> entry : subfields.entrySet()) {
+                if (obj.containsKey(entry.getKey())) {
                     obj.get(entry.getKey()).merge(entry.getValue());
-                }else {
+                } else {
                     obj.put(entry.getKey(), entry.getValue());
                 }
             }
 
-        }else {
+        } else {
             this.subfields.put(iri, subfields);
         }
     }
 
     @Override
     public Map<String, Object> generateJSON() {
-        List<Object> subfields = new ArrayList<>();
+        List<Object> subfields;
         Map<String, Object> field = new HashMap<>();
-        String fieldName = this.alias == null ? this.name : this.alias;
-        if(!isList()){
-            if(this.subfields.size()<=1){
-                if(this.subfields.isEmpty()){
+        String fieldName = this.alias == null ? BaseUtils.createObjectKeyWithoutKnownPrefixes(this.name) : this.alias;
+        if (!isList()) {
+            if (this.subfields.size() <= 1) {
+                if (this.subfields.isEmpty()) {
                     return null;
-                }else{
+                } else {
                     final Map<String, Object> value = new HashMap<>();
                     this.subfields.entrySet().iterator().next().getValue().forEach((s, result) -> {
-                        if(result instanceof ObjectResult){
-                            value.put(s, ((ObjectResult)result).generateJSON().get(s));
-                        }else{
-                            value.put(s, result.generateJSON());
+                        String name = result.alias == null ? BaseUtils.createObjectKeyWithoutKnownPrefixes(s) : result.alias;
+                        if (result instanceof ObjectResult) {
+                            Map<String, Object> generatedJsonMap = ((ObjectResult) result).generateJSON();
+                            value.put(name, generatedJsonMap != null ? generatedJsonMap.get(s) : null);
+                        } else {
+                            value.put(name, result.generateJSON());
                         }
                         this.errors += result.errors;
                     });
-                    field.put(fieldName,value);
+                    field.put(fieldName, value);
                     return field;
                 }
-            }else{
-                this.errors += "Schema Error for "+ this.name + ": Only one result should exist, all queried values are returned in a list.";
+            } else {
+                this.errors += "Schema Error for " + this.name + ": Only one result should exist, all queried values are returned in a list.";
             }
         }
         try {
             if (this.args != null && this.args.get(SPARQLServiceConverter.ORDER) != null) {
-                Comparator comparator = null;
+                Comparator comparator;
                 // If new order features are added extend the comparator cases here
                 switch (this.args.get(SPARQLServiceConverter.ORDER).toString()) {
                     case SPARQLServiceConverter.ORDER_ASC:
@@ -155,7 +165,7 @@ public class ObjectResult extends Result<Map<String, Object>> {
                     this.subfields = subfields_sorted;
                 }
             }
-        }catch (ClassCastException e){
+        } catch (ClassCastException e) {
             this.errors += "Casting exception for the arguments of field " + this.name + ". ";
             LOGGER.error(e.getMessage());
             e.printStackTrace();
@@ -164,14 +174,16 @@ public class ObjectResult extends Result<Map<String, Object>> {
                 .skip(args == null || args.get(SPARQLServiceConverter.OFFSET) == null ? 0 : ((Number) args.get(SPARQLServiceConverter.OFFSET)).longValue())   // offset interferes with multiple services limiter.
                 .limit(args == null || args.get(SPARQLServiceConverter.LIMIT) == null ? this.subfields.size() : ((Number) args.get(SPARQLServiceConverter.LIMIT)).longValue())
                 .map(objectEntry -> {
-                    Map<String,Object> object = new HashMap<>();
+                    Map<String, Object> object = new HashMap<>();
                     for (Map.Entry<String, Result> entry : objectEntry.entrySet()) {
                         String key = entry.getKey();
                         Result values = entry.getValue();
-                        String name = values.alias == null ? key : values.alias;
-                        if(values instanceof ObjectResult){
-                            object.put(name,((ObjectResult) values).generateJSON().get(name));
-                        }else{
+
+                        String name = values.alias == null ? BaseUtils.createObjectKeyWithoutKnownPrefixes(key) : values.alias;
+                        if (values instanceof ObjectResult) {
+                            Map<String, Object> generatedJsonMap = ((ObjectResult) values).generateJSON();
+                            object.put(name, generatedJsonMap != null ? generatedJsonMap.get(name) : null);
+                        } else {
                             object.put(name, values.generateJSON());
                         }
                         this.errors += values.errors;
@@ -185,27 +197,27 @@ public class ObjectResult extends Result<Map<String, Object>> {
 
     @Override
     public void merge(Result result) {
-        if(result == null){
+        if (result == null) {
             // Nothing needs to be merged
             return;
         }
-        if(this.name.equals(result.name) && result instanceof ObjectResult){
-            for(String entry : ((ObjectResult) result).subfields.keySet()){
-                if(this.subfields.containsKey(entry)){
+        if (this.name.equals(result.name) && result instanceof ObjectResult) {
+            for (String entry : ((ObjectResult) result).subfields.keySet()) {
+                if (this.subfields.containsKey(entry)) {
                     // Merge values
                     Map<String, Result> subResult = this.subfields.get(entry);
-                    for(Map.Entry<String, Result> fieldEntry : ((ObjectResult) result).subfields.get(entry).entrySet()){
+                    for (Map.Entry<String, Result> fieldEntry : ((ObjectResult) result).subfields.get(entry).entrySet()) {
                         String key = fieldEntry.getKey();
                         Result values = fieldEntry.getValue();
-                        if(subResult.containsKey(key)){
+                        if (subResult.containsKey(key)) {
                             // object  result share same field -> merge
                             subResult.get(key).merge(values);
-                        }else{
+                        } else {
                             // field does is currently not defined for this object  -> just add
                             subResult.put(key, values);
                         }
                     }
-                }else{
+                } else {
                     // entry is new just add
                     this.subfields.put(entry, ((ObjectResult) result).subfields.get(entry));
                 }
@@ -223,35 +235,36 @@ public class ObjectResult extends Result<Map<String, Object>> {
      * queried from another service but it also is possible that other data is also in the result for other entities.
      * The deepSubfieldMerge means here that the result entities from this object and below (result is tree structure)
      * only pick there data from the given subfield result to extend there data.
+     *
      * @param subfields Potential results for the subfields of this object
      */
-    public void deepSubfieldMerge(Result subfields){
-        if(nodeId.equals(subfields.getNodeId())){
+    public void deepSubfieldMerge(Result subfields) {
+        if (nodeId.equals(subfields.getNodeId())) {
             // same level merge results on matching ids
-            if(subfields instanceof ObjectResult){
-                for(Map.Entry<String,Map<String,Result>> x : this.subfields.entrySet()){
-                    if(((ObjectResult) subfields).subfields.containsKey(x.getKey())){
+            if (subfields instanceof ObjectResult) {
+                for (Map.Entry<String, Map<String, Result>> x : this.subfields.entrySet()) {
+                    if (((ObjectResult) subfields).subfields.containsKey(x.getKey())) {
                         final Map<String, Result> resultMap = this.subfields.get(x.getKey());
-                        for(Map.Entry<String,Result> y :  ((ObjectResult) subfields).subfields.get(x.getKey()).entrySet()){
-                            if(resultMap.containsKey(y.getKey())){
+                        for (Map.Entry<String, Result> y : ((ObjectResult) subfields).subfields.get(x.getKey()).entrySet()) {
+                            if (resultMap.containsKey(y.getKey())) {
                                 resultMap.get(y.getKey()).merge(y.getValue());
-                            }else{
+                            } else {
                                 resultMap.put(y.getKey(), y.getValue());
                             }
                         }
                     }
                 }
-            }else{
+            } else {
                 LOGGER.error("");
             }
-        }else{
+        } else {
             // different level forward to deeper level
             for (Map<String, Result> stringResultMap : this.subfields.values()) {
                 if (stringResultMap.containsKey(subfields.name)) {
                     Result res = stringResultMap.get(subfields.name);
-                    if(res instanceof ObjectResult){
+                    if (res instanceof ObjectResult) {
                         ((ObjectResult) res).deepSubfieldMerge(subfields);
-                    }else {
+                    } else {
                         res.merge(subfields);
                     }
                 }

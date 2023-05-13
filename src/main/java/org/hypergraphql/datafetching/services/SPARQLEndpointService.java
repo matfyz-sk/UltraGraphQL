@@ -1,6 +1,5 @@
 package org.hypergraphql.datafetching.services;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.Credentials;
 import org.apache.http.auth.UsernamePasswordCredentials;
@@ -44,26 +43,27 @@ public class SPARQLEndpointService extends SPARQLService {
     }
 
     public String getUser() {
-        return user == null? "" : user;
+        return user == null ? "" : user;
     }
 
     public String getPassword() {
-        return password== null? "" : password;
+        return password == null ? "" : password;
     }
 
     /**
      * Executes the given query against the SPARQL endpoint assigned to this object.
      * If the remote SPARQL endpoint needs authentication the configured username and password are used for a HTTP authentication.
      * If more IRIs are provided in input then defined in VALUES_SIZE_LIMIT as limit the values are distributed over multiple queries to sta below the limit.
-     * @param query query or sub-query to be executed
-     * @param input Possible IRIs of the parent query that are used to limit the results of this query/sub-query
-     * @param markers variables for the SPARQL query
+     *
+     * @param query    query or sub-query to be executed
+     * @param input    Possible IRIs of the parent query that are used to limit the results of this query/sub-query
+     * @param markers  variables for the SPARQL query
      * @param rootType type of the query root
-     * @param schema HGQLSchema the query is based on
+     * @param schema   HGQLSchema the query is based on
      * @return Query results and IRIs for underlying queries
      */
     @Override
-    public TreeExecutionResult executeQuery(Query query, Set<String> input, Set<String> markers , String rootType , HGQLSchema schema) {
+    public TreeExecutionResult executeQuery(Query query, Set<String> input, Set<String> markers, String rootType, HGQLSchema schema) {
 
         LOGGER.debug(String.format("%s: Start query execution", this.getId()));
         Map<String, Set<String>> resultSet = new HashMap<>();
@@ -76,17 +76,17 @@ public class SPARQLEndpointService extends SPARQLService {
         do {
 
             Set<String> inputSubset = new HashSet<>();
-            if(!inputList.isEmpty()){
+            if (!inputList.isEmpty()) {
                 int size = Math.min(inputList.size(), VALUES_SIZE_LIMIT);
                 inputSubset = inputList.stream().limit(size).collect(Collectors.toSet());
                 inputList = inputList.stream().skip(size).collect(Collectors.toList());
             }
             ExecutorService executor = Executors.newFixedThreadPool(50);
             executors.add(executor);
-            SPARQLEndpointExecution execution = new SPARQLEndpointExecution(query,inputSubset,markers,this, schema, rootType);
+            SPARQLEndpointExecution execution = new SPARQLEndpointExecution(query, inputSubset, markers, this, schema, rootType);
             futureSPARQLresults.add(executor.submit(execution));
 
-        } while (inputList.size()>0);
+        } while (inputList.size() > 0);
 
         Result result = iterateFutureResults(futureSPARQLresults, resultSet);
 
@@ -100,11 +100,12 @@ public class SPARQLEndpointService extends SPARQLService {
     /**
      * Executes the given SPARQL Update against the SPARQL endpoint assigned to this object.
      * If the remote SPARQL endpoint needs authentication the configured username and password are used for a HTTP authentication.
+     *
      * @param update SPARQL Update
      * @return True if the update succeeds otherwise False
      */
-    public Boolean executeUpdate(String update){
-        try{
+    public Boolean executeUpdate(String update) {
+        try {
             CredentialsProvider credsProvider = new BasicCredentialsProvider();
             Credentials credentials =
                     new UsernamePasswordCredentials(this.getUser(), this.getPassword());
@@ -116,13 +117,13 @@ public class SPARQLEndpointService extends SPARQLService {
 
             HttpOp.execHttpPost(getUrl() + "/update", WebContent.contentTypeSPARQLUpdate, update, null, null);
             return true;
-        }catch(Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             return false;
         }
     }
 
-    Result iterateFutureResults (
+    Result iterateFutureResults(
             final Set<Future<SPARQLExecutionResult>> futureSPARQLResults,
             Map<String, Set<String>> resultSet
     ) {
@@ -130,21 +131,21 @@ public class SPARQLEndpointService extends SPARQLService {
         for (Future<SPARQLExecutionResult> futureExecutionResult : futureSPARQLResults) {
             try {
                 SPARQLExecutionResult result = futureExecutionResult.get();
-                if(res == null){
+                if (res == null) {
                     res = result.getResult();
-                }else{
+                } else {
                     res.merge(result.getResult());
                 }
-                result.getResultSet().forEach((var, uris) ->{
-                    if(resultSet.get(var)== null){
+                result.getResultSet().forEach((var, uris) -> {
+                    if (resultSet.get(var) == null) {
                         resultSet.put(var, uris);
-                    }else{
+                    } else {
                         resultSet.get(var).addAll(uris);
                     }
-                } );
+                });
 //                resultSet.putAll(result.getResultSet());
             } catch (InterruptedException
-                    | ExecutionException e) {
+                     | ExecutionException e) {
                 e.printStackTrace();
             }
         }
@@ -154,11 +155,12 @@ public class SPARQLEndpointService extends SPARQLService {
     /**
      * Init resultSet by inserting each marker as key with a empty set as value. Also add to the input set the URIs of
      * the id argument of the query and return them as list.
-     * @param query JSON representation of a graphql query needed to extract information about query arguments
-     * @param input Possible IRIs of the parent query that are used to limit the results of this query/sub-query
-     * @param markers variables for the SPARQL query
-     * @param rootType type of the query root
-     * @param schema HGQLSchema
+     *
+     * @param query     JSON representation of a graphql query needed to extract information about query arguments
+     * @param input     Possible IRIs of the parent query that are used to limit the results of this query/sub-query
+     * @param markers   variables for the SPARQL query
+     * @param rootType  type of the query root
+     * @param schema    HGQLSchema
      * @param resultSet A Map where the markers are inserted as keys with an empty set as value
      * @return List with input values
      */
@@ -167,9 +169,9 @@ public class SPARQLEndpointService extends SPARQLService {
             resultSet.put(marker, new HashSet<>());
         }
         //ToDo: Handle the _GET_BY_ID to function if the argument id is given and is not null
-        if (rootType.equals(ExecutionTreeNode.ROOT_TYPE)&&schema.getQueryFields().get(((QueryPattern)query).name).type().equals(HGQLVocabulary.HGQL_QUERY_GET_BY_ID_FIELD)) {
+        if (rootType.equals(ExecutionTreeNode.ROOT_TYPE) && schema.getQueryFields().get(((QueryPattern) query).name).type().equals(HGQLVocabulary.HGQL_QUERY_GET_BY_ID_FIELD)) {
 
-            Set<String> ids = (Set<String>) ((QueryPattern)query).args.get(SPARQLServiceConverter.ID);
+            Set<String> ids = (Set<String>) ((QueryPattern) query).args.get(SPARQLServiceConverter.ID);
             ids.forEach(input::add);
         }
         return new ArrayList<>(input);

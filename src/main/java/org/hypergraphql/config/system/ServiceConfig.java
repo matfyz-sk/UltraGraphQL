@@ -5,15 +5,15 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class ServiceConfig {
 
-    private String id;
-    private String type;
+    private final String id;
+    private final String type;
     private String url;
-    private String graph;
-    private String user;
-    private String password;
+    private final String graph;
+    private final String user;
+    private final String password;
     private String filepath;
-    private String filetype;
-    private boolean exclude_from_extraction;
+    private final String filetype;
+    private final boolean exclude_from_extraction;
 
     @JsonCreator
     public ServiceConfig(@JsonProperty("id") String id,
@@ -24,7 +24,7 @@ public class ServiceConfig {
                          @JsonProperty("password") String password,
                          @JsonProperty("filepath") String filepath,
                          @JsonProperty("filetype") String filetype,
-                         @JsonProperty(value = "exclude_from_extraction",defaultValue = "false") boolean exclude_from_extraction
+                         @JsonProperty(value = "exclude_from_extraction", defaultValue = "false") boolean exclude_from_extraction
     ) {
         this.id = id;
         this.type = type;
@@ -40,6 +40,7 @@ public class ServiceConfig {
     public String getId() {
         return id;
     }
+
     public String getFilepath() {
         return filepath;
     }
@@ -51,22 +52,28 @@ public class ServiceConfig {
     public String getFiletype() {
         return filetype;
     }
+
     public String getType() {
         return type;
     }
+
     public String getUrl() {
         return url;
     }
+
     public String getGraph() {
         return graph;
     }
+
     public String getUser() {
         return user;
     }
+
     public String getPassword() {
         return password;
     }
-    public boolean isExcludeFromExtraction(){
+
+    public boolean isExcludeFromExtraction() {
         return exclude_from_extraction;
     }
 

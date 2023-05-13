@@ -1,7 +1,9 @@
 package org.hypergraphql.datafetching.services.resultmodel;
 
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
+
 
 /**
  * The QueryRootResult stores the results of root queries. Root queries are the defined query fields of the GQL schema.
@@ -9,7 +11,7 @@ import java.util.Map;
  */
 public class QueryRootResult extends Result<Map<String, Object>> {
 
-    Map<String, Result> root_result;   // As key the nodeId (SPARQL variable is used to allow multiple queries with different selection sets without merging them)
+    Map<String, Result> root_result = new LinkedHashMap<>();   // As key the nodeId (SPARQL variable is used to allow multiple queries with different selection sets without merging them)
 
     /**
      * Initialize Result object with a id and name
@@ -19,7 +21,6 @@ public class QueryRootResult extends Result<Map<String, Object>> {
      */
     public QueryRootResult(String nodeId, String name) {
         super(nodeId, name);
-        root_result = new HashMap<>();
     }
 
     /**
@@ -32,12 +33,11 @@ public class QueryRootResult extends Result<Map<String, Object>> {
     @Override
     public Map<String, Object> generateJSON() {
         Map<String, Object> field = new HashMap<>();
-        for(Map.Entry<String, Result> entry : this.root_result.entrySet()){
-            String name = entry.getValue().alias == null ? entry.getValue().name : entry.getValue().alias;
-            if(entry.getValue() instanceof ObjectResult){
-                field.putAll(((ObjectResult)entry.getValue()).generateJSON());
+        for (Map.Entry<String, Result> entry : this.root_result.entrySet()) {
+            if (entry.getValue() instanceof ObjectResult) {
+                field.putAll(((ObjectResult) entry.getValue()).generateJSON());
                 this.errors += entry.getValue().errors;
-            }else{
+            } else {
 
             }
 
@@ -52,16 +52,16 @@ public class QueryRootResult extends Result<Map<String, Object>> {
      */
     @Override
     public void merge(Result result) {
-        if(result instanceof QueryRootResult){
+        if (result instanceof QueryRootResult) {
             // This case is not the intended way to use this method but to fail safe the result sets are merged
-            for(Map.Entry<String, Result> entry : ((QueryRootResult) result).root_result.entrySet()){
+            for (Map.Entry<String, Result> entry : ((QueryRootResult) result).root_result.entrySet()) {
                 // add all results to the current result set through recursion
                 this.merge(entry.getValue());
             }
-        }else if(result instanceof ObjectResult || result instanceof StringResult){
-            if(this.root_result.containsKey(result.nodeId)){
+        } else if (result instanceof ObjectResult || result instanceof StringResult) {
+            if (this.root_result.containsKey(result.nodeId)) {
                 this.root_result.get(result.nodeId).merge(result);
-            }else{
+            } else {
                 this.root_result.put(result.nodeId, result);
             }
         }

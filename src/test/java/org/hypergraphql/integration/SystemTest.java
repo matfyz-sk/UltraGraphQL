@@ -8,13 +8,7 @@ import com.mashape.unirest.http.exceptions.UnirestException;
 import org.apache.jena.fuseki.main.FusekiServer;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.query.DatasetFactory;
-import org.apache.jena.rdf.model.Model;
-import org.apache.jena.rdf.model.ModelFactory;
-import org.apache.jena.rdf.model.Resource;
-import org.apache.jena.rdf.model.ResourceFactory;
-import org.apache.jena.rdf.model.Selector;
-import org.apache.jena.rdf.model.Statement;
-import org.apache.jena.rdf.model.StmtIterator;
+import org.apache.jena.rdf.model.*;
 import org.apache.jena.rdf.model.impl.SelectorImpl;
 import org.hypergraphql.Controller;
 import org.hypergraphql.config.system.HGQLConfig;
@@ -37,13 +31,13 @@ class SystemTest {
 
         Model mainModel = ModelFactory.createDefaultModel();
         final URL dbpediaContentUrl = getClass().getClassLoader().getResource("test_services/dbpedia.ttl");
-        if(dbpediaContentUrl != null) {
+        if (dbpediaContentUrl != null) {
             mainModel.read(dbpediaContentUrl.toString(), "TTL");
         }
 
         Model citiesModel = ModelFactory.createDefaultModel();
         final URL citiesContentUrl = getClass().getClassLoader().getResource("test_services/cities.ttl");
-        if(citiesContentUrl != null) {
+        if (citiesContentUrl != null) {
             citiesModel.read(citiesContentUrl.toString(), "TTL");
         }
 
@@ -56,7 +50,6 @@ class SystemTest {
                 .add("/ds", ds)
                 .build()
                 .start();
-
 
 
         HGQLConfig externalConfig = fromClasspathConfig("test_services/externalconfig.json");
@@ -128,7 +121,7 @@ class SystemTest {
 
     private HGQLConfig fromClasspathConfig(final String configPath) {
 
-        if(configService == null) {
+        if (configService == null) {
             configService = new HGQLConfigService();
         }
 
