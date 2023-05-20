@@ -422,10 +422,10 @@ public class HGQLSchemaWiring {
         return fieldOfTypeConfig != null && fieldOfTypeConfig.getGraphqlOutputType() instanceof GraphQLList;
     }
 
-    private GraphQLInputType getInputTypeForObject(FieldOfTypeConfig fieldOfTypeConfig) {
+    private GraphQLInputType getInputTypeForObject(FieldOfTypeConfig fieldOfTypeConfig, MutationAction action) {
         GraphQLInputType graphQLInputType = GraphQLID;
 
-        if (isNonNullType(fieldOfTypeConfig)) {
+        if (isNonNullType(fieldOfTypeConfig) && MutationAction.INSERT == action) { //Add required type only for the INSERT mutation action
             graphQLInputType = GraphQLNonNull.nonNull(graphQLInputType);
         }
         if (isListType(fieldOfTypeConfig)) {
@@ -463,7 +463,7 @@ public class HGQLSchemaWiring {
                 if (outputType.isObject()) {
                     args.add(GraphQLArgument.newArgument()
                             .name(field.getName())
-                            .type(getInputTypeForObject(field)) //In case of mutations, you must firstly create all other required fields/objects before passing this one, therefore this one should be always ID, and not creating a new one
+                            .type(getInputTypeForObject(field, action)) //In case of mutations, you must firstly create all other required fields/objects before passing this one, therefore this one should be always ID, and not creating a new one
                             //.type(GraphQLList.list(GraphQLTypeReference.typeRef(HGQL_MUTATION_INPUT_PREFIX + outputType.getName())))
                             .description(description)
                             .build());
@@ -474,7 +474,7 @@ public class HGQLSchemaWiring {
                             TypeConfig type = this.hgqlSchema.getTypes().get(obj);
                             args.add(GraphQLArgument.newArgument()
                                     .name(field.getName() + HGQL_MUTATION_INPUT_FIELD_INFIX + type.getName())
-                                    .type(getInputTypeForObject(field))
+                                    .type(getInputTypeForObject(field, action))
                                     .description(description)
                                     .build());
                         }
