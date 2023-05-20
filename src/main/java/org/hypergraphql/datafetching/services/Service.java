@@ -23,6 +23,8 @@ import java.util.*;
 
 import static org.hypergraphql.config.schema.HGQLVocabulary.*;
 import static org.hypergraphql.schemaextraction.ExtendedScalars.isDate;
+import static org.hypergraphql.util.GlobalValues._ID;
+import static org.hypergraphql.util.GlobalValues._TYPE;
 
 /**
  * Provides methods to translate SPARQL results into Result objects. The Result object than allows to generate JSON objects.
@@ -183,7 +185,7 @@ public abstract class Service {
             for (QueryPattern currentNode : ((SubQueriesPattern) query).subqueries) {
                 if (JSONLD.containsKey(currentNode.name)) {
                     //Internal field result to these fields is resolved differently
-                    if (currentNode.name.equals(SPARQLServiceConverter.ID)) {
+                    if (currentNode.name.equals(_ID)) {
                         final StringResult id = new StringResult(currentNode.nodeId, currentNode.name);
                         id.isList(false);
 //                        id.setNodeId(currentNode.nodeId);
@@ -192,7 +194,7 @@ public abstract class Service {
                         }
                         subfields.put(currentNode.name, id);
                         continue;
-                    } else if (currentNode.name.equals(SPARQLServiceConverter.TYPE)) {
+                    } else if (currentNode.name.equals(_TYPE)) {
                         if (parentQuery instanceof QueryPattern) {
                             String typeId = schema.getTypes().get(((QueryPattern) parentQuery).targetType).getId();  // ToDo: add existences check
                             if (typeId != null) {
@@ -284,7 +286,7 @@ public abstract class Service {
             QueryPattern queryPattern = (QueryPattern) query;
             if (JSONLD.containsKey(queryPattern.name)) {
                 //Internal field result to these fields is resolved differently
-                if (queryPattern.name.equals(SPARQLServiceConverter.ID)) {
+                if (queryPattern.name.equals(_ID)) {
                     final StringResult id = new StringResult(queryPattern.nodeId, queryPattern.name);
                     id.isList(false);
 //                    id.setNodeId(queryPattern.nodeId);
@@ -293,7 +295,7 @@ public abstract class Service {
                     }
                     subfields.put(queryPattern.name, id);
                     return;
-                } else if (queryPattern.name.equals(SPARQLServiceConverter.TYPE)) {
+                } else if (queryPattern.name.equals(_TYPE)) {
                     if (parentQuery instanceof QueryPattern) {
                         String typeId = schema.getTypes().get(((QueryPattern) parentQuery).targetType).getId();  //ToDo: Add existence check
                         if (typeId != null) {

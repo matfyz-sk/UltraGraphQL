@@ -30,6 +30,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.stream.Collectors;
 
+import static org.hypergraphql.util.GlobalValues._ID;
+
 public class SPARQLEndpointService extends SPARQLService {
 
     private final static Logger LOGGER = LoggerFactory.getLogger(SPARQLEndpointService.class);
@@ -171,7 +173,7 @@ public class SPARQLEndpointService extends SPARQLService {
         //ToDo: Handle the _GET_BY_ID to function if the argument id is given and is not null
         if (rootType.equals(ExecutionTreeNode.ROOT_TYPE) && schema.getQueryFields().get(((QueryPattern) query).name).type().equals(HGQLVocabulary.HGQL_QUERY_GET_BY_ID_FIELD)) {
 
-            Set<String> ids = (Set<String>) ((QueryPattern) query).args.get(SPARQLServiceConverter.ID);
+            Set<String> ids = (Set<String>) ((QueryPattern) query).args.get(_ID);
             ids.forEach(input::add);
         }
         return new ArrayList<>(input);

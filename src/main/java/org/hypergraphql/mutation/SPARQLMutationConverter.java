@@ -85,7 +85,7 @@ public class SPARQLMutationConverter {
         final List<Argument> args = mutation.getArguments();   // containing the mutation information
 
         Optional<String> idFromParameter = args.stream()
-                .filter(argument -> argument.getName().equals(ID) && argument.getValue() instanceof StringValue)
+                .filter(argument -> argument.getName().equals(_ID) && argument.getValue() instanceof StringValue)
                 .map(argument -> ((StringValue) argument.getValue()).getValue())
                 .findFirst();
 
@@ -100,7 +100,7 @@ public class SPARQLMutationConverter {
         }
 
         result += args.stream()
-                .filter(argument -> !argument.getName().equals(ID))
+                .filter(argument -> !argument.getName().equals(_ID))
                 .map(argument -> translateArgument(rootObject, id, argument, MutationAction.INSERT))
                 .collect(Collectors.joining("\n"));
         return new SPARQLMutationValue(addSPARQLInsertWrapper(result, getGraphName(getMutationService())), new StringValue(id));
@@ -123,7 +123,7 @@ public class SPARQLMutationConverter {
         final List<Argument> args = mutation.getArguments();   // containing the mutation information
 
         Optional<String> id = args.stream()
-                .filter(argument -> argument.getName().equals(ID) && argument.getValue() instanceof StringValue)
+                .filter(argument -> argument.getName().equals(_ID) && argument.getValue() instanceof StringValue)
                 .map(argument -> ((StringValue) argument.getValue()).getValue())
                 .findFirst();
 
@@ -131,11 +131,11 @@ public class SPARQLMutationConverter {
             String id_uri = uriToResource(id.get());
 
             String updateResult = args.stream()
-                    .filter(argument -> !argument.getName().equals(ID))
+                    .filter(argument -> !argument.getName().equals(_ID))
                     .map(argument -> translateArgument(rootObject, id.get(), argument, MutationAction.UPDATE))
                     .collect(Collectors.joining("\n"));
 
-            List<String> argsToDelete = args.stream().map(Argument::getName).filter(name -> !name.equals(ID)).toList();
+            List<String> argsToDelete = args.stream().map(Argument::getName).filter(name -> !name.equals(_ID)).toList();
 
             AtomicInteger i = new AtomicInteger(FIRST_INDEX_ATOMIC_INTEGER);
             List<FieldOfTypeConfig> listOfFieldsToUpdate = rootObject.getFields().values().stream().filter(fieldOfTypeConfig -> !fieldOfTypeConfig.getId().equals(RDF_TYPE) && argsToDelete.contains(fieldOfTypeConfig.getName())).toList();
@@ -163,16 +163,16 @@ public class SPARQLMutationConverter {
         final List<Argument> args = mutation.getArguments();   // containing the mutation information
 
         Optional<String> optionalID = args.stream()
-                .filter(argument -> argument.getName().equals(ID) && argument.getValue() instanceof StringValue)
+                .filter(argument -> argument.getName().equals(_ID) && argument.getValue() instanceof StringValue)
                 .map(argument -> ((StringValue) argument.getValue()).getValue())
                 .findFirst();
 
         boolean hasID = optionalID.isPresent();
-        boolean hasOtherFields = args.stream().anyMatch(argument -> !argument.getName().equals(ID));  // has at least one field different from _id -> all arguments that are not _id
+        boolean hasOtherFields = args.stream().anyMatch(argument -> !argument.getName().equals(_ID));  // has at least one field different from _id -> all arguments that are not _id
 
         if (hasID && hasOtherFields) {
             String result = args.stream()
-                    .filter(argument -> !argument.getName().equals(ID))
+                    .filter(argument -> !argument.getName().equals(_ID))
                     .map(argument -> translateArgument(rootObject, optionalID.get(), argument, MutationAction.DELETE))
                     .collect(Collectors.joining("\n"));
             return new SPARQLMutationValue(addSPARQLDeleteWrapper(result, null, getGraphName(getMutationService())), new StringValue(optionalID.get()));
@@ -199,7 +199,7 @@ public class SPARQLMutationConverter {
 
             String where = toTriple(toVar(var_root), rdf_type, uriToResource(rootObject.getId())) + "\n";
             where += args.stream()
-                    .filter(argument -> !argument.getName().equals(ID))
+                    .filter(argument -> !argument.getName().equals(_ID))
                     .map(argument -> translateArgument(rootObject, null, argument, MutationAction.DELETE))
                     .collect(Collectors.joining("\n"));
             where += "\n" + delete_all_with_id_optional;
@@ -332,7 +332,7 @@ public class SPARQLMutationConverter {
             return translateValue(root, id, field, literal_values, action);
         }
         final Optional<ObjectField> optional_id = valueFields.stream()
-                .filter(objectField -> objectField.getName().equals(ID))
+                .filter(objectField -> objectField.getName().equals(_ID))
                 .findFirst();
         if (!optional_id.isPresent()) {
             // error id must be present
@@ -349,7 +349,7 @@ public class SPARQLMutationConverter {
             results += toTriple(uriToResource(sub_id), rdf_type, uriToResource(subObject.getId())) + "\n";
         }
         results += valueFields.stream()
-                .filter(objectField -> !objectField.getName().equals(ID))
+                .filter(objectField -> !objectField.getName().equals(_ID))
                 .map(objectField -> translateValue(subObject, sub_id, objectField.getName(), objectField.getValue(), action))
                 .collect(Collectors.joining("\n"));
         return results;

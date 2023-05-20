@@ -39,7 +39,6 @@ public class SPARQLServiceConverter {
     public final static String ORDER = "order";
     public final static String ORDER_DESC = "DESC";
     public final static String ORDER_ASC = "ASC";
-    public final static String TYPE = "_type";
     private final static String SAMEAS = "sameas";
 
     private final HGQLSchema schema;

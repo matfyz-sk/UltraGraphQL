@@ -11,6 +11,7 @@ public class GlobalValues {
     public static final String UGQL_EQUALS_ARGUMENT = "equals";
     public static final String UGQL_ORDER_ARGUMENT = "order";
     public static final String _ID = "_id";
+    public static final String _TYPE = "_type";
 
     private GlobalValues() {
 

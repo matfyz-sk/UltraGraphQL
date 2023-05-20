@@ -10,6 +10,7 @@ import static graphql.Scalars.*;
 import static graphql.scalars.ExtendedScalars.*;
 import static org.hypergraphql.schemaextraction.ExtendedScalars.GraphQLDateTime;
 import static org.hypergraphql.util.GlobalValues._ID;
+import static org.hypergraphql.util.GlobalValues._TYPE;
 
 public class HGQLVocabulary {
 
@@ -95,7 +96,7 @@ public class HGQLVocabulary {
 
     public static final Map<String, String> JSONLD = Collections.unmodifiableMap(new HashMap<>() {{
         put(_ID, "@id");
-        put("_type", "@type");
+        put(_TYPE, "@type");
     }});
 
     // Additions for Automatic Schema Extraction

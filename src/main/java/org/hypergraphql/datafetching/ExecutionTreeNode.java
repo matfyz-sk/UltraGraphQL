@@ -34,6 +34,8 @@ import java.util.stream.Collectors;
 
 import static org.hypergraphql.config.schema.HGQLVocabulary.HGQL_ID;
 import static org.hypergraphql.config.schema.HGQLVocabulary.HGQL_SCALAR_LITERAL_GQL_NAME;
+import static org.hypergraphql.util.GlobalValues._ID;
+import static org.hypergraphql.util.GlobalValues._TYPE;
 
 /**
  * This class handles and coordinates the query execution of a GraphQL query.
@@ -311,7 +313,7 @@ public class ExecutionTreeNode {
                                             .name(member)
                                             .build())
                                     .selectionSet(SelectionSet.newSelectionSet()
-                                            .selection(Field.newField("_type")
+                                            .selection(Field.newField(_TYPE)
                                                     .build())
                                             .build())
                                     .build();
@@ -672,9 +674,9 @@ public class ExecutionTreeNode {
                     addOrCreate(result, serviceConfig, field);
 
                 } else {// internal field i.e. _id or _type
-                    if (field.getName().equals(SPARQLServiceConverter.ID)) {
+                    if (field.getName().equals(_ID)) {
                         addOrCreate(result, this.service, field);
-                    } else if (field.getName().equals(SPARQLServiceConverter.TYPE)) {
+                    } else if (field.getName().equals(_TYPE)) {
                         addOrCreate(result, this.service, field);
                     }
                 }

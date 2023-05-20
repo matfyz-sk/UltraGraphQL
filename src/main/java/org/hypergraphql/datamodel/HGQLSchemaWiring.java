@@ -528,7 +528,7 @@ public class HGQLSchemaWiring {
     private GraphQLFieldDefinition getTypeField() {
         return newFieldDefinition()
                 .type(GraphQLID)
-                .name("_type")
+                .name(_TYPE)
                 .description("The rdf:type of this resource (used as a filter when fetching data from its original source).")
                 .build();
     }
