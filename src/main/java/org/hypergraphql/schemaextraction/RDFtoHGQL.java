@@ -267,7 +267,7 @@ public class RDFtoHGQL {
                         }
 
                         if (functionalMapping.contains(resource.getURI())) {
-                            fieldObj.setList(false);
+                            //fieldObj.setList(false);
                             break;
                         }
                     }
@@ -283,7 +283,7 @@ public class RDFtoHGQL {
                                 continue;
                             }
                             if (isInteger(literal.getString()) && literal.getInt() > 0) {
-                                fieldObj.setNonNull(true);
+                                //fieldObj.setNonNull(true);
                                 break;
                             }
                         }
