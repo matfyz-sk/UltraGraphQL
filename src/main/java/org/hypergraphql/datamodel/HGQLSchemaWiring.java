@@ -613,7 +613,7 @@ public class HGQLSchemaWiring {
     private GraphQLInterfaceType registerGraphQLInterfaceType(TypeConfig type) {
 
         String typeName = type.getName();
-        String uri = this.hgqlSchema.getTypes().get(typeName).getId();
+        String uri = this.hgqlSchema.getTypes().get(typeName).getName();
         String description = "Instances of \"" + uri + "\".";
 
         List<GraphQLFieldDefinition> builtFields;
