@@ -21,6 +21,8 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
+import static org.hypergraphql.util.GlobalValues._ID;
+
 public class HGQLMutationService {
     private final static Logger LOGGER = LoggerFactory.getLogger(HGQLMutationService.class);
     private final HGQLSchema hgqlSchema;
@@ -66,7 +68,7 @@ public class HGQLMutationService {
                     .name(this.hgqlSchema.getMutationFields().get(((Field) selection).getName()))
                     .alias(((Field) selection).getAlias())
                     .comments(selection.getComments())
-                    .arguments(List.of(new Argument("_id", mutation.getId())))
+                    .arguments(List.of(new Argument(_ID, mutation.getId())))
                     .directives(((Field) selection).getDirectives())
                     .selectionSet(((Field) selection).getSelectionSet())
                     .build());

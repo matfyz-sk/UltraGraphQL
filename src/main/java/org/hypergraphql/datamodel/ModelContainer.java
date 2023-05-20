@@ -14,6 +14,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static org.hypergraphql.util.GlobalValues._ID;
+
 /**
  * Created by szymon on 22/08/2017.
  */
@@ -249,8 +251,8 @@ public class ModelContainer {
 //        if(args.containsKey("offset")){
 //            builder.setOffset((Integer) args.get("offset"));
 //        }
-        if (args.containsKey("_id")) {
-            final Object idValue = args.get("_id");
+        if (args.containsKey(_ID)) {
+            final Object idValue = args.get(_ID);
             if (idValue instanceof List) {
                 List<String> idlist = (List<String>) idValue;
                 String ids = "";

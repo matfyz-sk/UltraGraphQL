@@ -9,6 +9,7 @@ import java.util.Map;
 import static graphql.Scalars.*;
 import static graphql.scalars.ExtendedScalars.*;
 import static org.hypergraphql.schemaextraction.ExtendedScalars.GraphQLDateTime;
+import static org.hypergraphql.util.GlobalValues._ID;
 
 public class HGQLVocabulary {
 
@@ -67,7 +68,7 @@ public class HGQLVocabulary {
     public static final String HGQL_INTERFACE_TYPE = HGQL_NAMESPACE + "InterfaceType";
     public static final String HGQL_IMPLEMENTS = HGQL_NAMESPACE + "implements";
 
-    public static final Map<String, String> SCALAR_TYPES = Collections.unmodifiableMap(new HashMap<String, String>() {{
+    public static final Map<String, String> SCALAR_TYPES = Collections.unmodifiableMap(new HashMap<>() {{
         put(SCALAR_STRING, HGQL_STRING);
         put(SCALAR_INT, HGQL_INT);
         put(SCALAR_BOOLEAN, HGQL_BOOLEAN);
@@ -92,8 +93,8 @@ public class HGQLVocabulary {
                 put(HGQL_ID, GraphQLID);
             }});
 
-    public static final Map<String, String> JSONLD = Collections.unmodifiableMap(new HashMap<String, String>() {{
-        put("_id", "@id");
+    public static final Map<String, String> JSONLD = Collections.unmodifiableMap(new HashMap<>() {{
+        put(_ID, "@id");
         put("_type", "@type");
     }});
 
@@ -101,7 +102,6 @@ public class HGQLVocabulary {
     public static final String RDF_PREFIX = "http://www.w3.org/1999/02/22-rdf-syntax-ns#";
     public static final String OWL_PREFIX = "http://www.w3.org/2002/07/owl#";
     public static final String RDF_TYPE = RDF_PREFIX + "type";
-    public static final String OWL_FUNCTIONAL_PROPERTY = OWL_PREFIX + "FunctionalProperty";
 
     public static final String HGQL_SCHEMA_STRING = HGQL_SCHEMA_NAMESPACE + "String";
     public static final String HGQL_SCHEMA_BOOLEAN = HGQL_SCHEMA_NAMESPACE + "Boolean";

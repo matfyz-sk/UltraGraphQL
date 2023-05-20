@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.Set;
 
 import static org.hypergraphql.config.schema.HGQLVocabulary.HGQL_QUERY_GET_FIELD;
+import static org.hypergraphql.util.GlobalValues._ID;
 
 public class HGraphQLConverter {
     private final HGQLSchema schema;
@@ -120,7 +121,7 @@ public class HGraphQLConverter {
         Set<String> subQueryStrings = new HashSet<>();
 
         if (schema.getTypes().containsKey(parentType)) {
-            subQueryStrings.add("_id");
+            subQueryStrings.add(_ID);
             subQueryStrings.add("_type");
         }
 

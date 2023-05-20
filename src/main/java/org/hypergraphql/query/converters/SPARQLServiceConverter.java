@@ -17,6 +17,7 @@ import java.util.stream.Collectors;
 import static org.hypergraphql.config.schema.HGQLVocabulary.HGQL_SCALAR_LITERAL_GQL_NAME;
 import static org.hypergraphql.config.schema.HGQLVocabulary.HGQL_SCALAR_LITERAL_VALUE_GQL_NAME;
 import static org.hypergraphql.util.GlobalValues.UGQL_EQUALS_ARGUMENT;
+import static org.hypergraphql.util.GlobalValues._ID;
 
 /**
  * The SPARQLServiceConverter provides methods to covert GraphQl queries into SPARQL queries according to the schema this
@@ -38,7 +39,6 @@ public class SPARQLServiceConverter {
     public final static String ORDER = "order";
     public final static String ORDER_DESC = "DESC";
     public final static String ORDER_ASC = "ASC";
-    public final static String ID = "_id";
     public final static String TYPE = "_type";
     private final static String SAMEAS = "sameas";
 
@@ -383,9 +383,9 @@ public class SPARQLServiceConverter {
 
     private String getFilterById(QueryPattern queryField) {
         Map<String, Object> args = queryField.args;
-        if (args.containsKey(ID)) {
-            Object argumentObject = args.get(ID);
-            Set<String> arguments = new HashSet<>(argumentObject instanceof String ? Collections.singletonList((String) args.get(ID)) : (List<String>) args.get(ID));
+        if (args.containsKey(_ID)) {
+            Object argumentObject = args.get(_ID);
+            Set<String> arguments = new HashSet<>(argumentObject instanceof String ? Collections.singletonList((String) args.get(_ID)) : (List<String>) args.get(_ID));
             return valuesClause(queryField.nodeId, arguments);
         }
         return null;
@@ -472,8 +472,8 @@ public class SPARQLServiceConverter {
         String langFilter = langFilterClause(field);   // Add language filter if defined
         String orderSTR = orderClause(field, orderBy);
         String valueSTR = "";
-        if (field.args.containsKey(ID)) {
-            List<String> urisIter = (List<String>) field.args.get(ID);
+        if (field.args.containsKey(_ID)) {
+            List<String> urisIter = (List<String>) field.args.get(_ID);
             Set<String> uris = new HashSet<>(urisIter); // convert to set to remove duplicates
             valueSTR = valuesClause(nodeId, uris);
         }

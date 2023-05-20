@@ -27,8 +27,7 @@ import static graphql.schema.GraphQLObjectType.newObject;
 import static graphql.schema.GraphQLUnionType.newUnionType;
 import static org.hypergraphql.config.schema.HGQLVocabulary.*;
 import static org.hypergraphql.schemaextraction.ExtendedScalars.GraphQLDateTime;
-import static org.hypergraphql.util.GlobalValues.UGQL_EQUALS_ARGUMENT;
-import static org.hypergraphql.util.GlobalValues.UGQL_ORDER_ARGUMENT;
+import static org.hypergraphql.util.GlobalValues.*;
 
 /**
  * The HGQLSchemaWiring class initiates the generation of the HGQLSchema object form the provided UGQLS.
@@ -59,7 +58,7 @@ public class HGQLSchemaWiring {
         put("offset", GraphQLArgument.newArgument().name("offset").type(GraphQLInt).build());
         /*put("lang", new GraphQLArgument("lang", GraphQLString));*/
         put("uris", GraphQLArgument.newArgument().name("uris").type(new GraphQLNonNull(new GraphQLList(GraphQLID))).build());
-        put("_id", GraphQLArgument.newArgument().name("_id").type(new GraphQLList(GraphQLID)).build());  // ToDo: currently added for default Query support, when schema loading is complete this is not needed
+        put(_ID, GraphQLArgument.newArgument().name(_ID).type(new GraphQLList(GraphQLID)).build());  // ToDo: currently added for default Query support, when schema loading is complete this is not needed
         put(UGQL_ORDER_ARGUMENT, GraphQLArgument.newArgument()
                 .name(UGQL_ORDER_ARGUMENT)
                 .type(GraphQLEnumType.newEnum()
@@ -74,7 +73,7 @@ public class HGQLSchemaWiring {
     private final List<GraphQLArgument> getQueryArgs = new ArrayList<GraphQLArgument>() {{
         add(defaultArguments.get("limit"));
         add(defaultArguments.get("offset"));
-        add(defaultArguments.get("_id"));
+        add(defaultArguments.get(_ID));
     }};
 
     private GraphQLArgument getValuesArgumentBasedOnType(FieldOfTypeConfig field) {
@@ -317,7 +316,7 @@ public class HGQLSchemaWiring {
         String description = String.format("Generated input field from field %s in objectType %s", fieldOfTypeConfig.getName(), parentType.getName());
         if (!parentType.getName().equals(HGQL_SCALAR_LITERAL_GQL_NAME)) {
             res.add(newInputObjectField()
-                    .name("_id")
+                    .name(_ID)
                     .type(GraphQLNonNull.nonNull(GraphQLID))
                     .description("IRI of the object. MUST be defined")
                     .build());
@@ -485,17 +484,17 @@ public class HGQLSchemaWiring {
 
         if (action == MutationAction.INSERT) {
             args.add(GraphQLArgument.newArgument()
-                    .name("_id")
+                    .name(_ID)
                     .type(GraphQLID) //If not GraphQLNonNull.nonNull is called then this is not required parameter
                     .build());
         } else if (action == MutationAction.UPDATE) {
             args.add(GraphQLArgument.newArgument()
-                    .name("_id")
+                    .name(_ID)
                     .type(GraphQLNonNull.nonNull(GraphQLID))
                     .build());
         } else if (action == MutationAction.DELETE) {
             args.add(GraphQLArgument.newArgument()
-                    .name("_id")
+                    .name(_ID)
                     .type(GraphQLID)
                     .build());
         }
@@ -516,7 +515,7 @@ public class HGQLSchemaWiring {
     private GraphQLFieldDefinition getIdField() {
         return newFieldDefinition()
                 .type(GraphQLNonNull.nonNull(GraphQLID))
-                .name("_id")
+                .name(_ID)
                 .description("The URI of this resource.")
                 .build();
     }
