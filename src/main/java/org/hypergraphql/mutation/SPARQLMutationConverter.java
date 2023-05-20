@@ -19,10 +19,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 import static org.hypergraphql.config.schema.HGQLVocabulary.*;
+import static org.hypergraphql.mutation.SPARQLTypeConverter.getIRIType;
 import static org.hypergraphql.mutation.SPARQLTypeConverter.getSchemaScalarType;
 import static org.hypergraphql.query.converters.SPARQLServiceConverter.*;
-import static org.hypergraphql.util.GlobalValues.COURSES_ONTOLOGY_UGQL_PREFIX;
-import static org.hypergraphql.util.GlobalValues.CREATED_PROP;
+import static org.hypergraphql.util.GlobalValues.*;
 
 /**
  * Provides methods to translate GraphQL mutations to corresponding SPARQL actions.
@@ -30,6 +30,8 @@ import static org.hypergraphql.util.GlobalValues.CREATED_PROP;
 public class SPARQLMutationConverter {
     private final HGQLSchema schema;
     private final Map<String, String> prefixes;
+    private final String ontologyPrefix;
+    private final String dataPrefix;
     private static final String rdf_type = "a";
     private static final String GENERIC_GRAPH = "test";
     private static final Integer FIRST_INDEX_ATOMIC_INTEGER = 0;
@@ -37,6 +39,8 @@ public class SPARQLMutationConverter {
     public SPARQLMutationConverter(HGQLSchema schema, Map<String, String> prefixes) {
         this.schema = schema;
         this.prefixes = prefixes;
+        this.ontologyPrefix = prefixes.get(COURSES_ONTOLOGY_UGQL_PREFIX);
+        this.dataPrefix = prefixes.get(COURSES_DATA_UGQL_PREFIX);
     }
 
     /**
@@ -62,6 +66,14 @@ public class SPARQLMutationConverter {
         };
     }
 
+    public String getOntologyPrefix() {
+        return ontologyPrefix;
+    }
+
+    public String getDataPrefix() {
+        return dataPrefix;
+    }
+
     /**
      * Translates a given mutation into an SPARQL insert containing all information that were provided as triples.
      *
@@ -84,7 +96,7 @@ public class SPARQLMutationConverter {
 
         /* createdAt should be added only in case it is a new entity. In case the id is from parameter then it is an existing ID. */
         if (!idFromParameter.isPresent()) {
-            result += addCreatedAttributeToResult(resourceId, getPrefixes());
+            result += addCreatedAttributeToResult(resourceId);
         }
 
         result += args.stream()
@@ -94,8 +106,8 @@ public class SPARQLMutationConverter {
         return new SPARQLMutationValue(addSPARQLInsertWrapper(result, getGraphName(getMutationService())), new StringValue(id));
     }
 
-    public String addCreatedAttributeToResult(String uriResource, Map<String, String> prefixes) {
-        String predicateCreated = uriToResource(prefixes.get(COURSES_ONTOLOGY_UGQL_PREFIX) + CREATED_PROP);
+    public String addCreatedAttributeToResult(String uriResource) {
+        String predicateCreated = uriToResource(getOntologyPrefix() + CREATED_PROP);
         DateTime currentDateTime = new org.joda.time.DateTime().toDateTimeISO();
         return toTriple(uriResource, predicateCreated, getSchemaScalarType(currentDateTime.toString(), DateTimeValue.class)) + "\n";
     }
@@ -266,7 +278,7 @@ public class SPARQLMutationConverter {
         } else if (value instanceof ObjectValue) {
             return translateObjectValue(root, id, field, (ObjectValue) value, action);
         } else if (value instanceof StringValue) {
-            return translateStringValue(root, id, field, (StringValue) value);
+            return translateStringValue(root, id, field, (StringValue) value, getDataPrefix());
         } else if (value instanceof DecimalValue) {
             return translateDecimalValue(root, id, field, (DecimalValue) value);
         } else if (value instanceof IntValue) {
@@ -353,12 +365,16 @@ public class SPARQLMutationConverter {
      * @param value   String literal
      * @return RDF triple
      */
-    private String translateStringValue(TypeConfig root, String subject, String field, StringValue value) {
+    private String translateStringValue(TypeConfig root, String subject, String field, StringValue value, String ontologyPrefix) {
         String field_id = this.schema.getFields().get(this.schema.getInputFields().get(field)).getId();
+
+        String val = value.getValue();
+        boolean containsIriPart = val != null && !val.isEmpty() && val.contains(ontologyPrefix);
+
         if (subject == null) {
-            return toTriple(toVar(root.getName()), uriToResource(field_id), getSchemaScalarType(value.getValue(), StringValue.class));
+            return toTriple(toVar(root.getName()), uriToResource(field_id), containsIriPart ? getIRIType(val, String.class) : getSchemaScalarType(val, StringValue.class));
         } else {
-            return toTriple(uriToResource(subject), uriToResource(field_id), getSchemaScalarType(value.getValue(), StringValue.class));
+            return toTriple(uriToResource(subject), uriToResource(field_id), containsIriPart ? getIRIType(val, String.class) : getSchemaScalarType(val, StringValue.class));
         }
 
     }
