@@ -80,7 +80,7 @@ public class HGQLVocabulary {
     }});
 
     public static final Map<String, GraphQLOutputType> SCALAR_TYPES_TO_GRAPHQL_OUTPUT =
-            Collections.unmodifiableMap(new HashMap<String, GraphQLOutputType>() {{
+            Collections.unmodifiableMap(new HashMap<>() {{
                 put(HGQL_STRING, GraphQLString);
                 put(HGQL_INT, GraphQLInt);
                 put(HGQL_BOOLEAN, GraphQLBoolean);

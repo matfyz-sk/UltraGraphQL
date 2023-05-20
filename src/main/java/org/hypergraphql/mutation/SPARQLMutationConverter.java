@@ -178,7 +178,6 @@ public class SPARQLMutationConverter {
             return new SPARQLMutationValue(addSPARQLDeleteWrapper(result, null, getGraphName(getMutationService())), new StringValue(optionalID.get()));
 
         } else if (hasID) {  //hasID && !hasOtherFields -> ID defined but no other fields present
-            //TODO seems like it is not deleting correctly
             String id_uri = uriToResource(optionalID.get());
             AtomicInteger i = new AtomicInteger(FIRST_INDEX_ATOMIC_INTEGER);
 
@@ -192,7 +191,6 @@ public class SPARQLMutationConverter {
             return new SPARQLMutationValue(addSPARQLDeleteWrapper(String.join("\n", delete_all_type_fields, delete_field_type), where, getGraphName(getMutationService())), new StringValue(optionalID.get()));
 
         } else if (hasOtherFields) { //!hasID && hasOtherFields -> ID not defined but other fields
-            //TODO add when field is null to remove all items where the field is null (not exist)
             String var_root = rootObject.getName();
             String delete_all_with_id = toTriple(toVar(rootObject.getName()), toVar("p_1"), toVar("o")) + "\n"
                     + toTriple(toVar("s"), toVar("p_2"), toVar(rootObject.getName()));
