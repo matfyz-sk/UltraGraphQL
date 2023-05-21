@@ -540,9 +540,8 @@ public class SPARQLServiceConverter {
         boolean filterNonExisting = false;
 
         if (objects instanceof ArrayList<?>) {
-            filterNonExisting = ((List<Object>) objects).stream().noneMatch(Objects::nonNull);
-        } else if (objects == null) {
-            filterNonExisting = true;
+            List<Object> objectList = (List<Object>) objects;
+            filterNonExisting = objectList.size() > 0 && objectList.stream().noneMatch(Objects::nonNull);
         }
 
         if (filterNonExisting) {
