@@ -70,7 +70,7 @@ public class HGQLSchemaWiring {
     }};
 
     private GraphQLArgument getValuesArgumentBasedOnType(FieldOfTypeConfig field) {
-        return GraphQLArgument.newArgument().name(EQUALS_ARGUMENT).type(getGraphQLInputType(field)).build();
+        return GraphQLArgument.newArgument().name(EQUALS_ARGUMENT).description("Returns results which match at least with one value in the argument list.").type(getGraphQLInputType(field)).build();
     }
 
     private GraphQLInputType getGraphQLInputType(FieldOfTypeConfig fieldOfTypeConfig) {
