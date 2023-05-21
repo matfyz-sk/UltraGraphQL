@@ -7,6 +7,7 @@ import org.hypergraphql.datafetching.services.ManifoldService;
 import org.hypergraphql.datafetching.services.SPARQLEndpointService;
 import org.hypergraphql.datafetching.services.Service;
 import org.hypergraphql.datamodel.HGQLSchema;
+import org.hypergraphql.exception.GraphQLIllegalArgumentException;
 import org.hypergraphql.query.pattern.Query;
 import org.hypergraphql.query.pattern.QueryPattern;
 import org.hypergraphql.query.pattern.SubQueriesPattern;
@@ -489,6 +490,9 @@ public class SPARQLServiceConverter {
         String orderSTR = orderClause(field, orderBy);
         String valueSTR = "";
         if (field.args.containsKey(_ID)) {
+            if (!(field.args.get(_ID) instanceof List<?>)) {
+                throw new GraphQLIllegalArgumentException("Invalid query syntax. Argument [" + _ID + "] should be defined as a list of values.");
+            }
             List<String> urisIter = (List<String>) field.args.get(_ID);
             Set<String> uris = new HashSet<>(urisIter); // convert to set to remove duplicates
             valueSTR = valuesClause(nodeId, uris);
@@ -498,6 +502,11 @@ public class SPARQLServiceConverter {
         String rest = "";
 
         if (filter != null) {
+
+            if (!(field.args.get(EQUALS_ARGUMENT) instanceof List<?>)) {
+                throw new GraphQLIllegalArgumentException("Invalid query syntax. Argument [" + EQUALS_ARGUMENT + "] should be defined as a list of values.");
+            }
+
             String filterClause = filterClause(field);
             if (filterClause != null && !filterClause.isEmpty()) {
                 filter.add(filterClause);
