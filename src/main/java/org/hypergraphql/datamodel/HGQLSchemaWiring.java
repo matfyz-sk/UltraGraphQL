@@ -70,7 +70,7 @@ public class HGQLSchemaWiring {
                 .build());
     }};
 
-    private final List<GraphQLArgument> getQueryArgs = new ArrayList<GraphQLArgument>() {{
+    private final List<GraphQLArgument> getQueryArgs = new ArrayList<>() {{
         add(defaultArguments.get("limit"));
         add(defaultArguments.get("offset"));
         add(defaultArguments.get(_ID));
@@ -694,23 +694,17 @@ public class HGQLSchemaWiring {
 
         List<GraphQLArgument> args = new ArrayList<>();
 
-        /*if (field.getTargetName().equals("String")) {
-            args.add(defaultArguments.get("lang"));
-        }*/
-
         args.add(defaultArguments.get(UGQL_ORDER_ARGUMENT));
         if (!(SCALAR_TYPES.containsKey(field.getTargetName()))) {
-            if (field.isList()) {
-                args.addAll(getQueryArgs);
-            }
+            args.add(defaultArguments.get(_ID));
         } else {
             args.add(getValuesArgumentBasedOnType(field));
-            if (field.isList()) {
-                args.add(defaultArguments.get("limit"));
-                args.add(defaultArguments.get("offset"));
-            }
         }
-        String description = "";
+        if (field.isList()) {
+            args.add(defaultArguments.get("limit"));
+            args.add(defaultArguments.get("offset"));
+        }
+        String description;
         if (field.getService() == null) {
             if (field.getId().equals(HGQL_SCALAR_LITERAL_VALUE_URI)) {
                 // field is the value of the placeholder literal object
@@ -723,7 +717,6 @@ public class HGQLSchemaWiring {
             }
         } else {
             description = field.getId() + " (source: " + field.getService().getId() + ").";
-
         }
 
         return newFieldDefinition()
