@@ -57,6 +57,16 @@ public class SPARQLServiceConverter {
     }
 
     /**
+     * Wraps the SPARQL OPTIONAL clause around the given sparqlPattern.
+     *
+     * @param sparqlPattern SPARQL pattern
+     * @return SPARQL OPTIONAL clause
+     */
+    public static String noOptionalClause(String sparqlPattern) {
+        return " { " + sparqlPattern + " } ";
+    }
+
+    /**
      * Wraps the SPARQL FILTER NOT EXISTS clause around the given sparqlPattern.
      *
      * @param sparqlPattern SPARQL pattern
@@ -83,12 +93,11 @@ public class SPARQLServiceConverter {
      * Generates a SPARQL query in which the given graphID is queried with the given query (where). The query is uses a
      * wildcard in the selection this means all variables are queried.
      *
-     * @param where   Graph to access
-     * @param graphID Query for the graph
+     * @param where Graph to access
      * @return
      */
-    private String selectQueryClause(String where, String graphID) {
-        return "SELECT * WHERE { " + graphClause(graphID, where, null, null) + " } "; //TODO check here
+    private String selectQueryClause(String where) {
+        return "SELECT * WHERE { " + graphClause("", where, null, null) + " } "; //TODO check here
     }
 
     /**
@@ -531,22 +540,28 @@ public class SPARQLServiceConverter {
 
         String selectField;
         if (!EMPTY_STRING.equals(limitOffsetSTR) || !EMPTY_STRING.equals(orderSTR) || !EMPTY_STRING.equals(valueSTR)) {   // Select wrapping is only needed if limit, offset, order or _id restrictions are defined
-            selectField = "{ " + selectQueryClause(Stream.of(rootValues, valueSTR, fieldPattern, langFilter).filter(Objects::nonNull).collect(Collectors.joining("")), "") + orderSTR + limitOffsetSTR + " }" + rest;
+            selectField = "{ " + selectQueryClause(Stream.of(rootValues, valueSTR, fieldPattern, langFilter).filter(Objects::nonNull).collect(Collectors.joining(""))) + orderSTR + limitOffsetSTR + " }" + rest;
         } else {
             selectField = fieldPattern + langFilter + rest;
         }
 
-        Object objects = field.args.get(EQUALS_ARGUMENT);
         boolean filterNonExisting = false;
-
-        if (objects instanceof ArrayList<?>) {
-            List<Object> objectList = (List<Object>) objects;
-            filterNonExisting = objectList.size() > 0 && objectList.stream().noneMatch(Objects::nonNull);
+        if (field.args.containsKey(EQUALS_ARGUMENT)) {
+            List<String> argumentsIter = (List<String>) field.args.get(EQUALS_ARGUMENT);
+            filterNonExisting = argumentsIter.size() > 0 && argumentsIter.stream().noneMatch(Objects::nonNull);
         }
 
         if (filterNonExisting) {
             return filterNotExists(selectField);
         }
+
+        if (field.args.containsKey(_ID)) {
+            List<String> urisIter = (List<String>) field.args.get(_ID);
+            if (urisIter.size() > 0) {
+                return noOptionalClause(selectField);
+            }
+        }
+
         return optionalClause(selectField); // Whole query for the field
     }
 
