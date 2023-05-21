@@ -8,6 +8,9 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static org.hypergraphql.util.GlobalValues.LIMIT_ARGUMENT;
+import static org.hypergraphql.util.GlobalValues.OFFSET_ARGUMENT;
+
 /**
  * ObjectResult represents query results of fields that have a type as output type (not Scalar value).
  * Each queried field with these conditions results in an own objet.
@@ -171,8 +174,8 @@ public class ObjectResult extends Result<Map<String, Object>> {
             e.printStackTrace();
         }
         subfields = this.subfields.values().stream()
-                .skip(args == null || args.get(SPARQLServiceConverter.OFFSET) == null ? 0 : ((Number) args.get(SPARQLServiceConverter.OFFSET)).longValue())   // offset interferes with multiple services limiter.
-                .limit(args == null || args.get(SPARQLServiceConverter.LIMIT) == null ? this.subfields.size() : ((Number) args.get(SPARQLServiceConverter.LIMIT)).longValue())
+                .skip(args == null || args.get(OFFSET_ARGUMENT) == null ? 0 : ((Number) args.get(OFFSET_ARGUMENT)).longValue())   // offset interferes with multiple services limiter.
+                .limit(args == null || args.get(LIMIT_ARGUMENT) == null ? this.subfields.size() : ((Number) args.get(LIMIT_ARGUMENT)).longValue())
                 .map(objectEntry -> {
                     Map<String, Object> object = new HashMap<>();
                     for (Map.Entry<String, Result> entry : objectEntry.entrySet()) {

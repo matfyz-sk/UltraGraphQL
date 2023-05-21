@@ -43,19 +43,9 @@ public class HGraphQLConverter {
         if (getArgs != null) {
             return "";
         }
-
-//        final String LIM = "limit:%s ";
-//        final String OFF = "offset:%s ";
         final String ARG = "(%s)";
 
         String argsStr = "";
-
-//        if (getArgs.has("limit")) {
-//            argsStr += String.format(LIM, getArgs.get("limit").asInt());
-//        }
-//        if (getArgs.has("offset")) {
-//            argsStr += String.format(OFF, getArgs.get("offset").asInt());
-//        }
         return String.format(ARG, argsStr);
     }
 

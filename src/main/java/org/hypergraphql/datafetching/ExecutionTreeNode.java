@@ -14,7 +14,6 @@ import org.hypergraphql.datamodel.HGQLSchema;
 import org.hypergraphql.exception.HGQLConfigurationException;
 import org.hypergraphql.mutation.values.DateTimeValue;
 import org.hypergraphql.mutation.values.DecimalValue;
-import org.hypergraphql.query.converters.SPARQLServiceConverter;
 import org.hypergraphql.query.pattern.Query;
 import org.hypergraphql.query.pattern.QueryPattern;
 import org.hypergraphql.query.pattern.QueryPatternBuilder;

@@ -16,8 +16,7 @@ import java.util.stream.Collectors;
 
 import static org.hypergraphql.config.schema.HGQLVocabulary.HGQL_SCALAR_LITERAL_GQL_NAME;
 import static org.hypergraphql.config.schema.HGQLVocabulary.HGQL_SCALAR_LITERAL_VALUE_GQL_NAME;
-import static org.hypergraphql.util.GlobalValues.UGQL_EQUALS_ARGUMENT;
-import static org.hypergraphql.util.GlobalValues._ID;
+import static org.hypergraphql.util.GlobalValues.*;
 
 /**
  * The SPARQLServiceConverter provides methods to covert GraphQl queries into SPARQL queries according to the schema this
@@ -34,8 +33,6 @@ public class SPARQLServiceConverter {
     public final static String ARGS = "args";
     private final static String TARGET_NAME = "targetName";
     private final static String PARENT_ID = "parentId";
-    public final static String LIMIT = "limit";
-    public final static String OFFSET = "offset";
     public final static String ORDER = "order";
     public final static String ORDER_DESC = "DESC";
     public final static String ORDER_ASC = "ASC";
@@ -165,11 +162,11 @@ public class SPARQLServiceConverter {
         String limit = "";
         String offset = "";
         if (query.args != null) {
-            if (query.args.containsKey(LIMIT)) {
-                limit = limitClause((long) query.args.get(LIMIT));
+            if (query.args.containsKey(LIMIT_ARGUMENT)) {
+                limit = limitClause((long) query.args.get(LIMIT_ARGUMENT));
             }
-            if (query.args.containsKey(OFFSET)) {
-                offset = offsetClause((long) query.args.get(OFFSET));
+            if (query.args.containsKey(OFFSET_ARGUMENT)) {
+                offset = offsetClause((long) query.args.get(OFFSET_ARGUMENT));
             }
         }
         return offset + limit;
@@ -216,7 +213,7 @@ public class SPARQLServiceConverter {
     }
 
     private String filterClause(QueryPattern query) {
-        List<Object> objects = (List<Object>) query.args.get(UGQL_EQUALS_ARGUMENT);
+        List<Object> objects = (List<Object>) query.args.get(EQUALS_ARGUMENT);
         return filterLogic(objects, query.nodeId);
     }
 

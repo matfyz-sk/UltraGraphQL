@@ -8,6 +8,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
+import static org.hypergraphql.util.GlobalValues.LIMIT_ARGUMENT;
+import static org.hypergraphql.util.GlobalValues.OFFSET_ARGUMENT;
 import static org.junit.jupiter.api.Assertions.*;
 
 class StringResultTest {
@@ -85,8 +87,8 @@ class StringResultTest {
         }
 
         // Test limit and offset
-        arguments.put(SPARQLServiceConverter.LIMIT, 1);
-        arguments.put(SPARQLServiceConverter.OFFSET, 1);
+        arguments.put(LIMIT_ARGUMENT, 1);
+        arguments.put(OFFSET_ARGUMENT, 1);
         Collection<String> obj_filtered = (Collection<String>) res_list.generateJSON();
         assertTrue(obj_filtered.size() == 1);
         assertEquals(BOB, obj_filtered.iterator().next());

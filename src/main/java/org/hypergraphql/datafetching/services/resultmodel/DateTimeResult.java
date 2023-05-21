@@ -8,6 +8,9 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static org.hypergraphql.util.GlobalValues.LIMIT_ARGUMENT;
+import static org.hypergraphql.util.GlobalValues.OFFSET_ARGUMENT;
+
 /**
  * DateTimeResult represents Literal results of a queried field.
  * The DateTimeResult object is the leaf object of the result tree.
@@ -126,8 +129,8 @@ public class DateTimeResult extends Result<Object> {
             // apply limiters
             try {
                 values = (List) values.stream()
-                        .skip(args == null || args.get("offset") == null ? 0 : ((Number) args.get(SPARQLServiceConverter.OFFSET)).longValue())  // Currently limit and offset not applied to Literal values therefore applied here  -> offset interferes with multiple services limiter. offset is therefore only applied on the SPARQL queries and not on the final result build up
-                        .limit(args == null || args.get("limit") == null ? this.values.size() : ((Number) args.get(SPARQLServiceConverter.LIMIT)).longValue())
+                        .skip(args == null || args.get(OFFSET_ARGUMENT) == null ? 0 : ((Number) args.get(OFFSET_ARGUMENT)).longValue())  // Currently limit and offset not applied to Literal values therefore applied here  -> offset interferes with multiple services limiter. offset is therefore only applied on the SPARQL queries and not on the final result build up
+                        .limit(args == null || args.get(LIMIT_ARGUMENT) == null ? this.values.size() : ((Number) args.get(LIMIT_ARGUMENT)).longValue())
                         .collect(Collectors.toList());
             } catch (ClassCastException e) {
                 this.errors += "Casting exception for the arguments of field " + this.name + ". ";

@@ -18,6 +18,7 @@ import java.util.Arrays;
 
 import static org.hypergraphql.config.schema.HGQLVocabulary.HGQL_SCALAR_LITERAL_GQL_NAME;
 import static org.hypergraphql.config.schema.HGQLVocabulary.HGQL_SCALAR_LITERAL_VALUE_GQL_NAME;
+import static org.hypergraphql.util.GlobalValues.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 class ApplicationTest {
@@ -239,13 +240,13 @@ class ApplicationTest {
     @Test
     void limitAndOffsetTest() throws Exception {
         String config = "build/resources/test/evaluation/limit_and_offset/config.json";
-        String query = "{Person(" + SPARQLServiceConverter.ID + ": [\\\"http://www.example.org/alice\\\"]" + " ){" + SPARQLServiceConverter.ID + " label(" + SPARQLServiceConverter.ORDER + ": " + SPARQLServiceConverter.ORDER_DESC + ", " + SPARQLServiceConverter.LIMIT + ": 1, " + SPARQLServiceConverter.OFFSET + ": 1) }}";
+        String query = "{Person(" + _ID + ": [\\\"http://www.example.org/alice\\\"]" + " ){" + _ID + " label(" + SPARQLServiceConverter.ORDER + ": " + SPARQLServiceConverter.ORDER_DESC + ", " + LIMIT_ARGUMENT + ": 1, " + OFFSET_ARGUMENT + ": 1) }}";
         JSONObject json_response = sendPost(config, query);
         System.out.println(json_response);
         Thread.sleep(SOCKET_CLOSING);
         for (Object o : json_response.getJSONObject("data").getJSONArray("Person")) {
             JSONObject person = (JSONObject) o;
-            if (person.has(SPARQLServiceConverter.ID)) {
+            if (person.has(_ID)) {
                 if (person.getString("_id").equals("http://www.example.org/alice")) {
                     if (person.has("label")) {
                         JSONArray label = person.getJSONArray("label");

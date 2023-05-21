@@ -54,13 +54,13 @@ public class HGQLSchemaWiring {
     }
 
     private final Map<String, GraphQLArgument> defaultArguments = new HashMap<String, GraphQLArgument>() {{
-        put("limit", GraphQLArgument.newArgument().name("limit").type(GraphQLInt).build());
-        put("offset", GraphQLArgument.newArgument().name("offset").type(GraphQLInt).build());
+        put(LIMIT_ARGUMENT, GraphQLArgument.newArgument().name(LIMIT_ARGUMENT).type(GraphQLInt).build());
+        put(OFFSET_ARGUMENT, GraphQLArgument.newArgument().name(OFFSET_ARGUMENT).type(GraphQLInt).build());
         /*put("lang", new GraphQLArgument("lang", GraphQLString));*/
         put("uris", GraphQLArgument.newArgument().name("uris").type(new GraphQLNonNull(new GraphQLList(GraphQLID))).build());
         put(_ID, GraphQLArgument.newArgument().name(_ID).type(new GraphQLList(GraphQLID)).build());  // ToDo: currently added for default Query support, when schema loading is complete this is not needed
-        put(UGQL_ORDER_ARGUMENT, GraphQLArgument.newArgument()
-                .name(UGQL_ORDER_ARGUMENT)
+        put(ORDER_ARGUMENT, GraphQLArgument.newArgument()
+                .name(ORDER_ARGUMENT)
                 .type(GraphQLEnumType.newEnum()
                         .name("OrderType")
                         .value("DESC", "DESC")
@@ -71,13 +71,13 @@ public class HGQLSchemaWiring {
     }};
 
     private final List<GraphQLArgument> getQueryArgs = new ArrayList<>() {{
-        add(defaultArguments.get("limit"));
-        add(defaultArguments.get("offset"));
+        add(defaultArguments.get(LIMIT_ARGUMENT));
+        add(defaultArguments.get(OFFSET_ARGUMENT));
         add(defaultArguments.get(_ID));
     }};
 
     private GraphQLArgument getValuesArgumentBasedOnType(FieldOfTypeConfig field) {
-        return GraphQLArgument.newArgument().name(UGQL_EQUALS_ARGUMENT).type(getGraphQLInputType(field)).build();
+        return GraphQLArgument.newArgument().name(EQUALS_ARGUMENT).type(getGraphQLInputType(field)).build();
     }
 
     private GraphQLInputType getGraphQLInputType(FieldOfTypeConfig fieldOfTypeConfig) {
@@ -694,14 +694,14 @@ public class HGQLSchemaWiring {
 
         List<GraphQLArgument> args = new ArrayList<>();
 
-        args.add(defaultArguments.get(UGQL_ORDER_ARGUMENT));
+        args.add(defaultArguments.get(ORDER_ARGUMENT));
         if (!(SCALAR_TYPES.containsKey(field.getTargetName()))) {
             args.add(defaultArguments.get(_ID));
         } else {
             args.add(getValuesArgumentBasedOnType(field));
         }
         if (field.isList()) {
-            args.add(defaultArguments.get("limit"));
+            args.add(defaultArguments.get(LIMIT_ARGUMENT));
             args.add(defaultArguments.get("offset"));
         }
         String description;
@@ -740,7 +740,7 @@ public class HGQLSchemaWiring {
         List<GraphQLArgument> args = new ArrayList<>();  // Arguments of the QueryField
 
         if (this.hgqlSchema.getQueryFields().get(field.getName()).type().equals(HGQL_QUERY_GET_FIELD)) {
-            args.add(defaultArguments.get(UGQL_ORDER_ARGUMENT));
+            args.add(defaultArguments.get(ORDER_ARGUMENT));
             args.addAll(getQueryArgs);
             //ToDo: ADD individual Query Arguments: This is the place where the query arguments of an Field are defined
         }
