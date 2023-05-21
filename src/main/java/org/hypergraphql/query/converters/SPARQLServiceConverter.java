@@ -13,6 +13,7 @@ import org.hypergraphql.query.pattern.SubQueriesPattern;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.hypergraphql.config.schema.HGQLVocabulary.HGQL_SCALAR_LITERAL_GQL_NAME;
 import static org.hypergraphql.config.schema.HGQLVocabulary.HGQL_SCALAR_LITERAL_VALUE_GQL_NAME;
@@ -24,22 +25,22 @@ import static org.hypergraphql.util.GlobalValues.*;
  */
 public class SPARQLServiceConverter {
 
-    private final static String RDF_TYPE_URI = "<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>";
-    private final static String NAME = "name";
-    private final static String URIS = "uris";
-    private final static String NODE_ID = "nodeId";
-    public final static String LANG = "lang";
-    private final static String FIELDS = "fields";
-    public final static String ARGS = "args";
-    private final static String TARGET_NAME = "targetName";
-    private final static String PARENT_ID = "parentId";
-    public final static String ORDER = "order";
-    public final static String ORDER_DESC = "DESC";
-    public final static String ORDER_ASC = "ASC";
-    private final static String SAMEAS = "sameas";
+    private static final String RDF_TYPE_URI = "<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>";
+    private static final String NAME = "name";
+    private static final String URIS = "uris";
+    private static final String NODE_ID = "nodeId";
+    private static final String TARGET_NAME = "targetName";
+    private static final String PARENT_ID = "parentId";
+    private static final String FIELDS = "fields";
+    private static final String SAMEAS = "sameas";
+
+    public static final String ARGS = "args";
+    public static final String LANG = "lang";
+    public static final String ORDER = "order";
+    public static final String ORDER_DESC = "DESC";
+    public static final String ORDER_ASC = "ASC";
 
     private final HGQLSchema schema;
-
 
     public SPARQLServiceConverter(HGQLSchema schema) {
         this.schema = schema;
@@ -519,8 +520,8 @@ public class SPARQLServiceConverter {
         }
 
         String selectField = "";
-        if (!limitOffsetSTR.equals("") || !orderSTR.equals("") || !valueSTR.equals("")) {   // Select wrapping is only needed if limit, offset, order or _id restrictions are defined
-            selectField = "{ " + selectQueryClause(rootValues + valueSTR + fieldPattern + langFilter, "") + orderSTR + limitOffsetSTR + " }" + rest;
+        if (!EMPTY_STRING.equals(limitOffsetSTR) || !EMPTY_STRING.equals(orderSTR) || !EMPTY_STRING.equals(valueSTR)) {   // Select wrapping is only needed if limit, offset, order or _id restrictions are defined
+            selectField = "{ " + selectQueryClause(Stream.of(rootValues, valueSTR, fieldPattern, langFilter).filter(Objects::nonNull).collect(Collectors.joining("")), "") + orderSTR + limitOffsetSTR + " }" + rest;
         } else {
             selectField = fieldPattern + langFilter + rest;
         }
