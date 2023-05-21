@@ -53,10 +53,9 @@ public class HGQLSchemaWiring {
         return hgqlSchema;
     }
 
-    private final Map<String, GraphQLArgument> defaultArguments = new HashMap<String, GraphQLArgument>() {{
+    private final Map<String, GraphQLArgument> defaultArguments = new HashMap<>() {{
         put(LIMIT_ARGUMENT, GraphQLArgument.newArgument().name(LIMIT_ARGUMENT).type(GraphQLInt).build());
         put(OFFSET_ARGUMENT, GraphQLArgument.newArgument().name(OFFSET_ARGUMENT).type(GraphQLInt).build());
-        /*put("lang", new GraphQLArgument("lang", GraphQLString));*/
         put("uris", GraphQLArgument.newArgument().name("uris").type(new GraphQLNonNull(new GraphQLList(GraphQLID))).build());
         put(_ID, GraphQLArgument.newArgument().name(_ID).type(new GraphQLList(GraphQLID)).build());  // ToDo: currently added for default Query support, when schema loading is complete this is not needed
         put(ORDER_ARGUMENT, GraphQLArgument.newArgument()
@@ -68,12 +67,6 @@ public class HGQLSchemaWiring {
                         .description("Operators to define the order of the resulting list")
                         .build())
                 .build());
-    }};
-
-    private final List<GraphQLArgument> getQueryArgs = new ArrayList<>() {{
-        add(defaultArguments.get(LIMIT_ARGUMENT));
-        add(defaultArguments.get(OFFSET_ARGUMENT));
-        add(defaultArguments.get(_ID));
     }};
 
     private GraphQLArgument getValuesArgumentBasedOnType(FieldOfTypeConfig field) {
@@ -741,8 +734,9 @@ public class HGQLSchemaWiring {
 
         if (this.hgqlSchema.getQueryFields().get(field.getName()).type().equals(HGQL_QUERY_GET_FIELD)) {
             args.add(defaultArguments.get(ORDER_ARGUMENT));
-            args.addAll(getQueryArgs);
-            //ToDo: ADD individual Query Arguments: This is the place where the query arguments of an Field are defined
+            args.add(defaultArguments.get(LIMIT_ARGUMENT));
+            args.add(defaultArguments.get(OFFSET_ARGUMENT));
+            args.add(defaultArguments.get(_ID));
         }
 
         final QueryFieldConfig queryFieldConfig = this.hgqlSchema.getQueryFields().get(field.getName()); // retrieve QueryFieldConfig of given FieldOfTypeConfig
