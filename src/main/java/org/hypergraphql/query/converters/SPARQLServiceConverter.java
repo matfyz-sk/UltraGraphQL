@@ -234,11 +234,11 @@ public class SPARQLServiceConverter {
     }
 
     private String filterClause(QueryPattern query) {
-        List<Object> objects = (List<Object>) query.args.get(EQUALS_ARGUMENT);
-        return filterLogic(objects, query.nodeId);
+        Set<String> objects = getValuesFromArgument(query.args, EQUALS_ARGUMENT);
+        return filterLogic(new ArrayList<>(objects), query.nodeId);
     }
 
-    private String filterLogic(List<Object> objects, String nodeId) {
+    private String filterLogic(List<String> objects, String nodeId) {
         if (objects == null || objects.isEmpty() || objects.stream().noneMatch(Objects::nonNull)) {
             return null;
         }
@@ -401,11 +401,23 @@ public class SPARQLServiceConverter {
     private String getFilterById(QueryPattern queryField) {
         Map<String, Object> args = queryField.args;
         if (args.containsKey(_ID)) {
-            Object argumentObject = args.get(_ID);
-            Set<String> arguments = new HashSet<>(argumentObject instanceof String ? Collections.singletonList((String) args.get(_ID)) : (List<String>) args.get(_ID));
+            Set<String> arguments = getValuesFromArgument(args, _ID);
             return valuesClause(queryField.nodeId, arguments);
         }
         return null;
+    }
+
+    private Set<String> getValuesFromArgument(Map<String, Object> args, String argumentName) {
+        Object object = args.get(argumentName);
+
+        if (object == null) {
+            return new HashSet<>();
+        }
+
+        if (object instanceof String || object instanceof List<?>) {
+            return new HashSet<>(object instanceof String ? Collections.singleton((String) args.get(argumentName)) : (List<String>) args.get(argumentName));
+        }
+        throw new GraphQLIllegalArgumentException("Invalid query syntax. Argument [" + argumentName + "] should be defined as a list of values.");
     }
 
     /**
@@ -490,11 +502,7 @@ public class SPARQLServiceConverter {
         String orderSTR = orderClause(field, orderBy);
         String valueSTR = "";
         if (field.args.containsKey(_ID)) {
-            if (!(field.args.get(_ID) instanceof List<?>)) {
-                throw new GraphQLIllegalArgumentException("Invalid query syntax. Argument [" + _ID + "] should be defined as a list of values.");
-            }
-            List<String> urisIter = (List<String>) field.args.get(_ID);
-            Set<String> uris = new HashSet<>(urisIter); // convert to set to remove duplicates
+            Set<String> uris = getValuesFromArgument(field.args, _ID);
             valueSTR = valuesClause(nodeId, uris);
         }
 
@@ -502,11 +510,6 @@ public class SPARQLServiceConverter {
         String rest = "";
 
         if (filter != null) {
-
-            if (!(field.args.get(EQUALS_ARGUMENT) instanceof List<?>)) {
-                throw new GraphQLIllegalArgumentException("Invalid query syntax. Argument [" + EQUALS_ARGUMENT + "] should be defined as a list of values.");
-            }
-
             String filterClause = filterClause(field);
             if (filterClause != null && !filterClause.isEmpty()) {
                 filter.add(filterClause);
@@ -556,7 +559,7 @@ public class SPARQLServiceConverter {
 
         boolean filterNonExisting = false;
         if (field.args.containsKey(EQUALS_ARGUMENT)) {
-            List<String> argumentsIter = (List<String>) field.args.get(EQUALS_ARGUMENT);
+            Set<String> argumentsIter = getValuesFromArgument(field.args, EQUALS_ARGUMENT);
             filterNonExisting = argumentsIter.size() > 0 && argumentsIter.stream().noneMatch(Objects::nonNull);
         }
 
@@ -565,7 +568,7 @@ public class SPARQLServiceConverter {
         }
 
         if (field.args.containsKey(_ID)) {
-            List<String> urisIter = (List<String>) field.args.get(_ID);
+            Set<String> urisIter = getValuesFromArgument(field.args, _ID);
             if (urisIter.size() > 0) {
                 return noOptionalClause(selectField);
             }
