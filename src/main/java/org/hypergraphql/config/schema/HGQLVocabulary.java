@@ -113,7 +113,6 @@ public class HGQLVocabulary {
     public static final String HGQL_SCHEMA_LONG = HGQL_SCHEMA_NAMESPACE + "Long";
     public static final String HGQL_SCHEMA_SHORT = HGQL_SCHEMA_NAMESPACE + "Short";
 
-
     /* XML properties starts with lower case */
     public static final String XML = "http://www.w3.org/2001/XMLSchema#";
     public static final String XML_STRING = XML + "string";
