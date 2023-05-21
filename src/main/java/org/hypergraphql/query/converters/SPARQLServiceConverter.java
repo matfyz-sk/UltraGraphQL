@@ -57,6 +57,16 @@ public class SPARQLServiceConverter {
     }
 
     /**
+     * Wraps the SPARQL FILTER NOT EXISTS clause around the given sparqlPattern.
+     *
+     * @param sparqlPattern SPARQL pattern
+     * @return SPARQL OPTIONAL clause
+     */
+    public static String filterNotExists(String sparqlPattern) {
+        return " FILTER NOT EXISTS { " + sparqlPattern + " } ";
+    }
+
+    /**
      * Generates a SPARQL Query where the given id is selected from the values defined by the sparqlPattern.
      * The results may be restricted with limit and offset with the given limitOffset variable.
      *
@@ -219,7 +229,7 @@ public class SPARQLServiceConverter {
     }
 
     private String filterLogic(List<Object> objects, String nodeId) {
-        if (objects == null || objects.isEmpty()) {
+        if (objects == null || objects.isEmpty() || objects.stream().noneMatch(Objects::nonNull)) {
             return null;
         }
         if (objects.size() == 1) {
@@ -361,7 +371,7 @@ public class SPARQLServiceConverter {
 
         String limitOffsetSTRRoot = limitOffsetClause(queryField); //TODO add limit and offset from ID query
 
-        return selectQueryClause(getOrderBy(orderBy), getFilterByValues(filter), getFilterById(queryField), rootSubquery + whereClause, graphID);   //ToDo: The generated Query is here only evalluated in one graph. If multiple endpoints have to be queried this has to be changed.
+        return selectQueryClause(getOrderBy(orderBy), getFilterByValues(filter), getFilterById(queryField), rootSubquery + whereClause, graphID);
     }
 
     private String getOrderBy(List<String> orderBy) {
@@ -519,13 +529,25 @@ public class SPARQLServiceConverter {
             rest = getSubQueries(field.fields, rootValues, orderBy, filter);   // SPARQL query for the SelectionSet of the field (subfields) //TODO CHECK THIS ONE TOO FOR FILTER
         }
 
-        String selectField = "";
+        String selectField;
         if (!EMPTY_STRING.equals(limitOffsetSTR) || !EMPTY_STRING.equals(orderSTR) || !EMPTY_STRING.equals(valueSTR)) {   // Select wrapping is only needed if limit, offset, order or _id restrictions are defined
             selectField = "{ " + selectQueryClause(Stream.of(rootValues, valueSTR, fieldPattern, langFilter).filter(Objects::nonNull).collect(Collectors.joining("")), "") + orderSTR + limitOffsetSTR + " }" + rest;
         } else {
             selectField = fieldPattern + langFilter + rest;
         }
 
+        Object objects = field.args.get(EQUALS_ARGUMENT);
+        boolean filterNonExisting = false;
+
+        if (objects instanceof ArrayList<?>) {
+            filterNonExisting = ((List<Object>) objects).stream().noneMatch(Objects::nonNull);
+        } else if (objects == null) {
+            filterNonExisting = true;
+        }
+
+        if (filterNonExisting) {
+            return filterNotExists(selectField);
+        }
         return optionalClause(selectField); // Whole query for the field
     }
 

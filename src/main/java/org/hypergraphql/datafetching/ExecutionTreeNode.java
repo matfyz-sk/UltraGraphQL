@@ -608,7 +608,10 @@ public class ExecutionTreeNode {
                             value = ((DecimalValue) node).getValue();
                         } else if (node instanceof DateTimeValue) {
                             value = ((DateTimeValue) node).getValue().toDateTimeISO();
-                        } else {
+                        } else if (node instanceof NullValue) {
+                            value = null;
+                        }
+                        else {
                             value = ((StringValue) node).getValue(); //fallback
                         }
                         arrayNode.add(value);
