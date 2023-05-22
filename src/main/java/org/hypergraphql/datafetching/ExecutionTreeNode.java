@@ -18,7 +18,7 @@ import org.hypergraphql.query.pattern.Query;
 import org.hypergraphql.query.pattern.QueryPattern;
 import org.hypergraphql.query.pattern.QueryPatternBuilder;
 import org.hypergraphql.query.pattern.SubQueriesPattern;
-import org.hypergraphql.util.BaseUtils;
+import org.hypergraphql.util.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,6 +35,7 @@ import static org.hypergraphql.config.schema.HGQLVocabulary.HGQL_ID;
 import static org.hypergraphql.config.schema.HGQLVocabulary.HGQL_SCALAR_LITERAL_GQL_NAME;
 import static org.hypergraphql.util.GlobalValues._ID;
 import static org.hypergraphql.util.GlobalValues._TYPE;
+import static org.hypergraphql.util.PrefixUtils.createObjectKeyWithoutKnownPrefixes;
 
 /**
  * This class handles and coordinates the query execution of a GraphQL query.
@@ -428,7 +429,7 @@ public class ExecutionTreeNode {
         String contextLdKey = (field.getAlias() == null) ? field.getName() : field.getAlias();
         String contextLdValue = getContextLdValue(contextLdKey);
 
-        this.ldContext.put(BaseUtils.createObjectKeyWithoutKnownPrefixes(contextLdKey), contextLdValue);
+        this.ldContext.put(createObjectKeyWithoutKnownPrefixes(contextLdKey), contextLdValue);
 
 //        if (args.isEmpty()) {
 //            query.set(ARGS, null);

@@ -9,32 +9,9 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Date;
 
-public class BaseUtils {
+public class DateUtils {
 
     private static final String DATETIME_PATTERN = "yyyy-MM-dd'T'HH:mmZZ";
-
-    private BaseUtils() {
-
-    }
-
-    public static String createObjectKeyWithoutKnownPrefixes(String baseKey) {
-        if (baseKey == null || baseKey.isEmpty()) {
-            return baseKey;
-        }
-        return baseKey.replace(GlobalValues.COURSES_ONTOLOGY_UGQL_PREFIX_WITH_UNDERSCORE, GlobalValues.EMPTY_STRING).replace(GlobalValues.COURSES_DATA_UGQL_PREFIX_WITH_UNDERSCORE, GlobalValues.EMPTY_STRING);
-    }
-
-    /**
-     * In case a model class should start with lowerCase then use this method.
-     */
-    public static String createObjectKeyWithoutKnownPrefixesFirstLowerCase(String baseKey) {
-        if (baseKey == null || baseKey.isEmpty()) {
-            return baseKey;
-        }
-        char[] keyWithoutPrefix = baseKey.replace(GlobalValues.COURSES_ONTOLOGY_UGQL_PREFIX_WITH_UNDERSCORE, GlobalValues.EMPTY_STRING).replace(GlobalValues.COURSES_DATA_UGQL_PREFIX_WITH_UNDERSCORE, GlobalValues.EMPTY_STRING).toCharArray();
-        keyWithoutPrefix[0] = Character.toLowerCase(keyWithoutPrefix[0]);
-        return new String(keyWithoutPrefix);
-    }
 
     public static boolean isValidPatternDate(String dateTimeString) {
         boolean valid = true;

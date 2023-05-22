@@ -1,7 +1,6 @@
 package org.hypergraphql.datafetching.services.resultmodel;
 
 import org.hypergraphql.query.converters.SPARQLServiceConverter;
-import org.hypergraphql.util.BaseUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -10,6 +9,7 @@ import java.util.stream.Collectors;
 
 import static org.hypergraphql.util.GlobalValues.LIMIT_ARGUMENT;
 import static org.hypergraphql.util.GlobalValues.OFFSET_ARGUMENT;
+import static org.hypergraphql.util.PrefixUtils.createObjectKeyWithoutKnownPrefixes;
 
 /**
  * ObjectResult represents query results of fields that have a type as output type (not Scalar value).
@@ -122,7 +122,7 @@ public class ObjectResult extends Result<Map<String, Object>> {
     public Map<String, Object> generateJSON() {
         List<Object> subfields;
         Map<String, Object> field = new HashMap<>();
-        String fieldName = this.alias == null ? BaseUtils.createObjectKeyWithoutKnownPrefixes(this.name) : this.alias;
+        String fieldName = this.alias == null ? createObjectKeyWithoutKnownPrefixes(this.name) : this.alias;
         if (!isList()) {
             if (this.subfields.size() <= 1) {
                 if (this.subfields.isEmpty()) {
@@ -130,7 +130,7 @@ public class ObjectResult extends Result<Map<String, Object>> {
                 } else {
                     final Map<String, Object> value = new HashMap<>();
                     this.subfields.entrySet().iterator().next().getValue().forEach((s, result) -> {
-                        String name = result.alias == null ? BaseUtils.createObjectKeyWithoutKnownPrefixes(s) : result.alias;
+                        String name = result.alias == null ? createObjectKeyWithoutKnownPrefixes(s) : result.alias;
                         if (result instanceof ObjectResult) {
                             Map<String, Object> generatedJsonMap = ((ObjectResult) result).generateJSON();
                             value.put(name, generatedJsonMap != null ? generatedJsonMap.get(s) : null);
@@ -182,7 +182,7 @@ public class ObjectResult extends Result<Map<String, Object>> {
                         String key = entry.getKey();
                         Result values = entry.getValue();
 
-                        String name = values.alias == null ? BaseUtils.createObjectKeyWithoutKnownPrefixes(key) : values.alias;
+                        String name = values.alias == null ? createObjectKeyWithoutKnownPrefixes(key) : values.alias;
                         if (values instanceof ObjectResult) {
                             Map<String, Object> generatedJsonMap = ((ObjectResult) values).generateJSON();
                             object.put(name, generatedJsonMap != null ? generatedJsonMap.get(name) : null);

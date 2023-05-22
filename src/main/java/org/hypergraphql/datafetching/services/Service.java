@@ -21,7 +21,7 @@ import java.math.BigDecimal;
 import java.util.*;
 
 import static org.hypergraphql.config.schema.HGQLVocabulary.*;
-import static org.hypergraphql.util.BaseUtils.*;
+import static org.hypergraphql.util.DateUtils.*;
 import static org.hypergraphql.util.GlobalValues._ID;
 import static org.hypergraphql.util.GlobalValues._TYPE;
 

@@ -4,11 +4,10 @@ import graphql.language.IntValue;
 import graphql.language.StringValue;
 import graphql.schema.*;
 import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
 
 import java.time.DateTimeException;
 
-import static org.hypergraphql.util.BaseUtils.*;
+import static org.hypergraphql.util.DateUtils.*;
 
 public class ExtendedScalars {
 
