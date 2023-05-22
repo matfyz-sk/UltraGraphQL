@@ -229,10 +229,8 @@ public class HGQLSchemaWiring {
     private GraphQLInputType getGraphQLInputType(FieldOfTypeConfig fieldOfTypeConfig, GraphQLScalarType scalarType, MutationAction mutationAction) {
         GraphQLInputType graphQLInputType = fieldOfTypeConfig.isList() ? GraphQLList.list(scalarType) : scalarType;
 
-        if (isNotNullGraphQLOutputScalarType(fieldOfTypeConfig.getGraphqlOutputType(), scalarType)) {
-            if (mutationAction == null || MutationAction.INSERT == mutationAction) {
-                return GraphQLNonNull.nonNull(graphQLInputType);
-            }
+        if (mutationAction == null && isNotNullGraphQLOutputScalarType(fieldOfTypeConfig.getGraphqlOutputType(), scalarType)) {
+            return GraphQLNonNull.nonNull(graphQLInputType);
         }
         return graphQLInputType;
     }
@@ -414,10 +412,10 @@ public class HGQLSchemaWiring {
         return fieldOfTypeConfig != null && fieldOfTypeConfig.getGraphqlOutputType() instanceof GraphQLList;
     }
 
-    private GraphQLInputType getInputTypeForObject(FieldOfTypeConfig fieldOfTypeConfig, MutationAction action) {
+    private GraphQLInputType getInputTypeForObject(FieldOfTypeConfig fieldOfTypeConfig, MutationAction mutationAction) {
         GraphQLInputType graphQLInputType = GraphQLID;
 
-        if (isNonNullType(fieldOfTypeConfig) && MutationAction.INSERT == action) { //Add required type only for the INSERT mutation action
+        if (isNonNullType(fieldOfTypeConfig) && mutationAction == null) { //If for mutation action the type should be required then change it here, plus for the scalar types in the getGraphQLInputType
             graphQLInputType = GraphQLNonNull.nonNull(graphQLInputType);
         }
         if (isListType(fieldOfTypeConfig)) {
@@ -437,14 +435,14 @@ public class HGQLSchemaWiring {
             HGQL_SCHEMA_SHORT
     );
 
-    private GraphQLFieldDefinition registerGraphQLMutationField(TypeConfig mutationField, MutationAction action) {
+    private GraphQLFieldDefinition registerGraphQLMutationField(TypeConfig mutationField, MutationAction mutationAction) {
 
         String name;
-        if (action == MutationAction.INSERT) {
+        if (mutationAction == MutationAction.INSERT) {
             name = String.format("%s%s", HGQL_MUTATION_INSERT_PREFIX, mutationField.getName());
-        } else if (action == MutationAction.UPDATE) {
+        } else if (mutationAction == MutationAction.UPDATE) {
             name = String.format("%s%s", HGQL_MUTATION_UPDATE_PREFIX, mutationField.getName());
-        } else if (action == MutationAction.DELETE) {
+        } else if (mutationAction == MutationAction.DELETE) {
             name = String.format("%s%s", HGQL_MUTATION_DELETE_PREFIX, mutationField.getName());
         } else {
             throw new IllegalArgumentException("Unsupported mutation name used");
@@ -464,13 +462,13 @@ public class HGQLSchemaWiring {
             GraphQLScalarType graphQLScalarType = getGraphQLScalarType(field.getGraphqlOutputType());
 
             if (graphQLScalarType != null) {
-                addAsScalarArgumentType(description, args, field, graphQLScalarType, action);
+                addAsScalarArgumentType(description, args, field, graphQLScalarType, mutationAction);
             } else {
                 TypeConfig outputType = this.hgqlSchema.getTypes().get(field.getTargetName());
                 if (outputType.isObject()) {
                     args.add(GraphQLArgument.newArgument()
                             .name(field.getName())
-                            .type(getInputTypeForObject(field, action)) //In case of mutations, you must firstly create all other required fields/objects before passing this one, therefore this one should be always ID, and not creating a new one
+                            .type(getInputTypeForObject(field, mutationAction)) //In case of mutations, you must firstly create all other required fields/objects before passing this one, therefore this one should be always ID, and not creating a new one
                             .description(description)
                             .build());
                 } else {
@@ -480,7 +478,7 @@ public class HGQLSchemaWiring {
                             TypeConfig type = this.hgqlSchema.getTypes().get(obj);
                             args.add(GraphQLArgument.newArgument()
                                     .name(field.getName() + HGQL_MUTATION_INPUT_FIELD_INFIX + type.getName())
-                                    .type(getInputTypeForObject(field, action))
+                                    .type(getInputTypeForObject(field, mutationAction))
                                     .description(description)
                                     .build());
                         }
@@ -489,17 +487,17 @@ public class HGQLSchemaWiring {
             }
         }
 
-        if (action == MutationAction.INSERT) {
+        if (mutationAction == MutationAction.INSERT) {
             args.add(GraphQLArgument.newArgument()
                     .name(_ID)
                     .type(GraphQLID) //If not GraphQLNonNull.nonNull is called then this is not required parameter
                     .build());
-        } else if (action == MutationAction.UPDATE) {
+        } else if (mutationAction == MutationAction.UPDATE) {
             args.add(GraphQLArgument.newArgument()
                     .name(_ID)
                     .type(GraphQLNonNull.nonNull(GraphQLID))
                     .build());
-        } else if (action == MutationAction.DELETE) {
+        } else if (mutationAction == MutationAction.DELETE) {
             args.add(GraphQLArgument.newArgument()
                     .name(_ID)
                     .type(GraphQLID)
