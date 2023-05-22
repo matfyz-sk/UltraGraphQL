@@ -12,7 +12,6 @@ import org.hypergraphql.datafetching.TreeExecutionResult;
 import org.hypergraphql.datafetching.services.resultmodel.*;
 import org.hypergraphql.datamodel.HGQLSchema;
 import org.hypergraphql.datamodel.QueryNode;
-import org.hypergraphql.query.converters.SPARQLServiceConverter;
 import org.hypergraphql.query.pattern.Query;
 import org.hypergraphql.query.pattern.QueryPattern;
 import org.hypergraphql.query.pattern.SubQueriesPattern;
@@ -22,7 +21,7 @@ import java.math.BigDecimal;
 import java.util.*;
 
 import static org.hypergraphql.config.schema.HGQLVocabulary.*;
-import static org.hypergraphql.schemaextraction.ExtendedScalars.isDate;
+import static org.hypergraphql.util.BaseUtils.*;
 import static org.hypergraphql.util.GlobalValues._ID;
 import static org.hypergraphql.util.GlobalValues._TYPE;
 
@@ -639,8 +638,19 @@ public abstract class Service {
                         if (dateTimeObject instanceof XSDDateTime) {
                             dateTimeObject = dateTimeObject.toString();
                         }
-                        DateTime date = isDate(dateTimeObject) || dateTimeObject instanceof String ? new DateTime(dateTimeObject) : null;
-                        ((DateTimeResult) res).addDateTime(date);
+
+                        if (isObjectDate(dateTimeObject)) {
+                            ((DateTimeResult) res).addDateTime(new DateTime(dateTimeObject));
+                        }
+
+                        if (dateTimeObject instanceof String dateTimeString) {
+                            if (isValidPatternDate(dateTimeString)) {
+                                ((DateTimeResult) res).addDateTime(new DateTime(dateTimeString));
+                            } else if (isNumericDate(dateTimeString)) {
+                                ((DateTimeResult) res).addDateTime(convertMilisToDateTime(dateTimeString));
+                            }
+                        }
+
                         res.setNodeId(currentNode.nodeId);
                     }
                     if (res instanceof BigDecimalResult) {
