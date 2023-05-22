@@ -11,13 +11,10 @@ import java.util.Date;
 
 public class DateUtils {
 
-    private static final String DATETIME_PATTERN = "yyyy-MM-dd'T'HH:mmZZ";
-
     public static boolean isValidPatternDate(String dateTimeString) {
         boolean valid = true;
         try {
-            DateTimeFormatter formatter = DateTimeFormat.forPattern(DATETIME_PATTERN);
-            DateTime dob = formatter.parseDateTime(dateTimeString);
+            DateTime dateTime = new DateTime(dateTimeString);
         } catch (Exception e) {
             valid = false;
         }
