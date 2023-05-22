@@ -6,9 +6,9 @@ import graphql.language.Value;
 public class SPARQLMutationValue {
 
     private String translatedMutation;
-    private Value id;
+    private StringValue id;
 
-    public SPARQLMutationValue(String translatedMutation, Value id) {
+    public SPARQLMutationValue(String translatedMutation, StringValue id) {
         this.translatedMutation = translatedMutation;
         this.id = id;
     }
@@ -21,7 +21,7 @@ public class SPARQLMutationValue {
         this.translatedMutation = translatedMutation;
     }
 
-    public Value getId() {
+    public StringValue getId() {
         return id;
     }
 
