@@ -21,7 +21,7 @@ public class ExtendedScalars {
     /**
      * This represents the "DateTime" type which is a representation of org.joda.time.DateTime
      */
-    public static final GraphQLScalarType GraphQLDateTime = GraphQLScalarType.newScalar().name("DateTime").description("Built-in simplified org.joda.time.DateTime. Returns millis and string representation in ISO format. The format should be 2010-06-30T01:20+02:00 or DateTime in milliseconds.").coercing(new Coercing<DateTime, DateTime>() {
+    public static final GraphQLScalarType GraphQLDateTime = GraphQLScalarType.newScalar().name("DateTime").description("Built-in simplified org.joda.time.DateTime. Returns millis and string representation in ISO format. The format should be '2023-05-22T23:17:44.842+02:00' or DateTime in milliseconds.").coercing(new Coercing<DateTime, DateTime>() {
 
         private DateTime convertImpl(Object input) {
             if (isObjectDate(input)) {
