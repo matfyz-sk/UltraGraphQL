@@ -42,7 +42,7 @@ public class DateUtils {
     }
 
     public static DateTime convertMilisToDateTime(String dateTimeString) {
-        return new DateTime((Long.parseLong(dateTimeString) * 1000L), DateTimeZone.UTC);
+        return new DateTime((Long.parseLong(dateTimeString)), DateTimeZone.UTC);
     }
 
 }
