@@ -208,7 +208,7 @@ public class SPARQLMutationConverter {
                     .collect(Collectors.joining("\n"));
             where += "\n" + delete_all_with_id_optional;
 
-            return new SPARQLMutationValue(addSPARQLDeleteWrapper(delete_all_with_id + "\n", where, getGraphName(getMutationService())), new StringValue(""), MutationAction.DELETE); //TODO return correct ID
+            return new SPARQLMutationValue(addSPARQLDeleteWrapper(delete_all_with_id + "\n", where, getGraphName(getMutationService())), null, MutationAction.DELETE);
         }
         return null;
     }
