@@ -1,16 +1,25 @@
 package org.hypergraphql.mutation;
 
 import graphql.language.StringValue;
-import graphql.language.Value;
 
 public class SPARQLMutationValue {
 
+    private MutationAction mutationAction;
     private String translatedMutation;
     private StringValue id;
 
-    public SPARQLMutationValue(String translatedMutation, StringValue id) {
+    public SPARQLMutationValue(String translatedMutation, StringValue id, MutationAction mutationAction) {
         this.translatedMutation = translatedMutation;
         this.id = id;
+        this.mutationAction = mutationAction;
+    }
+
+    public MutationAction getMutationAction() {
+        return mutationAction;
+    }
+
+    public void setMutationAction(MutationAction mutationAction) {
+        this.mutationAction = mutationAction;
     }
 
     public String getTranslatedMutation() {

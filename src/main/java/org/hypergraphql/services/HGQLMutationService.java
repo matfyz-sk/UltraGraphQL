@@ -13,6 +13,9 @@ import org.hypergraphql.datafetching.services.resultmodel.ObjectResult;
 import org.hypergraphql.datafetching.services.resultmodel.QueryRootResult;
 import org.hypergraphql.datafetching.services.resultmodel.Result;
 import org.hypergraphql.datamodel.HGQLSchema;
+import org.hypergraphql.dto.ResponseStatus;
+import org.hypergraphql.enums.ResponseCode;
+import org.hypergraphql.mutation.MutationAction;
 import org.hypergraphql.mutation.SPARQLMutationConverter;
 import org.hypergraphql.mutation.SPARQLMutationValue;
 import org.hypergraphql.query.ValidatedQuery;
@@ -21,7 +24,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
-import static org.hypergraphql.util.GlobalValues._ID;
+import static org.hypergraphql.util.GlobalValues.*;
 
 public class HGQLMutationService {
     private final static Logger LOGGER = LoggerFactory.getLogger(HGQLMutationService.class);
@@ -44,50 +47,82 @@ public class HGQLMutationService {
     public Map<String, Object> results(String request, String acceptType, ValidatedQuery validatedQuery) {
 
         SelectionSet selectionSet = ExecutionForestFactory.selectionSet(validatedQuery.getParsedQuery());
+
         final List<Selection> selections = selectionSet.getSelections();
-        //ToDo: Translate each given Mutation and execute each mutation for its own (possibly multiple mutations per request)
-        List<String> sparql_translation = new ArrayList<>();
-        List<Field> mutation_fields = new ArrayList<>();
-        for (Selection selection : selections) {
-            final Service service = this.hgqlSchema.getServiceList().get(this.config.getMutationService());
-            SPARQLMutationValue mutation = this.converter.translateMutation((Field) selection, service);
 
-            if (mutation == null) {
-                throw new IllegalArgumentException("Mutation is null");
-            }
-
-            LOGGER.info(mutation.getTranslatedMutation());
-            if (service instanceof LocalModelSPARQLService) {
-                ((LocalModelSPARQLService) service).executeUpdate(mutation.getTranslatedMutation());
-            } else if (service instanceof SPARQLEndpointService) {
-                ((SPARQLEndpointService) service).executeUpdate(mutation.getTranslatedMutation());
-            }
-            //ToDo: Add a new response category "mutation" that informs about the status of the query (or in error segment)
-            sparql_translation.addAll(Arrays.asList(mutation.getTranslatedMutation().split("\n")));
-            mutation_fields.add(Field.newField()
-                    .name(this.hgqlSchema.getMutationFields().get(((Field) selection).getName()))
-                    .alias(((Field) selection).getAlias())
-                    .comments(selection.getComments())
-                    .arguments(List.of(new Argument(_ID, mutation.getId())))
-                    .directives(((Field) selection).getDirectives())
-                    .selectionSet(((Field) selection).getSelectionSet())
-                    .build());
+        if (selections == null || selections.isEmpty()) {
+            return new HashMap<>();
         }
 
-        Document mutation_selectionSets = Document.newDocument()
+        Selection<?> selection = selections.get(0);
+        List<Field> mutationFields = new ArrayList<>();
+
+        final Service service = this.hgqlSchema.getServiceList().get(this.config.getMutationService());
+        SPARQLMutationValue mutationValue = this.converter.translateMutation((Field) selection, service);
+
+        if (mutationValue == null) {
+            throw new IllegalArgumentException("Mutation is null");
+        }
+
+        LOGGER.info(mutationValue.getTranslatedMutation());
+        if (service instanceof LocalModelSPARQLService) {
+            ((LocalModelSPARQLService) service).executeUpdate(mutationValue.getTranslatedMutation());
+        } else if (service instanceof SPARQLEndpointService) {
+            ((SPARQLEndpointService) service).executeUpdate(mutationValue.getTranslatedMutation());
+        }
+        mutationFields.add(Field.newField()
+                .name(this.hgqlSchema.getMutationFields().get(((Field) selection).getName()))
+                .alias(((Field) selection).getAlias())
+                .comments(selection.getComments())
+                .arguments(List.of(new Argument(_ID, mutationValue.getId())))
+                .directives(((Field) selection).getDirectives())
+                .selectionSet(((Field) selection).getSelectionSet())
+                .build());
+
+        Document mutationSelectionSets = Document.newDocument()
                 .definition(OperationDefinition.newOperationDefinition()
                         .name(OperationDefinition.Operation.QUERY.toString())
                         .operation(OperationDefinition.Operation.QUERY)
                         .selectionSet(SelectionSet.newSelectionSet()
-                                .selections(mutation_fields)
+                                .selections(mutationFields)
                                 .build())
                         .build())
                 .build();
-        final Map<String, Object> res_selectionSet = executeSelectionSet(request, mutation_selectionSets, acceptType);
-//        res_selectionSet.put("mutation", sparql_translation);
-        return res_selectionSet;
+
+        final Map<String, Object> resSelectionSet = executeSelectionSet(request, mutationSelectionSets, acceptType);
+
+        resSelectionSet.put(MUTATION, new ResponseStatus(getResponseCode(mutationValue, resSelectionSet).getCode()));
+
+        return resSelectionSet;
     }
 
+    private ResponseCode getResponseCode(SPARQLMutationValue mutationValue, Map<String, Object> resSelectionSet) {
+        if (mutationValue.getMutationAction() == null) {
+            return ResponseCode.FORBIDDEN;
+        }
+
+        if (getSinglePerformMutationActions().contains(mutationValue.getMutationAction()) && hasSelectionSetData(resSelectionSet)) {
+            return ResponseCode.OK;
+        }
+        return ResponseCode.NO_CONTENT;
+    }
+
+    private static List<MutationAction> getSinglePerformMutationActions() {
+        return Arrays.asList(
+                MutationAction.INSERT,
+                MutationAction.UPDATE
+        );
+    }
+
+    private boolean hasSelectionSetData(Map<String, Object> resSelectionSet) {
+        if (resSelectionSet != null && !resSelectionSet.isEmpty()) {
+            Object selectionSetObject = resSelectionSet.getOrDefault(DATA, null);
+            if (selectionSetObject instanceof HashMap<?, ?> selectionSetHashMap) {
+                return selectionSetHashMap.size() > 1;
+            }
+        }
+        return false;
+    }
 
     Map<String, Object> executeSelectionSet(String query, Document document, String acceptType) {
         Map<String, Object> result = new HashMap<>();

@@ -103,7 +103,7 @@ public class SPARQLMutationConverter {
                 .filter(argument -> !argument.getName().equals(_ID))
                 .map(argument -> translateArgument(rootObject, id, argument, MutationAction.INSERT))
                 .collect(Collectors.joining("\n"));
-        return new SPARQLMutationValue(addSPARQLInsertWrapper(result, getGraphName(getMutationService())), new StringValue(id));
+        return new SPARQLMutationValue(addSPARQLInsertWrapper(result, getGraphName(getMutationService())), new StringValue(id), MutationAction.INSERT);
     }
 
     public String addCreatedAttributeToResult(String uriResource) {
@@ -147,7 +147,7 @@ public class SPARQLMutationConverter {
             i.set(FIRST_INDEX_ATOMIC_INTEGER); //reset Atomic Integer to the beginning
             String whereOptional = listOfFieldsToUpdate.stream().map(fieldOfTypeConfig -> optionalClause(toTriple(id_uri, uriToResource(fieldOfTypeConfig.getId()), toVar("o_" + i.getAndIncrement()))))
                     .collect(Collectors.joining("\n"));
-            return new SPARQLMutationValue(addSPARQLUpdateWrapper(deleteResult, updateResult, classType + whereOptional, getGraphName(getMutationService())), new StringValue(id.get()));
+            return new SPARQLMutationValue(addSPARQLUpdateWrapper(deleteResult, updateResult, classType + whereOptional, getGraphName(getMutationService())), new StringValue(id.get()), MutationAction.UPDATE);
         }
         return null;
     }
@@ -175,7 +175,7 @@ public class SPARQLMutationConverter {
                     .filter(argument -> !argument.getName().equals(_ID))
                     .map(argument -> translateArgument(rootObject, optionalID.get(), argument, MutationAction.DELETE))
                     .collect(Collectors.joining("\n"));
-            return new SPARQLMutationValue(addSPARQLDeleteWrapper(result, null, getGraphName(getMutationService())), new StringValue(optionalID.get()));
+            return new SPARQLMutationValue(addSPARQLDeleteWrapper(result, null, getGraphName(getMutationService())), new StringValue(optionalID.get()), MutationAction.DELETE);
 
         } else if (hasID) {  //hasID && !hasOtherFields -> ID defined but no other fields present
             String id_uri = uriToResource(optionalID.get());
@@ -192,7 +192,7 @@ public class SPARQLMutationConverter {
             String optionalFields = fieldOfTypeConfigs.stream().map(fieldOfTypeConfig -> optionalClause(toTriple(id_uri, uriToResource(fieldOfTypeConfig.getId()), toVar("o_" + i.getAndIncrement())))).collect(Collectors.joining("\n"));
             String whereCondition = String.join(EMPTY_STRING, delete_field_type, optionalFields);
 
-            return new SPARQLMutationValue(addSPARQLDeleteWrapper(deleteFields, whereCondition, getGraphName(getMutationService())), new StringValue(optionalID.get()));
+            return new SPARQLMutationValue(addSPARQLDeleteWrapper(deleteFields, whereCondition, getGraphName(getMutationService())), new StringValue(optionalID.get()), MutationAction.DELETE);
 
         } else if (hasOtherFields) { //!hasID && hasOtherFields -> ID not defined but other fields
             String var_root = rootObject.getName();
@@ -208,7 +208,7 @@ public class SPARQLMutationConverter {
                     .collect(Collectors.joining("\n"));
             where += "\n" + delete_all_with_id_optional;
 
-            return new SPARQLMutationValue(addSPARQLDeleteWrapper(delete_all_with_id + "\n", where, getGraphName(getMutationService())), new StringValue("")); //TODO return correct ID
+            return new SPARQLMutationValue(addSPARQLDeleteWrapper(delete_all_with_id + "\n", where, getGraphName(getMutationService())), new StringValue(""), MutationAction.DELETE); //TODO return correct ID
         }
         return null;
     }

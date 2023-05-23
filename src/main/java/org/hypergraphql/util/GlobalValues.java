@@ -14,6 +14,8 @@ public class GlobalValues {
     public static final String OFFSET_ARGUMENT = "offset";
     public static final String _ID = "_id";
     public static final String _TYPE = "_type";
+    public static final String MUTATION = "mutation";
+    public static final String DATA = "data";
 
     private GlobalValues() {
 
