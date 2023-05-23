@@ -7,11 +7,19 @@ public class SPARQLMutationValue {
     private MutationAction mutationAction;
     private String translatedMutation;
     private StringValue id;
+    private Boolean deleteResponseSuccessful = false;
 
     public SPARQLMutationValue(String translatedMutation, StringValue id, MutationAction mutationAction) {
         this.translatedMutation = translatedMutation;
         this.id = id;
         this.mutationAction = mutationAction;
+    }
+
+    public SPARQLMutationValue(String translatedMutation, StringValue id, MutationAction mutationAction, Boolean deleteResponseSuccessful) {
+        this.mutationAction = mutationAction;
+        this.translatedMutation = translatedMutation;
+        this.id = id;
+        this.deleteResponseSuccessful = deleteResponseSuccessful;
     }
 
     public MutationAction getMutationAction() {
@@ -36,5 +44,13 @@ public class SPARQLMutationValue {
 
     public void setId(StringValue id) {
         this.id = id;
+    }
+
+    public Boolean getDeleteResponseSuccessful() {
+        return deleteResponseSuccessful;
+    }
+
+    public void setDeleteResponseSuccessful(Boolean deleteResponseSuccessful) {
+        this.deleteResponseSuccessful = deleteResponseSuccessful;
     }
 }

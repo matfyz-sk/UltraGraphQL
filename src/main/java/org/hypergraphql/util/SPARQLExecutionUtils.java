@@ -16,8 +16,18 @@ import org.hypergraphql.datafetching.services.SPARQLEndpointService;
 
 public class SPARQLExecutionUtils {
 
-    public static boolean ask(SPARQLEndpointService service, String sparqlIdentifier) {
+    private static final String ASK_ID = "ASK  { <%s> ?b  ?c }";
+    private static final String ASK_TRIPLE = "ASK  { %s }";
 
+    public static boolean ask(SPARQLEndpointService service, String sparqlIdentifier) {
+        return askFunctionality(service, String.format(ASK_ID, sparqlIdentifier));
+    }
+
+    public static boolean askExistsTriple(SPARQLEndpointService service, String sparqlTriple) {
+        return askFunctionality(service, String.format(ASK_TRIPLE, sparqlTriple));
+    }
+
+    private static boolean askFunctionality(SPARQLEndpointService service, String formattedQuery) {
         CredentialsProvider credsProvider = new BasicCredentialsProvider();
         Credentials credentials =
                 new UsernamePasswordCredentials(service.getUser(), service.getPassword());
@@ -29,7 +39,6 @@ public class SPARQLExecutionUtils {
 
         ARQ.init();
 
-        String formattedQuery = String.format("ASK  { <%s> ?b  ?c }", sparqlIdentifier);
         org.apache.jena.query.Query jenaQuery = QueryFactory.create(formattedQuery);
 
         QueryEngineHTTP qEngine = QueryExecutionFactory.createServiceRequest(service.getUrl(), jenaQuery);
@@ -42,6 +51,5 @@ public class SPARQLExecutionUtils {
             qEngine.abort();
         }
         return resultsSet;
-
     }
 }

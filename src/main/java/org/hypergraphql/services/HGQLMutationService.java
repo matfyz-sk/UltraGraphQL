@@ -71,30 +71,26 @@ public class HGQLMutationService {
             ((SPARQLEndpointService) service).executeUpdate(mutationValue.getTranslatedMutation());
         }
 
-        Map<String, Object> resSelectionSet = new HashMap<>();
+        mutationFields.add(Field.newField()
+                .name(this.hgqlSchema.getMutationFields().get(((Field) selection).getName()))
+                .alias(((Field) selection).getAlias())
+                .comments(selection.getComments())
+                .arguments(List.of(new Argument(_ID, mutationValue.getId())))
+                .directives(((Field) selection).getDirectives())
+                .selectionSet(((Field) selection).getSelectionSet())
+                .build());
 
-        if (mutationValue.getId() != null) {
-            mutationFields.add(Field.newField()
-                    .name(this.hgqlSchema.getMutationFields().get(((Field) selection).getName()))
-                    .alias(((Field) selection).getAlias())
-                    .comments(selection.getComments())
-                    .arguments(List.of(new Argument(_ID, mutationValue.getId())))
-                    .directives(((Field) selection).getDirectives())
-                    .selectionSet(((Field) selection).getSelectionSet())
-                    .build());
+        Document mutationSelectionSets = Document.newDocument()
+                .definition(OperationDefinition.newOperationDefinition()
+                        .name(OperationDefinition.Operation.QUERY.toString())
+                        .operation(OperationDefinition.Operation.QUERY)
+                        .selectionSet(SelectionSet.newSelectionSet()
+                                .selections(mutationFields)
+                                .build())
+                        .build())
+                .build();
 
-            Document mutationSelectionSets = Document.newDocument()
-                    .definition(OperationDefinition.newOperationDefinition()
-                            .name(OperationDefinition.Operation.QUERY.toString())
-                            .operation(OperationDefinition.Operation.QUERY)
-                            .selectionSet(SelectionSet.newSelectionSet()
-                                    .selections(mutationFields)
-                                    .build())
-                            .build())
-                    .build();
-
-            resSelectionSet = executeSelectionSet(request, mutationSelectionSets, acceptType);
-        }
+        Map<String, Object> resSelectionSet = executeSelectionSet(request, mutationSelectionSets, acceptType);
         resSelectionSet.put(MUTATION, new ResponseStatus(getResponseCode(mutationValue, resSelectionSet).getCode()));
 
         return resSelectionSet;
@@ -111,7 +107,7 @@ public class HGQLMutationService {
 
         if (MutationAction.DELETE == mutationValue.getMutationAction()) {
             //TODO add check when no id is selected (id is null) and the deletion is based on the field - discuss if this functionality is even needed at all.
-            return mutationValue.getId() == null || hasSelectionSetData(resSelectionSet) ? ResponseCode.OK : ResponseCode.NO_CONTENT;
+            return mutationValue.getId() == null || mutationValue.getDeleteResponseSuccessful() ? ResponseCode.OK : ResponseCode.NO_CONTENT;
         }
 
         return ResponseCode.NO_CONTENT;

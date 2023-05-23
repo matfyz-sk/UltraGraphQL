@@ -9,6 +9,7 @@ import org.hypergraphql.datafetching.services.Service;
 import org.hypergraphql.datamodel.HGQLSchema;
 import org.hypergraphql.mutation.values.DateTimeValue;
 import org.hypergraphql.mutation.values.DecimalValue;
+import org.hypergraphql.util.SPARQLExecutionUtils;
 import org.hypergraphql.util.UIDUtils;
 import org.joda.time.DateTime;
 
@@ -171,28 +172,31 @@ public class SPARQLMutationConverter {
         boolean hasOtherFields = args.stream().anyMatch(argument -> !argument.getName().equals(_ID));  // has at least one field different from _id -> all arguments that are not _id
 
         if (hasID && hasOtherFields) {
+            String id_uri = uriToResource(optionalID.get());
+            String deleteFieldType = toTriple(id_uri, rdf_type, uriToResource(rootObject.getId()));
+
             String result = args.stream()
                     .filter(argument -> !argument.getName().equals(_ID))
                     .map(argument -> translateArgument(rootObject, optionalID.get(), argument, MutationAction.DELETE))
                     .collect(Collectors.joining("\n"));
-            return new SPARQLMutationValue(addSPARQLDeleteWrapper(result, null, getGraphName(getMutationService())), new StringValue(optionalID.get()), MutationAction.DELETE);
+            return new SPARQLMutationValue(addSPARQLDeleteWrapper(result, null, getGraphName(getMutationService())), new StringValue(optionalID.get()), MutationAction.DELETE, SPARQLExecutionUtils.askExistsTriple((SPARQLEndpointService) getMutationService(), deleteFieldType));
 
         } else if (hasID) {  //hasID && !hasOtherFields -> ID defined but no other fields present
             String id_uri = uriToResource(optionalID.get());
             AtomicInteger i = new AtomicInteger(FIRST_INDEX_ATOMIC_INTEGER);
 
             List<FieldOfTypeConfig> fieldOfTypeConfigs = rootObject.getFields().values().stream().filter(fieldOfTypeConfig -> !fieldOfTypeConfig.getId().equals(RDF_TYPE)).toList();
-            String delete_field_type = toTriple(id_uri, rdf_type, uriToResource(rootObject.getId())) + "\n";
+            String deleteFieldType = toTriple(id_uri, rdf_type, uriToResource(rootObject.getId())) + "\n";
 
             String delete_all_type_fields = fieldOfTypeConfigs.stream().map(fieldOfTypeConfig -> toTriple(id_uri, uriToResource(fieldOfTypeConfig.getId()), toVar("o_" + i.getAndIncrement()))).collect(Collectors.joining("\n"));
             i.set(FIRST_INDEX_ATOMIC_INTEGER);  // reset SPARQL variable id
 
-            String deleteFields = String.join(EMPTY_STRING, delete_field_type, delete_all_type_fields);
+            String deleteFields = String.join(EMPTY_STRING, deleteFieldType, delete_all_type_fields);
 
             String optionalFields = fieldOfTypeConfigs.stream().map(fieldOfTypeConfig -> optionalClause(toTriple(id_uri, uriToResource(fieldOfTypeConfig.getId()), toVar("o_" + i.getAndIncrement())))).collect(Collectors.joining("\n"));
-            String whereCondition = String.join(EMPTY_STRING, delete_field_type, optionalFields);
+            String whereCondition = String.join(EMPTY_STRING, deleteFieldType, optionalFields);
 
-            return new SPARQLMutationValue(addSPARQLDeleteWrapper(deleteFields, whereCondition, getGraphName(getMutationService())), new StringValue(optionalID.get()), MutationAction.DELETE);
+            return new SPARQLMutationValue(addSPARQLDeleteWrapper(deleteFields, whereCondition, getGraphName(getMutationService())), new StringValue(optionalID.get()), MutationAction.DELETE, SPARQLExecutionUtils.askExistsTriple((SPARQLEndpointService) getMutationService(), deleteFieldType));
 
         } else if (hasOtherFields) { //!hasID && hasOtherFields -> ID not defined but other fields
             String var_root = rootObject.getName();
