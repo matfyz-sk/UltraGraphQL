@@ -107,7 +107,7 @@ public class HGQLMutationService {
 
         if (MutationAction.DELETE == mutationValue.getMutationAction()) {
             //TODO add check when no id is selected (id is null) and the deletion is based on the field - discuss if this functionality is even needed at all.
-            return mutationValue.getId() == null || mutationValue.getDeleteResponseSuccessful() ? ResponseCode.OK : ResponseCode.NO_CONTENT;
+            return mutationValue.getId() == null || mutationValue.getId().getValue() == null || mutationValue.getId().getValue().isEmpty() || mutationValue.getDeleteResponseSuccessful() ? ResponseCode.OK : ResponseCode.NO_CONTENT;
         }
 
         return ResponseCode.NO_CONTENT;

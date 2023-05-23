@@ -198,7 +198,9 @@ public class SPARQLMutationConverter {
 
             return new SPARQLMutationValue(addSPARQLDeleteWrapper(deleteFields, whereCondition, getGraphName(getMutationService())), new StringValue(optionalID.get()), MutationAction.DELETE, SPARQLExecutionUtils.askExistsTriple((SPARQLEndpointService) getMutationService(), deleteFieldType));
 
-        } else if (hasOtherFields) { //!hasID && hasOtherFields -> ID not defined but other fields
+        }
+        //TODO discuss if this should be even possible when the authorization rules will be added -> better always specify the identifier and maybe the field which should be deleted.
+        else if (hasOtherFields) { //!hasID && hasOtherFields -> ID not defined but other fields
             String var_root = rootObject.getName();
             String delete_all_with_id = toTriple(toVar(rootObject.getName()), toVar("p_1"), toVar("o")) + "\n"
                     + toTriple(toVar("s"), toVar("p_2"), toVar(rootObject.getName()));
@@ -212,7 +214,7 @@ public class SPARQLMutationConverter {
                     .collect(Collectors.joining("\n"));
             where += "\n" + delete_all_with_id_optional;
 
-            return new SPARQLMutationValue(addSPARQLDeleteWrapper(delete_all_with_id + "\n", where, getGraphName(getMutationService())), null, MutationAction.DELETE);
+            return new SPARQLMutationValue(addSPARQLDeleteWrapper(delete_all_with_id + "\n", where, getGraphName(getMutationService())), new StringValue(""), MutationAction.DELETE);
         }
         return null;
     }
