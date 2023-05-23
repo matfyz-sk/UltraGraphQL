@@ -186,9 +186,13 @@ public class SPARQLMutationConverter {
 
             String delete_all_type_fields = fieldOfTypeConfigs.stream().map(fieldOfTypeConfig -> toTriple(id_uri, uriToResource(fieldOfTypeConfig.getId()), toVar("o_" + i.getAndIncrement()))).collect(Collectors.joining("\n"));
             i.set(FIRST_INDEX_ATOMIC_INTEGER);  // reset SPARQL variable id
-            String where = fieldOfTypeConfigs.stream().map(fieldOfTypeConfig -> optionalClause(toTriple(id_uri, uriToResource(fieldOfTypeConfig.getId()), toVar("o_" + i.getAndIncrement())))).collect(Collectors.joining("\n"));
 
-            return new SPARQLMutationValue(addSPARQLDeleteWrapper(String.join("\n", delete_all_type_fields, delete_field_type), where, getGraphName(getMutationService())), new StringValue(optionalID.get()));
+            String deleteFields = String.join(EMPTY_STRING, delete_field_type, delete_all_type_fields);
+
+            String optionalFields = fieldOfTypeConfigs.stream().map(fieldOfTypeConfig -> optionalClause(toTriple(id_uri, uriToResource(fieldOfTypeConfig.getId()), toVar("o_" + i.getAndIncrement())))).collect(Collectors.joining("\n"));
+            String whereCondition = String.join(EMPTY_STRING, delete_field_type, optionalFields);
+
+            return new SPARQLMutationValue(addSPARQLDeleteWrapper(deleteFields, whereCondition, getGraphName(getMutationService())), new StringValue(optionalID.get()));
 
         } else if (hasOtherFields) { //!hasID && hasOtherFields -> ID not defined but other fields
             String var_root = rootObject.getName();
