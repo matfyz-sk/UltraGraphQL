@@ -234,11 +234,11 @@ public class SPARQLServiceConverter {
     }
 
     private String filterClause(QueryPattern query) {
-        Set<String> objects = getValuesFromArgument(query.args, EQUALS_ARGUMENT);
+        Set<Object> objects = getValuesFromArgument(query.args, EQUALS_ARGUMENT);
         return filterLogic(new ArrayList<>(objects), query.nodeId);
     }
 
-    private String filterLogic(List<String> objects, String nodeId) {
+    private String filterLogic(List<Object> objects, String nodeId) {
         if (objects == null || objects.isEmpty() || objects.stream().noneMatch(Objects::nonNull)) {
             return null;
         }
@@ -401,13 +401,13 @@ public class SPARQLServiceConverter {
     private String getFilterById(QueryPattern queryField) {
         Map<String, Object> args = queryField.args;
         if (args.containsKey(_ID)) {
-            Set<String> arguments = getValuesFromArgument(args, _ID);
-            return valuesClause(queryField.nodeId, arguments);
+            Set<Object> arguments = getValuesFromArgument(args, _ID);
+            return valuesClause(queryField.nodeId, objectSetToStringSet(arguments));
         }
         return null;
     }
 
-    private Set<String> getValuesFromArgument(Map<String, Object> args, String argumentName) {
+    private Set<Object> getValuesFromArgument(Map<String, Object> args, String argumentName) {
         Object object = args.get(argumentName);
 
         if (object == null) {
@@ -415,7 +415,7 @@ public class SPARQLServiceConverter {
         }
 
         if (object instanceof String || object instanceof List<?>) {
-            return new HashSet<>(object instanceof String ? Collections.singleton((String) args.get(argumentName)) : (List<String>) args.get(argumentName));
+            return new HashSet<>(object instanceof String ? Collections.singleton((String) args.get(argumentName)) : (List<Object>) args.get(argumentName));
         }
         throw new GraphQLIllegalArgumentException("Invalid query syntax. Argument [" + argumentName + "] should be defined as a list of values.");
     }
@@ -464,6 +464,10 @@ public class SPARQLServiceConverter {
         return selectQueryClause(orderByValues, filterByValues, null, valueSTR + (whereClause), graphID);
     }
 
+    private Set<String> objectSetToStringSet(Set<Object> objectSet) {
+        return objectSet.stream().map(Object::toString).collect(Collectors.toSet());
+    }
+
     /**
      * Generates a SPARQL query for the given field and also for the subfields of the field.
      *
@@ -502,8 +506,8 @@ public class SPARQLServiceConverter {
         String orderSTR = orderClause(field, orderBy);
         String valueSTR = "";
         if (field.args.containsKey(_ID)) {
-            Set<String> uris = getValuesFromArgument(field.args, _ID);
-            valueSTR = valuesClause(nodeId, uris);
+            Set<Object> uris = getValuesFromArgument(field.args, _ID);
+            valueSTR = valuesClause(nodeId, objectSetToStringSet(uris));
         }
 
         String fieldPattern = "";
@@ -559,7 +563,7 @@ public class SPARQLServiceConverter {
 
         boolean filterNonExisting = false;
         if (field.args.containsKey(EQUALS_ARGUMENT)) {
-            Set<String> argumentsIter = getValuesFromArgument(field.args, EQUALS_ARGUMENT);
+            Set<Object> argumentsIter = getValuesFromArgument(field.args, EQUALS_ARGUMENT);
             filterNonExisting = argumentsIter.size() > 0 && argumentsIter.stream().noneMatch(Objects::nonNull);
         }
 
@@ -568,7 +572,7 @@ public class SPARQLServiceConverter {
         }
 
         if (field.args.containsKey(_ID)) {
-            Set<String> urisIter = getValuesFromArgument(field.args, _ID);
+            Set<Object> urisIter = getValuesFromArgument(field.args, _ID);
             if (urisIter.size() > 0) {
                 return noOptionalClause(selectField);
             }
