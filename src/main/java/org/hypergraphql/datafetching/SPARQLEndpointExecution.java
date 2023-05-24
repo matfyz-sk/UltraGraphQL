@@ -78,7 +78,7 @@ public class SPARQLEndpointExecution implements Callable<SPARQLExecutionResult> 
         AtomicReference<Result> formatedResults = new AtomicReference<>();
 
         String sparqlQuery = converter.getSelectQuery(query, inputSubset, rootType, sparqlEndpointService.getId());
-        LOGGER.debug("Execute the following SPARQL query at the service {}: \n{}", sparqlEndpointService.getId(), sparqlQuery);
+        LOGGER.info(sparqlQuery);
 
         CredentialsProvider credsProvider = new BasicCredentialsProvider();
         Credentials credentials =
