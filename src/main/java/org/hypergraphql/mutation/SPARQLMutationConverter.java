@@ -20,8 +20,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 import static org.hypergraphql.config.schema.HGQLVocabulary.*;
-import static org.hypergraphql.mutation.SPARQLTypeConverter.getIRIType;
-import static org.hypergraphql.mutation.SPARQLTypeConverter.getSchemaScalarType;
+import static org.hypergraphql.mutation.SPARQLTypeConverter.*;
 import static org.hypergraphql.query.converters.SPARQLServiceConverter.*;
 import static org.hypergraphql.util.GlobalValues.*;
 
@@ -380,9 +379,9 @@ public class SPARQLMutationConverter {
         boolean containsIriPart = val != null && !val.isEmpty() && val.contains(ontologyPrefix);
 
         if (subject == null) {
-            return toTriple(toVar(root.getName()), uriToResource(field_id), containsIriPart ? getIRIType(val, String.class) : getSchemaScalarType(val, StringValue.class));
+            return toTriple(toVar(root.getName()), uriToResource(field_id), containsIriPart ? getIRIType(val) : getSchemaScalarType(val, StringValue.class));
         } else {
-            return toTriple(uriToResource(subject), uriToResource(field_id), containsIriPart ? getIRIType(val, String.class) : getSchemaScalarType(val, StringValue.class));
+            return toTriple(uriToResource(subject), uriToResource(field_id), containsIriPart ? getIRIType(val) : getSchemaScalarType(val, StringValue.class));
         }
 
     }
