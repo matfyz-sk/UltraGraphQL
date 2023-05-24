@@ -75,17 +75,17 @@ public class SPARQLEndpointExecution implements Callable<SPARQLExecutionResult> 
 
         markers.forEach(marker -> resultSet.put(marker, new HashSet<>()));
 
-        AtomicReference<Result> formatedResults = new AtomicReference<>();
+        AtomicReference<Result> formattedResults = new AtomicReference<>();
 
         String sparqlQuery = converter.getSelectQuery(query, inputSubset, rootType, sparqlEndpointService.getId());
         LOGGER.info(sparqlQuery);
 
-        CredentialsProvider credsProvider = new BasicCredentialsProvider();
+        CredentialsProvider credentialProvider = new BasicCredentialsProvider();
         Credentials credentials =
                 new UsernamePasswordCredentials(this.sparqlEndpointService.getUser(), this.sparqlEndpointService.getPassword());
-        credsProvider.setCredentials(AuthScope.ANY, credentials);
+        credentialProvider.setCredentials(AuthScope.ANY, credentials);
         HttpClient httpclient = HttpClients.custom()
-                .setDefaultCredentialsProvider(credsProvider)
+                .setDefaultCredentialsProvider(credentialProvider)
                 .build();
         HttpOp.setDefaultHttpClient(httpclient);
 
@@ -101,14 +101,14 @@ public class SPARQLEndpointExecution implements Callable<SPARQLExecutionResult> 
                     .forEach(marker -> resultSet.get(marker).add(solution.get(marker).asResource().getURI()));
 
             Result partialRes = this.sparqlEndpointService.getModelFromResults(query, solution, schema);
-            if (formatedResults.get() == null) {
-                formatedResults.set(partialRes);
+            if (formattedResults.get() == null) {
+                formattedResults.set(partialRes);
             } else {
-                formatedResults.get().merge(partialRes);
+                formattedResults.get().merge(partialRes);
             }
         });
 
-        SPARQLExecutionResult sparqlExecutionResult = new SPARQLExecutionResult(resultSet, formatedResults.get());
+        SPARQLExecutionResult sparqlExecutionResult = new SPARQLExecutionResult(resultSet, formattedResults.get());
         LOGGER.debug("Result: {}", sparqlExecutionResult);
         qEngine.close();
         if (!qEngine.isClosed()) {
