@@ -238,7 +238,7 @@ public class SPARQLServiceConverter {
         return filterLogic(new ArrayList<>(objects), query.targetType, query.nodeId);
     }
 
-    private static String getSchemaScalarType(String value, String type) {
+    private List<String> getSchemaScalarType(String value, String type) {
         if (SCALAR_STRING.equals(type)) {
             return formatToSchema(XML_STRING, value);
         } else if (SCALAR_INT.equals(type)) {
@@ -253,10 +253,14 @@ public class SPARQLServiceConverter {
         return null;
     }
 
-    private static String formatToSchema(String type, String value) {
-        if (SCALAR_STRING.equals(type)) {
-            return "\"" + value + "\"";
+    private List<String> formatToSchema(String type, String value) {
+        if (XML_STRING.equals(type)) {
+            return Arrays.asList("\"" + value + "\"", formatToSchemaTypeWithXMLType(value, type));
         }
+        return Collections.singletonList(formatToSchemaTypeWithXMLType(value, type));
+    }
+
+    private String formatToSchemaTypeWithXMLType(String value, String type) {
         return "\"" + value + "\"" + TYPE_PREFIX + "<" + type + ">";
     }
 
@@ -267,14 +271,21 @@ public class SPARQLServiceConverter {
 
         if (objects.size() == 1) {
             String valueAsString = objects.get(0).toString();
-            String formattedType = getSchemaScalarType(valueAsString, type);
-            return toVar(nodeId) + " = " + (formattedType != null ? formattedType : getObjectAsString(objects.get(0)));
+            List<String> formattedValueTypes = getSchemaScalarType(valueAsString, type);
+            return toVar(nodeId) + " IN (" + getFormattedSingleSchemaTypeWithValue(formattedValueTypes, objects.get(0)) + ")";
         }
         return toVar(nodeId) + " IN (" + objects.stream().map(value -> {
             String valueAsString = value.toString();
-            String formattedType = getSchemaScalarType(valueAsString, type);
-            return formattedType != null ? formattedType : getObjectAsString(value);
+            List<String> formattedValueTypes = getSchemaScalarType(valueAsString, type);
+            return getFormattedSingleSchemaTypeWithValue(formattedValueTypes, value);
         }).collect(Collectors.joining(", ")) + ")";
+    }
+
+    private String getFormattedSingleSchemaTypeWithValue(List<String> formattedValueTypes, Object objectValue) {
+        if (formattedValueTypes == null || formattedValueTypes.isEmpty()) {
+            return getObjectAsString(objectValue);
+        }
+        return String.join(", ", formattedValueTypes);
     }
 
     private String getObjectAsString(Object object) {
