@@ -13,7 +13,7 @@ import static org.hypergraphql.config.schema.HGQLVocabulary.*;
 public final class SPARQLTypeConverter {
 
     private static final String XSD_PREFIX = XSD.NS;
-    private static final String TYPE_PREFIX = "^^";
+    public static final String TYPE_PREFIX = "^^";
 
     private SPARQLTypeConverter() {
 
@@ -40,6 +40,9 @@ public final class SPARQLTypeConverter {
     }
 
     private static String formatToSchema(String type, String value) {
+        if (XML_STRING.equals(type)) {
+            return "\"" + value + "\"";
+        }
         return "\"" + value + "\"" + TYPE_PREFIX + "<" + type + ">";
     }
 

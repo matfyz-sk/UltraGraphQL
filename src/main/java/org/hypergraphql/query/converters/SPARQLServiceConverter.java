@@ -16,8 +16,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static org.hypergraphql.config.schema.HGQLVocabulary.HGQL_SCALAR_LITERAL_GQL_NAME;
-import static org.hypergraphql.config.schema.HGQLVocabulary.HGQL_SCALAR_LITERAL_VALUE_GQL_NAME;
+import static org.hypergraphql.config.schema.HGQLVocabulary.*;
+import static org.hypergraphql.mutation.SPARQLTypeConverter.TYPE_PREFIX;
 import static org.hypergraphql.util.GlobalValues.*;
 
 /**
@@ -125,7 +125,7 @@ public class SPARQLServiceConverter {
         if (StringUtils.isEmpty(graphID)) {
             return where;
         } else {
-            return "GRAPH <" + graphID + "> { " + (filterById != null ? filterById : "") + where + (filterByValues != null ? filterByValues : "") + " } ";
+            return "GRAPH <" + graphID + "> { " + (filterById != null ? filterById : "") + where + " } " + (filterByValues != null ? filterByValues : "");
         }
     }
 
@@ -235,17 +235,46 @@ public class SPARQLServiceConverter {
 
     private String filterClause(QueryPattern query) {
         Set<Object> objects = getValuesFromArgument(query.args, EQUALS_ARGUMENT);
-        return filterLogic(new ArrayList<>(objects), query.nodeId);
+        return filterLogic(new ArrayList<>(objects), query.targetType, query.nodeId);
     }
 
-    private String filterLogic(List<Object> objects, String nodeId) {
+    private static String getSchemaScalarType(String value, String type) {
+        if (SCALAR_STRING.equals(type)) {
+            return formatToSchema(XML_STRING, value);
+        } else if (SCALAR_INT.equals(type)) {
+            return formatToSchema(XML_INTEGER, value);
+        } else if (SCALAR_BOOLEAN.equals(type)) {
+            return formatToSchema(XML_BOOLEAN, value);
+        } else if (SCALAR_DATETIME.equals(type)) {
+            return formatToSchema(XML_DATETIME, value);
+        } else if (SCALAR_DECIMAL.equals(type) || SCALAR_FLOAT.equals(type)) {
+            return formatToSchema(XML_DECIMAL, value);
+        }
+        return null;
+    }
+
+    private static String formatToSchema(String type, String value) {
+        if (SCALAR_STRING.equals(type)) {
+            return "\"" + value + "\"";
+        }
+        return "\"" + value + "\"" + TYPE_PREFIX + "<" + type + ">";
+    }
+
+    private String filterLogic(List<Object> objects, String type, String nodeId) {
         if (objects == null || objects.isEmpty() || objects.stream().noneMatch(Objects::nonNull)) {
             return null;
         }
+
         if (objects.size() == 1) {
-            return toVar(nodeId) + " = " + getObjectAsString(objects.get(0));
+            String valueAsString = objects.get(0).toString();
+            String formattedType = getSchemaScalarType(valueAsString, type);
+            return toVar(nodeId) + " = " + (formattedType != null ? formattedType : getObjectAsString(objects.get(0)));
         }
-        return toVar(nodeId) + " IN (" + objects.stream().map(this::getObjectAsString).collect(Collectors.joining(", ")) + ")";
+        return toVar(nodeId) + " IN (" + objects.stream().map(value -> {
+            String valueAsString = value.toString();
+            String formattedType = getSchemaScalarType(valueAsString, type);
+            return formattedType != null ? formattedType : getObjectAsString(value);
+        }).collect(Collectors.joining(", ")) + ")";
     }
 
     private String getObjectAsString(Object object) {
