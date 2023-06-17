@@ -26,7 +26,8 @@ public class HGQLConfig {
     private final Boolean mutations;
     private final String mutationService;
     private final Map<String, String> prefixes;
-    private String modelJson;
+    private final String modelJson;
+    private final String jdbcPort;
 
     //Additional attributes
     private GraphQLSchema schema;
@@ -55,7 +56,8 @@ public class HGQLConfig {
             @JsonProperty("mutations") Boolean mutations,
             @JsonProperty("mutationService") String mutationService,
             @JsonProperty("prefixes") Map<String, String> prefixes,
-            @JsonProperty("modelJson") String modelJson
+            @JsonProperty("modelJson") String modelJson,
+            @JsonProperty("jdbcPort") String jdbcPort
     ) {
         this.name = name;
         this.schemaFile = schemaFile;
@@ -68,6 +70,7 @@ public class HGQLConfig {
         this.mutationService = mutationService;
         this.prefixes = prefixes;
         this.modelJson = modelJson;
+        this.jdbcPort = jdbcPort;
     }
 
     /**
@@ -224,8 +227,8 @@ public class HGQLConfig {
         return modelJson;
     }
 
-    public void setModelJson(String modelJson) {
-        this.modelJson = modelJson;
+    public String getJdbcPort() {
+        return jdbcPort;
     }
 }
 

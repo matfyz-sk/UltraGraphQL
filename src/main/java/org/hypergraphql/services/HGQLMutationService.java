@@ -70,7 +70,7 @@ public class HGQLMutationService {
         if (service instanceof LocalModelSPARQLService) {
             ((LocalModelSPARQLService) service).executeUpdate(mutationValue.getTranslatedMutation());
         } else if (service instanceof SPARQLEndpointService) {
-            Boolean isPerformed = ((SPARQLEndpointService) service).executeUpdate(mutationValue);
+            Boolean isPerformed = ((SPARQLEndpointService) service).executeUpdate(mutationValue, config.getJdbcPort());
 
             /* If the transaction fails - is null, generate new request with new ID */
             if (isPerformed == null) {

@@ -1,15 +1,6 @@
 package org.hypergraphql.datafetching.services;
 
-import graphql.language.StringValue;
-import org.apache.http.auth.AuthScope;
-import org.apache.http.auth.Credentials;
-import org.apache.http.auth.UsernamePasswordCredentials;
-import org.apache.http.client.CredentialsProvider;
-import org.apache.http.client.HttpClient;
-import org.apache.http.impl.client.BasicCredentialsProvider;
-import org.apache.http.impl.client.HttpClients;
 import org.apache.jena.query.ReadWrite;
-import org.apache.jena.riot.web.HttpOp;
 import org.apache.jena.shared.JenaException;
 import org.hypergraphql.config.schema.HGQLVocabulary;
 import org.hypergraphql.config.system.ServiceConfig;
@@ -110,18 +101,9 @@ public class SPARQLEndpointService extends SPARQLService {
      * @param update SPARQL Update
      * @return True if the update succeeds otherwise False
      */
-    public Boolean executeUpdate(SPARQLMutationValue update) {
+    public Boolean executeUpdate(SPARQLMutationValue update, String jdbcPort) {
         try {
-            CredentialsProvider credsProvider = new BasicCredentialsProvider();
-            Credentials credentials =
-                    new UsernamePasswordCredentials(this.getUser(), this.getPassword());
-            credsProvider.setCredentials(AuthScope.ANY, credentials);
-            HttpClient httpclient = HttpClients.custom()
-                    .setDefaultCredentialsProvider(credsProvider)
-                    .build();
-            HttpOp.setDefaultHttpClient(httpclient);
-
-            VirtGraph virtGraph = new VirtGraph(getGraph(), "jdbc:virtuoso://127.0.0.1:1111", getUser(), getPassword());
+            VirtGraph virtGraph = new VirtGraph(getGraph(), getHostUrl(jdbcPort), getUser(), getPassword());
 
             try {
                 virtGraph.getTransactionHandler().begin(ReadWrite.WRITE);
@@ -201,6 +183,13 @@ public class SPARQLEndpointService extends SPARQLService {
             ids.forEach(input::add);
         }
         return new ArrayList<>(input);
+    }
+
+    private static final String JDBC_VIRTUOSO = "jdbc:virtuoso://";
+
+    private String getHostUrl(String jdbcPort) {
+        String partialFormattedHostNamePort = getUrl().replace("http://", "").replace("https://", "");
+        return String.join("", JDBC_VIRTUOSO, partialFormattedHostNamePort.substring(0, partialFormattedHostNamePort.indexOf(":") + 1), jdbcPort);
     }
 
     @Override
