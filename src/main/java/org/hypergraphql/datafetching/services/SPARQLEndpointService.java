@@ -1,5 +1,6 @@
 package org.hypergraphql.datafetching.services;
 
+import graphql.language.StringValue;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.Credentials;
 import org.apache.http.auth.UsernamePasswordCredentials;
@@ -7,8 +8,9 @@ import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.HttpClient;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.HttpClients;
-import org.apache.jena.riot.WebContent;
+import org.apache.jena.query.ReadWrite;
 import org.apache.jena.riot.web.HttpOp;
+import org.apache.jena.shared.JenaException;
 import org.hypergraphql.config.schema.HGQLVocabulary;
 import org.hypergraphql.config.system.ServiceConfig;
 import org.hypergraphql.datafetching.ExecutionTreeNode;
@@ -17,11 +19,13 @@ import org.hypergraphql.datafetching.SPARQLExecutionResult;
 import org.hypergraphql.datafetching.TreeExecutionResult;
 import org.hypergraphql.datafetching.services.resultmodel.Result;
 import org.hypergraphql.datamodel.HGQLSchema;
-import org.hypergraphql.query.converters.SPARQLServiceConverter;
+import org.hypergraphql.mutation.MutationAction;
+import org.hypergraphql.mutation.SPARQLMutationValue;
 import org.hypergraphql.query.pattern.Query;
 import org.hypergraphql.query.pattern.QueryPattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import virtuoso.jena.driver.*;
 
 import java.util.*;
 import java.util.concurrent.ExecutionException;
@@ -106,7 +110,7 @@ public class SPARQLEndpointService extends SPARQLService {
      * @param update SPARQL Update
      * @return True if the update succeeds otherwise False
      */
-    public Boolean executeUpdate(String update) {
+    public Boolean executeUpdate(SPARQLMutationValue update) {
         try {
             CredentialsProvider credsProvider = new BasicCredentialsProvider();
             Credentials credentials =
@@ -117,7 +121,27 @@ public class SPARQLEndpointService extends SPARQLService {
                     .build();
             HttpOp.setDefaultHttpClient(httpclient);
 
-            HttpOp.execHttpPost(getUrl() + "/update", WebContent.contentTypeSPARQLUpdate, update, null, null);
+            VirtGraph virtGraph = new VirtGraph(getGraph(), "jdbc:virtuoso://127.0.0.1:1111", getUser(), getPassword());
+
+            try {
+                virtGraph.getTransactionHandler().begin(ReadWrite.WRITE);
+                virtGraph.getTransactionHandler().setIsolationLevel(VirtIsolationLevel.REPEATABLE_READ);
+
+                if (update.getMutationAction() == MutationAction.INSERT) {
+                    String askQuery = String.format("ASK  { <%s> ?b  ?c }", update.getId().getValue());
+                    VirtuosoQueryExecution queryExecution = VirtuosoQueryExecutionFactory.create(askQuery, virtGraph);
+                    if (queryExecution.execAsk()) {
+                        throw new JenaException("The ID was already used by another execution, retrieve mutation creation from the beginning.");
+                    }
+                }
+
+                VirtuosoUpdateRequest updateRequest = VirtuosoUpdateFactory.create(update.getTranslatedMutation(), virtGraph);
+                updateRequest.exec();
+                virtGraph.getTransactionHandler().commit();
+            } catch (JenaException jenaException) {
+                virtGraph.getTransactionHandler().abort();
+                return null;
+            }
             return true;
         } catch (Exception e) {
             e.printStackTrace();

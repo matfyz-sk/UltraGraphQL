@@ -40,6 +40,11 @@ ext {
 }
 dependencies {
 
+    /* The transactions libraries are not officially release and must be downloaded from the virtuoso webpage
+    and placed into the project  */
+    implementation files('lib/virtjdbc4_3.jar')
+    implementation files('lib/virt_jena4.jar')
+
     implementation 'com.graphql-java:graphql-java:20.2'
     implementation 'com.graphql-java:graphql-java-extended-scalars:20.2'
 

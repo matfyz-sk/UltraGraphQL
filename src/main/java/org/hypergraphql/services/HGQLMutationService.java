@@ -35,6 +35,8 @@ public class HGQLMutationService {
     private final GraphQL graphql;
     private final HGQLConfig config;
 
+    private static final int MAX_RETRY_COUNT = 10;
+
     public HGQLMutationService(HGQLConfig config) {
         this.config = config;
         this.hgqlSchema = config.getHgqlSchema();
@@ -44,7 +46,7 @@ public class HGQLMutationService {
         this.graphql = GraphQL.newGraphQL(config.getSchema()).build();
     }
 
-    public Map<String, Object> results(String request, String acceptType, ValidatedQuery validatedQuery) {
+    public Map<String, Object> results(String request, String acceptType, ValidatedQuery validatedQuery, int retryCount) {
 
         SelectionSet selectionSet = ExecutionForestFactory.selectionSet(validatedQuery.getParsedQuery());
 
@@ -68,7 +70,15 @@ public class HGQLMutationService {
         if (service instanceof LocalModelSPARQLService) {
             ((LocalModelSPARQLService) service).executeUpdate(mutationValue.getTranslatedMutation());
         } else if (service instanceof SPARQLEndpointService) {
-            ((SPARQLEndpointService) service).executeUpdate(mutationValue.getTranslatedMutation());
+            Boolean isPerformed = ((SPARQLEndpointService) service).executeUpdate(mutationValue);
+
+            /* If the transaction fails - is null, generate new request with new ID */
+            if (isPerformed == null) {
+                if (retryCount + 1 > MAX_RETRY_COUNT) {
+                    throw new IllegalArgumentException("The mutation could not be performed. " + request);
+                }
+                return results(request, acceptType, validatedQuery, retryCount + 1);
+            }
         }
 
         mutationFields.add(Field.newField()
