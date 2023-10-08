@@ -27,6 +27,7 @@ import static org.hypergraphql.util.GlobalValues.*;
 public class SPARQLServiceConverter {
 
     private static final String RDF_TYPE_URI = "<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>";
+    private static final String RDFS_SUB_CLASS_OF_WITH_ASTERISK = "<http://www.w3.org/2000/01/rdf-schema#subClassOf>*";
     private static final String NAME = "name";
     private static final String URIS = "uris";
     private static final String NODE_ID = "nodeId";
@@ -34,6 +35,7 @@ public class SPARQLServiceConverter {
     private static final String PARENT_ID = "parentId";
     private static final String FIELDS = "fields";
     private static final String SAMEAS = "sameas";
+    private static final String TYPE_SUFFIX_QUERY_BUILDER = "_t";
 
     public static final String ARGS = "args";
     public static final String LANG = "lang";
@@ -75,6 +77,19 @@ public class SPARQLServiceConverter {
      */
     public static String filterNotExists(String sparqlPattern) {
         return " FILTER NOT EXISTS { " + sparqlPattern + " } ";
+    }
+
+    /**
+     * Wraps the SPARQL FILTER NOT EXISTS clause around the given sparqlPattern.
+     *
+     * @param triplesType The triple(s) in EXISTS part
+     * @return SPARQL FILTER EXISTS clause
+     */
+    private String filterExists(String triplesType) {
+        if (triplesType.isEmpty()) {
+            return "";
+        }
+        return " FILTER ( EXISTS {" + triplesType + "}) ";
     }
 
     /**
@@ -356,9 +371,19 @@ public class SPARQLServiceConverter {
      * @return
      */
     private String fieldPattern(String parentId, String nodeId, String predicateURI, String typeURI) {
-        String predicateTriple = (parentId.equals("")) ? "" : toTriple(toVar(parentId), predicateURI, toVar(nodeId));  // parentId == "" : "" | "?parentId <predicateURI> ?nodeId."
-        String typeTriple = (typeURI.equals("")) ? "" : toTriple(toVar(nodeId), RDF_TYPE_URI, typeURI);   // typeURI == "" : "" | "?nodeId rdf:type <typeURI>."
+        String predicateTriple = (parentId.isEmpty()) ? "" : toTriple(toVar(parentId), predicateURI, toVar(nodeId));  // parentId == "" : "" | "?parentId <predicateURI> ?nodeId."
+        String typeTriple = filterWithSubclassOf(typeURI, nodeId);
         return predicateTriple + typeTriple;
+    }
+
+    private String filterWithSubclassOf(String typeURI, String nodeId) {
+        if (typeURI == null || typeURI.isEmpty()) {
+            return "";
+        }
+        String nodeIdType = toVar(nodeId) + TYPE_SUFFIX_QUERY_BUILDER;
+        String typeTriple = toTriple(toVar(nodeId), RDF_TYPE_URI, nodeIdType);
+        String typeSubClassOfTriple = toTriple(nodeIdType, RDFS_SUB_CLASS_OF_WITH_ASTERISK, typeURI);
+        return filterExists(typeTriple + " " + typeSubClassOfTriple);
     }
 
     /**
