@@ -383,7 +383,7 @@ public class SPARQLServiceConverter {
         String nodeIdType = toVar(nodeId) + TYPE_SUFFIX_QUERY_BUILDER;
         String typeTriple = toTriple(toVar(nodeId), RDF_TYPE_URI, nodeIdType);
         String typeSubClassOfTriple = toTriple(nodeIdType, RDFS_SUB_CLASS_OF_WITH_ASTERISK, typeURI);
-        return filterExists(typeTriple + " " + typeSubClassOfTriple);
+        return String.join("\n", typeTriple, typeSubClassOfTriple);
     }
 
     /**
