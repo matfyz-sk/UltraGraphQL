@@ -409,7 +409,7 @@ public class HGQLSchemaWiring {
 
 
     private boolean isListType(FieldOfTypeConfig fieldOfTypeConfig) {
-        return fieldOfTypeConfig != null && fieldOfTypeConfig.getGraphqlOutputType() instanceof GraphQLList;
+        return fieldOfTypeConfig != null && (fieldOfTypeConfig.isList() || fieldOfTypeConfig.getGraphqlOutputType() instanceof GraphQLList);
     }
 
     private GraphQLInputType getInputTypeForObject(FieldOfTypeConfig fieldOfTypeConfig, MutationAction mutationAction) {
