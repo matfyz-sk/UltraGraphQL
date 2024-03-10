@@ -109,13 +109,13 @@ public class SPARQLEndpointService extends SPARQLService {
                 virtGraph.getTransactionHandler().begin(ReadWrite.WRITE);
                 virtGraph.getTransactionHandler().setIsolationLevel(VirtIsolationLevel.REPEATABLE_READ);
 
-                if (update.getMutationAction() == MutationAction.INSERT) {
-                    String askQuery = String.format("ASK  { <%s> ?b  ?c }", update.getId().getValue());
-                    VirtuosoQueryExecution queryExecution = VirtuosoQueryExecutionFactory.create(askQuery, virtGraph);
-                    if (queryExecution.execAsk()) {
-                        throw new JenaException("The ID was already used by another execution, retrieve mutation creation from the beginning.");
-                    }
-                }
+//                if (update.getMutationAction() == MutationAction.INSERT) {
+//                    String askQuery = String.format("ASK  { <%s> ?b  ?c }", update.getId().getValue());
+//                    VirtuosoQueryExecution queryExecution = VirtuosoQueryExecutionFactory.create(askQuery, virtGraph);
+//                    if (queryExecution.execAsk()) {
+//                        throw new JenaException("The ID was already used by another execution, retrieve mutation creation from the beginning.");
+//                    }
+//                }
 
                 VirtuosoUpdateRequest updateRequest = VirtuosoUpdateFactory.create(update.getTranslatedMutation(), virtGraph);
                 updateRequest.exec();
